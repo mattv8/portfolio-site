@@ -1,0 +1,66 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* Hex Variables */
+:root {
+	--hex_background: #75746f;
+	--hex_width: 104px; /* ratio for border width:height is 30:52 or 0.5769 */
+	--hex_spacing: 4px;
+}
+
+p.hextext {
+	color: #fff;
+	font-size: 18px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.hex::before { /*top triangle */
+    content: " ";
+    width: 0; height: 0;
+    border-bottom: calc((var(--hex_width)/2)*0.5769) solid var(--hex_background);
+    border-left: calc(var(--hex_width)/2) solid transparent;
+    border-right: calc(var(--hex_width)/2) solid transparent;
+    position: absolute;
+    top: calc((var(--hex_width)/2)*-0.5769);
+}
+
+.hex { /*center square */
+	float: left;
+	margin-right: var(--hex_spacing); /* right border */
+	margin-top: calc((var(--hex_width)/2)*0.5769);
+	margin-bottom: var(--hex_spacing); /* bottom border */
+	width: var(--hex_width); /* overall hex width */
+	height: calc((var(--hex_width)/2)*0.5769*2); /* may need to tweak the math here */
+	background-color: var(--hex_background);
+	position: relative;
+}
+
+.hex::after { /*bottom triangle */
+    content: "";
+    width: 0;
+    position: absolute;
+    bottom: calc((var(--hex_width)/2)*-0.5769);
+    border-top: calc((var(--hex_width)/2)*0.5769) solid var(--hex_background);
+    border-left: calc(var(--hex_width)/2) solid transparent;
+    border-right: calc(var(--hex_width)/2) solid transparent;
+}
+
+/* Hovering colors */
+.hex:hover::before {
+	border-bottom: calc((var(--hex_width)/2)*0.5769) solid #428cf4;
+}
+.hex:hover {
+	background-color: #428cf4;
+}
+.hex:hover::after{
+	border-top: calc((var(--hex_width)/2)*0.5769) solid #428cf4;
+}
+
+/* Tile alignment */
+.hex-row {
+    clear: left; /*reset*/
+}
+.hex-row.staggered {
+    margin-left: calc((var(--hex_width)/2) + (var(--hex_spacing)/2));
+}
