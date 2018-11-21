@@ -1,0 +1,11 @@
+    stages:
+     - deploy
+     
+    pages:
+     stage: deploy
+     script:
+     - if [ -z "$webroot" ]; then echo "Need to set webroot" && exit 1; fi
+     - sudo rsync -rv ./ $webroot --exclude '.git' --exclude '.gitlab-ci.yml' --exclude '.gitignore' --delete
+     - sudo chown admin:admin $webroot -R
+     only:
+     - master
