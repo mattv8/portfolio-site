@@ -1,12 +1,11 @@
 @charset "utf-8";
 /* CSS Document */
 
-/* Global Variables */
-:root {
-	
+/*--------------DIVS--------------*/
+* {
+    box-sizing: border-box;
 }
 
-/*--------------DIVS--------------*/
 #logo {
     height: 50px;
     /*background-image: url(pix/logo.png);*/
@@ -15,25 +14,49 @@
 }
 
 #bio {
-    width: calc(100% - (var(--hex_width)+var(--hex_spacing))*4);
-    float: left;
+    width: calc(100% - (var(--hex_width) + var(--hex_spacing)) * 4);
+	padding: 0 10px 0 0;
 }
 
 #hexagons { /* Positioning div for hexagons */
-    width: calc((var(--hex_width)+var(--hex_spacing))*4);
+    width: calc((var(--hex_width) + var(--hex_spacing)) * 4);
+	height: calc(var(--hex_height)*5);
+	padding: 0 0 0 10px;
     float: right;
 }
 
 #page_margins {
-    margin-top: 20px;
+    content: "";
+    display: table;
+    clear: both;
+	margin-top: 50px;
 	margin-left: 10%;
 	margin-right: 10%;
-    position: relative;
 }
+
 #page_margins:after {
     content: "";
     display: table;
     clear: both;
+}
+
+/*--------------RESPONSIVE DIVS--------------*/
+@media screen and (max-width: 1000px) {
+    #hexagons, #bio {
+        width: 100%;
+		float: none;
+    }
+	
+	#page_margins {
+    float: left;
+	margin-top: 50px;
+	margin-left: 0%;
+	margin-right: 0%;
+	}
+	
+	:root {
+		--hex_width: 200px;
+	}
 }
 
 /*--------------TYPOGRAPHY--------------*/
