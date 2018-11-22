@@ -6,6 +6,7 @@
 	
 }
 
+/*--------------DIVS--------------*/
 #logo {
     width: 300px;
     height: 50px;
@@ -34,7 +35,7 @@
 }
 
 #hexagons { /* Positioning div for hexagons */
-    width: 35%;
+    width: calc((var(--hex_width)+var(--hex_spacing)*3));
     float: right;
     margin: 107px 0px 0px 0px;
     padding: 1px 0px 0px 0px;
@@ -46,3 +47,16 @@
     position: relative;
     z-index: 2;
 }
+
+/*--------------TYPOGRAPHY--------------*/
+p.hextext {
+	color: #fff;
+	font-size: 18px;
+	text-transform: uppercase;
+	text-align: center;
+	font-family: 'Noto Sans SC', sans-serif;
+}
+
+
+
+
