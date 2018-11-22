@@ -8,44 +8,32 @@
 
 /*--------------DIVS--------------*/
 #logo {
-    width: 300px;
     height: 50px;
     /*background-image: url(pix/logo.png);*/
     /*background-position: 0px 0px;*/
     /*background-repeat: no-repeat;*/
-    position: absolute;
-    top: 120px;
-    left: 0px;
-    z-index: 5;
 }
 
 #bio {
-    width: 530px;
-    height: 480px;
-    position: relative;
-    margin: 215px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
+    width: calc(100% - (var(--hex_width)+var(--hex_spacing))*4);
     float: left;
-    text-align: left;
-    font-size: 14px;
-    color: #231f20;
-    line-height: 160%;
-    font-family: "Trebuchet MS", "Geneva CE", lucida, sans-serif;
-    background: url(pix/index.png) 0px 50px no-repeat transparent;
 }
 
 #hexagons { /* Positioning div for hexagons */
     width: calc((var(--hex_width)+var(--hex_spacing))*4);
     float: right;
-    margin: 107px 0px 0px 0px;
-    padding: 1px 0px 0px 0px;
 }
 
 #page_margins {
-    width: 75%;
-    margin: auto;
+    margin-top: 20px;
+	margin-left: 10%;
+	margin-right: 10%;
     position: relative;
-    z-index: 2;
+}
+#page_margins:after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 /*--------------TYPOGRAPHY--------------*/
