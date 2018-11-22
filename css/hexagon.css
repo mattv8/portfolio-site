@@ -4,7 +4,7 @@
 /* Hex Variables */
 :root {
 	--hex_background: #75746f;
-	--hex_width: 104px; /* ratio for border width:height is 30:52 or 0.5769 */
+	--hex_width: 125px; /* ratio for border width:height is 30:52 or 0.5769 */
 	--hex_spacing: 4px;
 	--hex_height: calc(((var(--hex_width)/2)*0.5769)*4);
 }

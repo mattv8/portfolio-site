@@ -29,7 +29,7 @@
     content: "";
     display: table;
     clear: both;
-	margin-top: 50px;
+	margin-top: 10px;
 	margin-left: 10%;
 	margin-right: 10%;
 }
@@ -42,22 +42,30 @@
 
 /*--------------RESPONSIVE DIVS--------------*/
 @media screen and (max-width: 1000px) {
-    #hexagons, #bio {
+	
+	:root {
+		--hex_width: 260px;
+	}
+	
+	#hexagons, #bio {
         width: 100%;
 		float: none;
     }
 	
 	#page_margins {
-    float: left;
-	margin-top: 50px;
-	margin-left: 0%;
-	margin-right: 0%;
+		float: left;
+		margin-top: 50px;
+		margin-left: 0%;
+		margin-right: 0%;
 	}
 	
-	:root {
-		--hex_width: 200px;
+	#logo {
+		position: sticky;
+		top: 0;
+		width: 100%;
 	}
-}
+
+}/*end responsive divs*/
 
 /*--------------TYPOGRAPHY--------------*/
 p.hextext {
