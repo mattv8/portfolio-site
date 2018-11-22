@@ -14,15 +14,14 @@
 }
 
 #bio {
-    width: calc(100% - (var(--hex_width) + var(--hex_spacing)) * 4);
-	padding: 0 10px 0 0;
+    width: calc(100% - (var(--hex_width) + var(--hex_spacing)) * 3);
 }
 
 #hexagons { /* Positioning div for hexagons */
-    width: calc((var(--hex_width) + var(--hex_spacing)) * 4);
-	height: calc(var(--hex_height)*5);
-	padding: 0 0 0 10px;
+    width: calc((var(--hex_width) + var(--hex_spacing)) * 3 + 40px); /*add in padding*/
+	height: calc(var(--hex_height) * 5);
     float: right;
+	padding-left: 40px;
 }
 
 #page_margins {
