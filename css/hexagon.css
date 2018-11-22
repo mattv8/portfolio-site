@@ -8,13 +8,6 @@
 	--hex_spacing: 4px;
 }
 
-p.hextext {
-	color: #fff;
-	font-size: 18px;
-	text-transform: uppercase;
-	text-align: center;
-}
-
 .hex::before { /*top triangle */
     content: " ";
     width: 0; height: 0;

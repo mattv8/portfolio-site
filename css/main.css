@@ -35,7 +35,7 @@
 }
 
 #hexagons { /* Positioning div for hexagons */
-    width: calc((var(--hex_width)+var(--hex_spacing)*3));
+    width: calc((var(--hex_width)+var(--hex_spacing))*4);
     float: right;
     margin: 107px 0px 0px 0px;
     padding: 1px 0px 0px 0px;
