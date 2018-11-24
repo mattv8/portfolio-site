@@ -6,6 +6,7 @@
 	--hex_height: 300px; /* ratio for border width:height is 52:30 or 1.7333 */
 	--hex_spacing: 8px;
 	--hex_width: calc(var(--hex_height) * 0.5769);
+	--animation: 0.5s;
 }
 
 /* Nex Hex */
@@ -21,8 +22,8 @@
 	visibility: hidden;
 	width: var(--hex_width);
 	height: var(--hex_height);
-	-webkit-transition: width 1s, height 1s, margin 1s; /* For Safari 3.1 to 6.0 */
-    transition: width 1s, height 1s, margin 1s;
+	-webkit-transition: width var(--animation), height var(--animation), margin var(--animation); /* For Safari 3.1 to 6.0 */
+    transition: width var(--animation), height var(--animation), margin var(--animation);
 }
 
 .hexagon:hover {
@@ -58,6 +59,12 @@
   visibility: visible;
   height: var(--hex_height);
   width: var(--hex_width);
+  -webkit-transition: width var(--animation), height var(--animation), margin var(--animation); /* For Safari 3.1 to 6.0 */
+  transition: width var(--animation), height var(--animation), margin var(--animation);
+}
+.hextext:hover {
+  height: calc(var(--hex_height)*1.10);
+  width: calc(var(--hex_width)*1.10);
 }
 .hextext.base {
   background: rgba(230, 0, 98, 0.75);
@@ -79,8 +86,13 @@
 .hex-row {
     clear: left;
 	height: calc(var(--hex_height) - var(--hex_height)*.32);
+	-webkit-transition: height var(--animation); /* For Safari 3.1 to 6.0 */
+    transition: height var(--animation);
 	margin-bottom: calc(var(--hex_height)*-.14);
 	overflow: hidden;
+}
+.hex-row:hover {
+	height: calc(var(--hex_height)*1.10 - var(--hex_height)*.32);
 }
 .hex-row.skip-half {
     margin-left: calc((var(--hex_width)/2) + (var(--hex_spacing)));
