@@ -1,60 +1,95 @@
 @charset "utf-8";
+@import url(https://fonts.googleapis.com/css?family=Lato:300);
 /* CSS Document */
 
 /* Hex Variables */
 :root {
-	--hex_background: #75746f;
-	--hex_width: 125px; /* ratio for border width:height is 30:52 or 0.5769 */
+	--hex_width: 125px; /* ratio for border width:height is 52:30 or 1.7333 */
 	--hex_spacing: 4px;
-	--hex_height: calc(((var(--hex_width)/2)*0.5769)*4);
+	--hex_height: calc(var(--hex_width)*1.7333);
 }
 
-.hex::before { /*top triangle */
-    content: " ";
-    width: 0; height: 0;
-    border-bottom: calc((var(--hex_width)/2)*0.5769) solid var(--hex_background);
-    border-left: calc(var(--hex_width)/2) solid transparent;
-    border-right: calc(var(--hex_width)/2) solid transparent;
-    position: absolute;
-    top: calc((var(--hex_width)/2)*-0.5769);
+/* Nex Hex */
+.hexagon {
+  -moz-transform: rotate(120deg);
+  -ms-transform: rotate(120deg);
+  -webkit-transform: rotate(120deg);
+  transform: rotate(120deg);
+  cursor: pointer;
+  overflow: hidden;
+  visibility: hidden;
+  width: var(--hex_width);
+  height: var(--hex_height);
 }
 
-.hex { /*center square */
-	float: left;
-	margin-right: var(--hex_spacing); /* right border */
-	margin-top: calc((var(--hex_width)/2)*0.5769);
-	margin-bottom: var(--hex_spacing); /* bottom border */
-	width: var(--hex_width); /* overall hex width */
-	height: calc((var(--hex_width)/2)*0.5769*2); /* may need to tweak the math here */
-	background-color: var(--hex_background);
-	position: relative;
+.hex1 {
+  -moz-transform: rotate(-60deg);
+  -ms-transform: rotate(-60deg);
+  -webkit-transform: rotate(-60deg);
+  transform: rotate(-60deg);
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
 }
 
-.hex::after { /*bottom triangle */
-    content: "";
-    width: 0;
-    position: absolute;
-    bottom: calc((var(--hex_width)/2)*-0.5769);
-    border-top: calc((var(--hex_width)/2)*0.5769) solid var(--hex_background);
-    border-left: calc(var(--hex_width)/2) solid transparent;
-    border-right: calc(var(--hex_width)/2) solid transparent;
+.hex2 {
+  -moz-transform: rotate(-60deg);
+  -ms-transform: rotate(-60deg);
+  -webkit-transform: rotate(-60deg);
+  transform: rotate(-60deg);
+  height: 100%;
+  position: relative;
+  visibility: visible;
+  width: 100%;
 }
 
-/* Hovering colors */
-.hex:hover::before {
-	border-bottom: calc((var(--hex_width)/2)*0.5769) solid #428cf4;
+.center {
+  float: left;
+  margin: var(--hex_spacing) var(--hex_spacing);
+  width: var(--hex_width);
 }
-.hex:hover {
-	background-color: #428cf4;
+
+.hextext {
+  color: white;
+  font-family: 'Lato', sans-serif;
+  font-size: 1.0em;
+  font-weight: 600;
+  line-height: 1.5em;
+  position: absolute;
+  text-align: center;
+  text-transform: uppercase;
+  visibility: visible;
+  height: calc(var(--hex_width)*1.7333);
+  width: var(--hex_width);
 }
-.hex:hover::after{
-	border-top: calc((var(--hex_width)/2)*0.5769) solid #428cf4;
+.hextext.base {
+  background: rgba(230, 0, 98, 0.75);
+}
+.hextext.one {
+  background: rgba(252, 171, 55, 0.75);
+}
+.hextext.two {
+  background: rgba(169, 160, 50, 0.75);
+}
+.hextext.three {
+  background: rgba(83, 70, 54, 0.75);
+}
+.hextext p {
+  margin: 55% 10% 0 10%;
 }
 
 /* Tile alignment */
 .hex-row {
-    clear: left; /*reset*/
+    clear: left;
+	margin: 0 auto calc(var(--hex_height)/-2) auto;
+	overflow: hidden;
 }
-.hex-row.staggered {
-    margin-left: calc((var(--hex_width)/2) + (var(--hex_spacing)/2));
+.hex-row.skip-half {
+    margin-left: calc((var(--hex_width)/2) + (var(--hex_spacing)));
+}
+.hex-row.skip-one {
+	margin-left: calc(var(--hex_width) + var(--hex_spacing)*2);
+}
+.hex-row.skip-two {
+	margin-left: calc(var(--hex_width)*2 + var(--hex_spacing)*4);
 }

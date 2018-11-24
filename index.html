@@ -3,9 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<title>Landing Page</title>
-	<link href="/css/hexagon.css" rel="stylesheet" type="text/css">
-	<link href="/css/main.css" rel="stylesheet" type="text/css">
-	<link href="https://fonts.googleapis.com/css?family=Noto+Sans+SC" rel="stylesheet"> 
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" type="text/css">
+	<link rel="stylesheet" href="/css/hexagon.css" type="text/css">
+	<link rel="stylesheet" href="/css/main.css" type="text/css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC" type="text/css"> 
 </head>
 
 <body>
@@ -13,28 +14,83 @@
 	<div id="page_margins">
 				
 		<div id="hexagons">
-			<div class="hex-row"><!–– first row -->
-				<a href="#" class="hex" style="margin-left: calc((var(--hex_width) + var(--hex_spacing))*2);"></a>
-			</div>
-			<div class="hex-row staggered"><!–– second row -->
-				<a href="#" class="hex"></a>
-				<a href="#" class="hex"></a>
-			</div>
+			
+			<div class="hex-row skip-half"><!–– second row -->
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon--> 
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon--> 
+			</div><!–– end second row -->
+			
 			<div class="hex-row"><!–– third row -->
-				<a href="#" class="hex"><p class="hextext"></p></a>
-				<a href="#" class="hex" style="margin-left: calc((var(--hex_width) + var(--hex_spacing)));"></a>
-			</div>
-			<div class="hex-row staggered"><!–– fourth row -->
-				<a href="#" class="hex"></a>
-				<a href="#" class="hex"></a>
-			</div>
-			<div class="hex-row"><!–– fifth row -->
-				<a href="#" class="hex"></a>
-			</div>
-			<div class="hex-row staggered"><!–– sixth row -->
-				<a href="#" class="hex"></a>
-			</div>
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon-->
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon-->
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon--> 
+			</div><!–– end third row -->	
+			
+			<div class="hex-row skip-half"><!–– fourth row -->
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon--> 
+				<div class="center"><div class="hexagon">
+					<div class="hex1">
+							<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat">
+							<div class="hextext">
+							<p>Welcome this is an epic title</p>
+							</div><!--/hextext-->
+						</div><!--/hex2--> 
+					</div><!--/hex1-->
+				</div></div><!--/center, /hexagon--> 
+			</div><!–– end fourth row -->			
+		
 		</div><!–– end hexagons -->
+		
+	  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+   	  <script  src="js/hex_animation.js"></script>
 		
 		<div id="bio">
 			
