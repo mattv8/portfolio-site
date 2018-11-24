@@ -18,7 +18,8 @@
 }
 
 #hexagons { /* Positioning div for hexagons */
-    width: calc((var(--hex_width) + var(--hex_spacing)*2) * 3 + 40px); /*add in padding*/
+	transform: perspective(600px) rotateX(60deg);
+	width: calc((var(--hex_width) + var(--hex_spacing)*2) * 3 + 40px); /*add in padding*/
 	height: calc(var(--hex_height) * 2);
     float: right;
 	padding-left: 40px;
