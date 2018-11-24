@@ -6,6 +6,10 @@
     box-sizing: border-box;
 }
 
+#body {
+	background-color: black;
+}
+
 #logo {
     height: 50px;
     /*background-image: url(pix/logo.png);*/
