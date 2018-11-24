@@ -29,7 +29,7 @@
     content: "";
     display: table;
     clear: both;
-	margin-top: 10px;
+	margin-top: 25px;
 	margin-left: 10%;
 	margin-right: 10%;
 }
@@ -41,7 +41,7 @@
 }
 
 /*--------------RESPONSIVE DIVS--------------*/
-@media screen and (max-width: 1000px) {
+/*@media screen and (max-width: 1000px) {
 	
 	:root {
 		--hex_width: 260px;
