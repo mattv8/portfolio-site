@@ -21,6 +21,14 @@
 	visibility: hidden;
 	width: var(--hex_width);
 	height: var(--hex_height);
+	-webkit-transition: width 1s, height 1s, margin 1s; /* For Safari 3.1 to 6.0 */
+    transition: width 1s, height 1s, margin 1s;
+}
+
+.hexagon:hover {
+	width: calc(var(--hex_width)*1.10);
+	height: calc(var(--hex_height)*1.10);
+	margin: 0 0;
 }
 
 .hex1, .hex2 {
