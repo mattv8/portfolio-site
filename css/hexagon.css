@@ -84,10 +84,11 @@
 
 /* Tile alignment */
 .hex-row {
-    clear: left;
-	height: calc(var(--hex_height) - var(--hex_height)*.32);
-	-webkit-transition: height var(--animation); /* For Safari 3.1 to 6.0 */
+    -webkit-transition: height var(--animation); /* For Safari 3.1 to 6.0 */
     transition: height var(--animation);
+	clear: left;
+	height: calc(var(--hex_height) - var(--hex_height)*.32);
+	width: auto;
 	margin-bottom: calc(var(--hex_height)*-.14);
 	overflow: hidden;
 }
