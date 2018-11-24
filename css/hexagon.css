@@ -51,36 +51,28 @@
 /*--------------Hex Text--------------*/
 .hextext {
 	color: white;
-	font-family: 'Lato', sans-serif;
+	font-family: 'Nato', sans-serif;
 	font-size: 1.0em;
 	font-weight: 600;
 	line-height: 1.5em;
-	position: absolute;
+	position: absolute; /* Necessary for text div alignment */
 	text-align: center;
 	text-transform: uppercase;
-	visibility: visible;
 	/* Div */
+	-moz-transform: translateY(calc(var(--hex_height)*.10));
+	-ms-transform: translateY(calc(var(--hex_height)*.10));
+	-webkit-transform: translateY(calc(var(--hex_height)*-.16));
+	transform: translateY(calc(var(--hex_height)*.10));
 	height: var(--hex_height);
 	width: var(--hex_width);
 	/* Hover animations */
-	-webkit-transition: width var(--animation), height var(--animation); /* For Safari 3.1 to 6.0 */
-	transition: width var(--animation), height var(--animation);
+	-webkit-transition: width var(--animation), height var(--animation), background var(--animation); /* For Safari 3.1 to 6.0 */
+	transition: width var(--animation), height var(--animation), background var(--animation);
 }
 .hextext:hover { /* Hover animations */
-  height: calc(var(--hex_height)*1.10);
-  width: calc(var(--hex_width)*1.10);
-}
-.hextext.base {
-  background: rgba(230, 0, 98, 0.75);
-}
-.hextext.one {
-  background: rgba(252, 171, 55, 0.75);
-}
-.hextext.two {
-  background: rgba(169, 160, 50, 0.75);
-}
-.hextext.three {
-  background: rgba(83, 70, 54, 0.75);
+	height: calc(var(--hex_height)*1.10);
+	width: calc(var(--hex_width)*1.10);
+	background: rgba(230, 0, 98, 0.75); /* Default BG color */
 }
 .hextext p {
   margin: 55% 10% 0 10%;
