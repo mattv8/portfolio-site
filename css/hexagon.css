@@ -4,25 +4,27 @@
 
 /* Hex Variables */
 :root {
-	--hex_width: 160px; /* ratio for border width:height is 52:30 or 1.7333 */
-	--hex_spacing: 4px;
-	--hex_height: calc(var(--hex_width)*1.7333);
+	--hex_height: 300px; /* ratio for border width:height is 52:30 or 1.7333 */
+	--hex_spacing: 8px;
+	--hex_width: calc(var(--hex_height) * 0.5769);
 }
 
 /* Nex Hex */
 .hexagon {
-  -moz-transform: rotate(120deg);
-  -ms-transform: rotate(120deg);
-  -webkit-transform: rotate(120deg);
-  transform: rotate(120deg);
-  cursor: pointer;
-  overflow: hidden;
-  visibility: hidden;
-  width: var(--hex_width);
-  height: var(--hex_height);
+	-moz-transform: translateY(calc(var(--hex_height)*-.16)) rotate(120deg);
+	-ms-transform: translateY(calc(var(--hex_height)*-.16)) rotate(120deg);
+	-webkit-transform: translateY(calc(var(--hex_height)*-.16)) rotate(120deg);
+	transform: translateY(calc(var(--hex_height)*-.16)) rotate(120deg);
+	margin: 0 var(--hex_spacing);
+	cursor: pointer;
+	float: left;
+	overflow: hidden;
+	visibility: hidden;
+	width: var(--hex_width);
+	height: var(--hex_height);
 }
 
-.hex1 {
+.hex1, .hex2 {
   -moz-transform: rotate(-60deg);
   -ms-transform: rotate(-60deg);
   -webkit-transform: rotate(-60deg);
@@ -33,20 +35,8 @@
 }
 
 .hex2 {
-  -moz-transform: rotate(-60deg);
-  -ms-transform: rotate(-60deg);
-  -webkit-transform: rotate(-60deg);
-  transform: rotate(-60deg);
-  height: 100%;
   position: relative;
   visibility: visible;
-  width: 100%;
-}
-
-.center {
-  float: left;
-  margin: var(--hex_spacing) var(--hex_spacing);
-  width: var(--hex_width);
 }
 
 .hextext {
@@ -59,7 +49,7 @@
   text-align: center;
   text-transform: uppercase;
   visibility: visible;
-  height: calc(var(--hex_width)*1.7333);
+  height: var(--hex_height);
   width: var(--hex_width);
 }
 .hextext.base {
@@ -81,7 +71,8 @@
 /* Tile alignment */
 .hex-row {
     clear: left;
-	margin: 0 auto calc(var(--hex_height)/-2) auto;
+	height: calc(var(--hex_height) - var(--hex_height)*.32);
+	margin-bottom: calc(var(--hex_height)*-.14);
 	overflow: hidden;
 }
 .hex-row.skip-half {
