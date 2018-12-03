@@ -1,85 +1,47 @@
-<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Landing Page</title>
-	<link rel="stylesheet" href="css/hexagon.css" type="text/css">
-	<link rel="stylesheet" href="css/main.css" type="text/css">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC" type="text/css"> 
+	
+	<link rel="stylesheet" type="text/css" href="homeycombs/css/homeycombs.css" />
 </head>
+<body>
+	
+	<!-- Hexagons -->
+	<div class="hexagons">
+		<div class="comb"> <img src="images/1.jpg" /> <span>Programming</span> </div>
+		<div class="comb"> <img src="images/2.jpg" /> <span>Engineering</span>	</div>
+		<div class="comb"> <img src="images/3.jpg" /> <span>Server</span> </div>
+		<div class="comb"> <img src="images/4.jpg" /> <span>Artwork</span> </div>
+		<div class="comb"> <img src="images/logo.png" /> </div>
+		<div class="comb"> <img src="images/5.jpg" /> <span>Film</span> </div>
+		<div class="comb"> </div> <!-- invisible -->
+		<div class="comb"> <img src="images/6.jpg" /> <span>Bio</span> </div>
+		<div class="comb"></div>
+	</div>
+	
+	<!-- Script calls -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="homeycombs/js/jquery.homeycombs.js"></script> 
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.hexagons').hexagons();
+		});
+	</script>
+	<script type="text/javascript">
 
-<body id="body">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-36251023-1']);
+	  _gaq.push(['_setDomainName', 'jqueryscript.net']);
+	  _gaq.push(['_trackPageview']);
 
-	<div id="page_margins">
-				
-		<div id="hexagons">
-			
-			<div class="hex-row skip-half"><!–– second row -->
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat;">
-						<div class="hextext">
-						<p> </p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon--> 
-				
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat;">
-						<div class="hextext">
-						<p> </p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon-->
-				 
-			</div><!–– end second row -->
-			
-			<div class="hex-row"><!–– third row -->
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat;">
-						<div class="hextext">
-						<p> </p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon-->
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: none center no-repeat;">
-						<div class="hextext">
-						<p>Coming Soon.</p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon-->
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat;">
-						<div class="hextext">
-						<p> </p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon-->
-			</div><!–– end third row -->	
-			
-			<div class="hex-row skip-half"><!–– fourth row -->
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat;">
-						<div class="hextext">
-						<p> </p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon-->
-				<div class="hexagon"><div class="hex1">
-					<div class="hex2" style="background: url('http://www.sub5zero.com/wp-content/uploads/2016/08/surfing-1050x525.jpg') center no-repeat;">
-						<div class="hextext">
-						<p> </p>
-						</div><!--/hextext-->
-					</div><!--/hex2--> 
-				</div></div><!--/hex1, /hexagon--> 
-			</div><!–– end fourth row -->			
-		
-		</div><!–– end hexagons -->
-		
-	  <script src='/js/min.js'></script>
-		
-	</div><!–– end page_margins -->
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 
+	</script>
 </body>
 </html>
-
