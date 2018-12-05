@@ -18,10 +18,12 @@ body {
 	height: 100%;
 	width: 100%;
 	background-color: #68B0BE;
-	font-family: sans-serif;
-	color: #000;
 }
+
 .hexagons .inner-text{
+	font-family: 'Bungee', cursive;
+	font-size: 1.5em;
+	color: #000;
 	padding-top: 30%;
 }
 
