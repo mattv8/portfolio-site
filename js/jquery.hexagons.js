@@ -26,18 +26,18 @@
 				// add the 2 other boxes
 				$(element).find('.comb').wrapAll('<div class="hexagons-inner-wrapper"></div>');
                 $wrapper = $(element).find('.hexagons-inner-wrapper');
-                
-				// This currently doesn't work
-				$(element).find('.comb .link').each(function() { // For each image
-					var a = $(this).next('a'); // Find its associated anchor
-					$(this).wrap('<a href="' + a.attr('href') + '"></a>'); // And wrap the image
-				});
-				
+               				
                 $(element).find('.comb').append('<div class="hex_l"></div>');
                 $(element).find('.hex_l').append('<div class="hex_r"></div>');
                 $(element).find('.hex_r').append('<div class="hex_inner"></div>');
 
                 $(element).find('.hex_inner').append('<div class="inner_span"><div class="inner-text"></div></div>');
+				
+				// Hex Links
+				$(element).find('.link .hex_inner').each(function() { // For each image
+					var link = $(this).next('a'); // Find its associated anchor
+					$(this).wrap('<a href="' + link.attr('href') + '" class="link"></a>'); // And wrap the image
+				});
 		                
                 num = 0;
                 $(element).find('.comb').each(function(){
@@ -56,7 +56,7 @@
 					
                 });
                 
-                $(element).find('img, span, a, .inner_span').hide();
+                $(element).find('img, span, .inner_span').hide();
             }
             
             /**
