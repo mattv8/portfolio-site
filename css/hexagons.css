@@ -41,6 +41,10 @@ body {
 	display: inline-block;
 }
 
+.hexagons .comb .link {
+	cursor: pointer;
+}
+
 .hexagons .hex_l,
 .hexagons .hex_r{
 	overflow: hidden;
@@ -82,8 +86,7 @@ body {
   	-o-background-size: cover;
   	background-size: cover;
 	
-	cursor: pointer;
-	
+	/*cursor: pointer;*/
 }
 
 @media (max-width: 1200px) { /* <- 3-2  hexagons per row */
