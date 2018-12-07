@@ -5,11 +5,12 @@
         // Defaults
         var settings = $.extend({
             hexWidth: 250,
-            margin: 10
+            margin: 10,
+			bg_color: '#68B0BE'
         }, options);
 
         function initialise(element) {
-                       
+            			
             var width = 0;
             var hexWidth = 0;
             var hexHeight = 0;
@@ -22,14 +23,13 @@
             function buildHtml(){
 				
 				// add the 2 other boxes
-				$(element).find('.hex').wrapAll('<div class="hexagons-inner-wrapper"></div>');
-                $wrapper = $(element).find('.hexagons-inner-wrapper');
+				//$(element).find('.hex').wrapAll('<div class="hexagons-inner-wrapper"></div>');
+                $wrapper = $(element).find('.hexagons');
                				
                 $(element).find('.hex').append('<div class="hex_l"></div>');
                 $(element).find('.hex_l').append('<div class="hex_r"></div>');
                 $(element).find('.hex_r').append('<div class="hex_inner"></div>');
-
-                $(element).find('.hex_inner').append('<div class="inner_span"><div class="inner-text"></div></div>');
+                $(element).find('.hex_inner').append('<div class="inner-span"><div class="inner-text"></div></div>');
 				
 				// Hex Links
 				$(element).find('.link .hex_inner').each(function() { // For each image
@@ -45,16 +45,16 @@
                     					
 					$(this).find('.hex_inner').attr('style', 'background-image: '+css);
 					                   
-                    // If span is defined
-					if($(this).find('span').length > 0){
-                        $(this).find('.inner_span .inner-text').html($(this).find('span').html());
+					if($(this).find('span').length > 0){ // If span is defined
+                        $(this).find('.inner-span .inner-text').html($(this).find('span').html());
                     }else{
-                        $(this).find('.inner_span').remove();
+                        $(this).find('.inner-span').remove();
                     };
 					
                 });
                 
-                $(element).find('img, span, .inner_span').hide();
+                //$(element).find('img, span, .inner-span').hide(); //hide .inner-span
+				$(element).find('img, span').hide();
             }
             
             /**
@@ -130,13 +130,17 @@
             
             // Mouseover events
 			$(element).find('.hex').mouseenter(function(){
-                $(this).find('.inner_span').stop(true, true);
-                $(this).find('.inner_span').fadeIn(200);
+				$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
+				$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:'+settings.bg_color);
+                //$(this).find('.inner-span').stop(true, true);
+                //$(this).find('.inner-span').fadeIn(200);
             });
             
             $(element).find('.hex').mouseleave(function(){
-                $(this).find('.inner_span').stop(true, true);
-                $(this).find('.inner_span').fadeOut(200);
+                $(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
+				$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
+				//$(this).find('.inner-span').stop(true, true);
+                //$(this).find('.inner-span').fadeOut(200);
             });
 			
             buildHtml();
