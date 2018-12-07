@@ -2,7 +2,7 @@ body {
 	background: black;
 }
 
-.hexagons{
+.hexagons {
 	position: absolute;
 	overflow: hidden;
 	width: 655px; /*fixed div size till break point */
@@ -36,12 +36,12 @@ body {
 	height: auto;
 }
 
-.hexagons .comb{
+.hexagons .hex {
 	position: absolute;
 	display: inline-block;
 }
 
-.hexagons .comb .link {
+.hexagons .hex .link {
 	cursor: pointer;
 }
 
@@ -91,7 +91,7 @@ body {
 
 @media (max-width: 1200px) { /* <- 3-2  hexagons per row */
 	.hexagons {
-		width: 100%;
+		/*width: 100%;*/
 		height: auto;
 		transform: translate(0%, 0%);
 		top: 0%;

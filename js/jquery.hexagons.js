@@ -2,19 +2,17 @@
 
     $.fn.hexagons = function(options) {
 
-        // Establish our default settings
+        // Defaults
         var settings = $.extend({
-            combWidth: 250,
+            hexWidth: 250,
             margin: 10
         }, options);
 
         function initialise(element) {
-            
-            $(element).addClass('hexagons-wrapper');
-            
+                       
             var width = 0;
-            var combWidth = 0;
-            var combHeight = 0;
+            var hexWidth = 0;
+            var hexHeight = 0;
             var num = 0;
             var $wrapper = null;
             
@@ -24,10 +22,10 @@
             function buildHtml(){
 				
 				// add the 2 other boxes
-				$(element).find('.comb').wrapAll('<div class="hexagons-inner-wrapper"></div>');
+				$(element).find('.hex').wrapAll('<div class="hexagons-inner-wrapper"></div>');
                 $wrapper = $(element).find('.hexagons-inner-wrapper');
                				
-                $(element).find('.comb').append('<div class="hex_l"></div>');
+                $(element).find('.hex').append('<div class="hex_l"></div>');
                 $(element).find('.hex_l').append('<div class="hex_r"></div>');
                 $(element).find('.hex_r').append('<div class="hex_inner"></div>');
 
@@ -36,11 +34,11 @@
 				// Hex Links
 				$(element).find('.link .hex_inner').each(function() { // For each image
 					var link = $(this).next('a'); // Find its associated anchor
-					$(this).wrap('<a href="' + link.attr('href') + '" class="link"></a>'); // And wrap the image
+					$(this).wrap('<a href="' + link.attr('href') + '" class="link"></a>'); // wrap the <a></a>
 				});
 		                
                 num = 0;
-                $(element).find('.comb').each(function(){
+                $(element).find('.hex').each(function(){
                     num = num + 1;
                     var image = $(this).find('img').attr('src');
                     var css = 'url("'+image+'") ';
@@ -63,14 +61,14 @@
              * Update all scale values
              */
             function updateScales(){
-                combWidth = settings.combWidth;
-                combHeight = ( Math.sqrt(3) * combWidth ) / 2;
-                edgeWidth = combWidth / 2;
+                hexWidth = settings.hexWidth;
+                hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
+                edgeWidth = hexWidth / 2;
                 
                 
-                $(element).find('.comb').width(combWidth).height(combHeight);
-                $(element).find('.hex_l, .hex_r').width(combWidth).height(combHeight);
-                $(element).find('.hex_inner').width(combWidth).height(combHeight);
+                $(element).find('.hex').width(hexWidth).height(hexHeight);
+                $(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
+                $(element).find('.hex_inner').width(hexWidth).height(hexHeight);
             }
             
             /**
@@ -81,7 +79,7 @@
                 updateScales();
                 width = $(element).width();
                 
-                newWidth = ( num / 1.5) * settings.combWidth;
+                newWidth = ( num / 1.5) * settings.hexWidth;
                 
                 if(newWidth < width){
                     width = newWidth;
@@ -96,9 +94,9 @@
                 
                 var cols = 0;
                 
-                $(element).find('.comb').each(function(index){
+                $(element).find('.hex').each(function(index){
                     
-                    top = ( row * (combHeight + settings.margin) ) + (upDown * (combHeight / 2 + (settings.margin / 2)));
+                    top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2)));
                     
                     if(animate == true){
                         $(this).stop(true, false);
@@ -107,14 +105,14 @@
                         $(this).css('left', left).css('top', top);
                     }
                     
-                    left = left + ( combWidth - combWidth / 4 + settings.margin );
+                    left = left + ( hexWidth - hexWidth / 4 + settings.margin );
                     upDown = (upDown + 1) % 2;
                     
                     if(row == 0){
                         cols = cols + 1;
                     }
                         
-                    if(left + combWidth > width){
+                    if(left + hexWidth > width){
                         left = 0;
                         row = row + 1;
                         upDown = 1;
@@ -122,8 +120,8 @@
                 });
                 
                 $wrapper
-                    .width(cols * (combWidth / 4 * 3 + settings.margin) + combWidth / 4)
-                    .height((row + 1) * (combHeight + settings.margin) + combHeight / 2);
+                    .width(cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4)
+                    .height((row + 1) * (hexHeight + settings.margin) + hexHeight / 2);
             }
             
             $(window).resize(function(){
@@ -131,12 +129,12 @@
             });
             
             // Mouseover events
-			$(element).find('.comb').mouseenter(function(){
+			$(element).find('.hex').mouseenter(function(){
                 $(this).find('.inner_span').stop(true, true);
                 $(this).find('.inner_span').fadeIn(200);
             });
             
-            $(element).find('.comb').mouseleave(function(){
+            $(element).find('.hex').mouseleave(function(){
                 $(this).find('.inner_span').stop(true, true);
                 $(this).find('.inner_span').fadeOut(200);
             });
