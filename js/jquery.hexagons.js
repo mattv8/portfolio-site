@@ -30,21 +30,19 @@
                 $(element).find('.hex_l').append('<div class="hex_r"></div>');
                 $(element).find('.hex_r').append('<div class="hex_inner"></div>');
                 $(element).find('.hex_inner').append('<div class="inner-span"><div class="inner-text"></div></div>');
-				
-				// Hex Links
-				$(element).find('.link .hex_inner').each(function() { // For each image
-					var link = $(this).next('a').attr('href'); // Find its associated anchor
-					$(this).wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
-				});
-		                
+				               
                 num = 0;
                 $(element).find('.hex').each(function(){
                     num = num + 1;
                     var image = $(this).find('img').attr('src');
                     var css = 'url("'+image+'") ';
-                    					
+
 					$(this).find('.hex_inner').attr('style', 'background-image: '+css);
-					                   
+					
+					// Hex Links
+					var link = $(this).find("link").attr("href"); // Find its associated anchor
+					$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
+					
 					if($(this).find('span').length > 0){ // If span is defined
                         $(this).find('.inner-span .inner-text').html($(this).find('span').html());
                     }else{
@@ -54,7 +52,7 @@
                 });
                 
                 //$(element).find('img, span, .inner-span').hide(); //hide .inner-span
-				$(element).find('img, span').hide();
+				$(element).find('img, span, link').hide();
             }
             
             /**
