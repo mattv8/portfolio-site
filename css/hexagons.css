@@ -4,14 +4,13 @@ body {
 
 .hexagons {
 	position: absolute;
-	overflow: hidden;
 	width: 655px; /*fixed div size till break point */
 	height: 670px; /*fixed div size till break point */
 	text-align: center;
 	transform: translate(-50%, -50%);
 	top: 50%;
 	left: 50%;
-	zoom: 1; /*hex scale*/
+	/*zoom: 1; /*hex scale*/
 }
 
 .hexagons .hexagons-inner-wrapper{
@@ -98,6 +97,6 @@ body {
 		top: 0%;
 		left: 0%;
 		position: relative;
-		zoom: 2.5;
+		/*zoom: 2.5;*/
 	}
 }
