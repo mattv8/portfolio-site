@@ -33,8 +33,8 @@
 				
 				// Hex Links
 				$(element).find('.link .hex_inner').each(function() { // For each image
-					var link = $(this).next('a'); // Find its associated anchor
-					$(this).wrap('<a href="' + link.attr('href') + '" class="link"></a>'); // wrap the <a></a>
+					var link = $(this).next('a').attr('href'); // Find its associated anchor
+					$(this).wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
 				});
 		                
                 num = 0;
