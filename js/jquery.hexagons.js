@@ -39,10 +39,6 @@
 
 					$(this).find('.hex_inner').attr('style', 'background-image: '+css);
 					
-					// Hex Links
-					var link = $(this).find("link").attr("href"); // Find its associated anchor
-					$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
-					
 					if($(this).find('span').length > 0){ // If span is defined
                         $(this).find('.inner-span .inner-text').html($(this).find('span').html());
                     }else{
@@ -50,6 +46,12 @@
                     };
 					
                 });
+				
+				// Hex Links
+				$(element).find('.link').each(function(){
+					var link = $(this).find("link").attr("href"); // Find its associated anchor
+					$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
+				});
                 
                 //$(element).find('img, span, .inner-span').hide(); //hide .inner-span
 				$(element).find('img, span, link').hide();
