@@ -1,8 +1,6 @@
 (function($) {
 
 $.fn.hexagons = function(options) {
-
-	$.getScript('js/vibrant.min.js');
 	
 	// Defaults
 	var settings = $.extend({
@@ -130,26 +128,23 @@ $.fn.hexagons = function(options) {
 		});
 
 		// Experimental https://github.com/akfish/node-vibrant/
-		$(element).find('.hex').each(function(){
+		/*$(element).find('.hex').each(function(){
 			var image = $(this).find('img').attr('src');
-			//var v = new Vibrant(image, opts);
-			//Vibrant.from(image).getPalette(function(err, palette) {});
-			//console.log(v);
-		});
+			$.getScript('js/vibrant.min.js'), function() {
+				var v = new Vibrant(image);
+			}
+			console.log(v);
+		});*/
 		
 		// Mouseover events
 		$(element).find('.hex').mouseenter(function(){
 			$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:'+settings.bg_color);
-			//$(this).find('.inner-span').stop(true, true);
-			//$(this).find('.inner-span').fadeIn(200);
 		});
 
 		$(element).find('.hex').mouseleave(function(){
 			$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-			//$(this).find('.inner-span').stop(true, true);
-			//$(this).find('.inner-span').fadeOut(200);
 		});
 
 		buildHtml();
