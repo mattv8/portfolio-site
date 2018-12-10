@@ -5,7 +5,7 @@
      stage: deploy
      script:
      - if [ -z "$webroot" ]; then echo "Need to set webroot" && exit 1; fi
-     - sudo rsync -rv ./ $webroot --exclude '.git' --exclude '.gitlab-ci.yml' --exclude '.gitignore' --delete
+     - sudo rsync -rv ./ $webroot --exclude '.git' --exclude '.gitlab-ci.yml' --exclude '.gitignore' --exclude 'wp-config.php' engineering/ --exclude 'wp-content' engineering/ --delete
      - sudo chown admin:admin $webroot -R
      only:
      - master
