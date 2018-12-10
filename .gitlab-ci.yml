@@ -6,8 +6,6 @@
      script:
      - if [ -z "$webroot" ]; then echo "Need to set webroot" && exit 1; fi
      - sudo rsync -rv ./ $webroot --exclude '.git' --exclude '.gitlab-ci.yml' --exclude '.gitignore' --exclude 'engineering'
-     # Syncing WP site
-     #- sudo rsync -avz --dry-run $webroot/engineering --exclude 'wp-config.php'
      - sudo chown admin:admin $webroot -R
      only:
      - master
