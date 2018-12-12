@@ -139,7 +139,7 @@ $.fn.hexagons = function(options) {
 				img_obj.src = img_src; //Attach bg image uri
 				
 				// Get the dominant color of image
-				var color = colorThief.getColor(img_obj);
+				var color = colorThief.getColor(img_obj,1);
 				
 				$(this).mouseenter(function(){
 					$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
