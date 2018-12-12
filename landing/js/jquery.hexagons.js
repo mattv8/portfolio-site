@@ -142,11 +142,11 @@ $.fn.hexagons = function(options) {
 				var color = colorThief.getColor(img_obj);
 				
 				$(this).mouseenter(function(){
-					$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
+					//$(this).find('.inner-text').attr('style', '-webkit-text-fill-color: transparent; -webkit-background-clip: text; background-img:'+img_src+'; color: white;' );
 					$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
 				});
 				$(this).mouseleave(function(){
-					$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
+					//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 					$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
 				});
 			}
