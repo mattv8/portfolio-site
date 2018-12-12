@@ -129,7 +129,7 @@ $.fn.hexagons = function(options) {
 			reorder(true);
 		});
 
-		// Experimental 
+		// Experimental dynamic bacground color and text
 		$(element).find('.hex').each(function(){
 			//Get uri's of bg images
 			var img_src = $(this).find('img').attr('src');
@@ -152,7 +152,7 @@ $.fn.hexagons = function(options) {
 			}
 		});
 				
-		// Mouseover events
+		// Mouseover events (faster)
 		/*$(element).find('.hex').mouseenter(function(){
 			$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:'+settings.bg_color);
