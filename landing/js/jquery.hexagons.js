@@ -135,7 +135,7 @@ $.fn.hexagons = function(options) {
 			}
 			console.log(v);
 		});*/
-		
+				
 		// Mouseover events
 		$(element).find('.hex').mouseenter(function(){
 			$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
