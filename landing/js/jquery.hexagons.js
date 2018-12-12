@@ -6,8 +6,10 @@ $.fn.hexagons = function(options) {
 	var settings = $.extend({
 		hexWidth: 250,
 		margin: 10,
-		bg_color: '#68B0BE'
 	}, options);
+	
+	// Create colorThief object
+	var colorThief = new ColorThief();
 
 	function initialise(element) {
 
@@ -133,7 +135,7 @@ $.fn.hexagons = function(options) {
 			var img_src = $(this).find('img').attr('src');
 			
 			if(img_src !== undefined){ //if image is defined
-				var img_obj = new Image(100, 200); //Build image object
+				var img_obj = new Image(20, 20); //Build image object
 				img_obj.src = img_src; //Attach bg image uri
 				
 				// Get the dominant color of image
