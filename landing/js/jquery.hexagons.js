@@ -127,17 +127,31 @@ $.fn.hexagons = function(options) {
 			reorder(true);
 		});
 
-		// Experimental https://github.com/akfish/node-vibrant/
-		/*$(element).find('.hex').each(function(){
-			var image = $(this).find('img').attr('src');
-			$.getScript('js/vibrant.min.js'), function() {
-				var v = new Vibrant(image);
+		// Experimental 
+		$(element).find('.hex').each(function(){
+			//Get uri's of bg images
+			var img_src = $(this).find('img').attr('src');
+			
+			if(img_src !== undefined){ //if image is defined
+				var img_obj = new Image(100, 200); //Build image object
+				img_obj.src = img_src; //Attach bg image uri
+				
+				// Get the dominant color of image
+				var color = colorThief.getColor(img_obj);
+				
+				$(this).mouseenter(function(){
+					$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
+					$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
+				});
+				$(this).mouseleave(function(){
+					$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
+					$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
+				});
 			}
-			console.log(v);
-		});*/
+		});
 				
 		// Mouseover events
-		$(element).find('.hex').mouseenter(function(){
+		/*$(element).find('.hex').mouseenter(function(){
 			$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:'+settings.bg_color);
 		});
@@ -145,7 +159,7 @@ $.fn.hexagons = function(options) {
 		$(element).find('.hex').mouseleave(function(){
 			$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-		});
+		});*/
 
 		buildHtml();
 		reorder(false);
