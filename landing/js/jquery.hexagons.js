@@ -135,11 +135,11 @@ $.fn.hexagons = function(options) {
 			var img_src = $(this).find('img').attr('src');
 			
 			if(img_src !== undefined){ //if image is defined
-				var img_obj = new Image(20, 20); //Build image object
+				var img_obj = new Image(100, 100); //Build image object
 				img_obj.src = img_src; //Attach bg image uri
 				
 				// Get the dominant color of image
-				var color = colorThief.getColor(img_obj,1);
+				var color = colorThief.getColor(img_obj);
 				
 				$(this).mouseenter(function(){
 					$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:black');
