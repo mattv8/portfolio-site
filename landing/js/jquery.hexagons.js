@@ -20,7 +20,8 @@ $.fn.hexagons = function(options) {
 		var $wrapper = null;
 
 		/**
-		 * Build the dom
+		 * All DOM building must go here. Function is called at end of script.
+		 * This is to prevent half-loading of the page.
 		 */
 		function buildHtml(){
 
@@ -54,10 +55,34 @@ $.fn.hexagons = function(options) {
 				};
 
 			});
+			
+			// Experimental dynamic bacground color and text
+			$(element).find('.hex').each(function(){
+				//Get uri's of bg images
+				var img_src = $(this).find('img').attr('src');
 
+				if(img_src !== undefined){ //if image is defined
+					var img_obj = new Image(100, 100); //Build image object
+					img_obj.src = img_src; //Attach bg image uri
+
+					// Get the dominant color of image
+					var color = colorThief.getColor(img_obj);
+
+					$(this).mouseenter(function(){
+						//$(this).find('.inner-text').attr('style', '-webkit-text-fill-color: transparent; -webkit-background-clip: text; background-img:'+img_src+'; color: white;' );
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
+					});
+					$(this).mouseleave(function(){
+						//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
+					});
+				}
+			});
+			
 			//$(element).find('img, span, .inner-span').hide(); //hide .inner-span
 			$(element).find('img, span, link').hide();
-		}
+			
+		} //end buildHtml
 
 		/**
 		 * Update all scale values
@@ -128,29 +153,6 @@ $.fn.hexagons = function(options) {
 		$(window).resize(function(){
 			reorder(true);
 		});
-
-		// Experimental dynamic bacground color and text
-		$(element).find('.hex').each(function(){
-			//Get uri's of bg images
-			var img_src = $(this).find('img').attr('src');
-			
-			if(img_src !== undefined){ //if image is defined
-				var img_obj = new Image(100, 100); //Build image object
-				img_obj.src = img_src; //Attach bg image uri
-				
-				// Get the dominant color of image
-				var color = colorThief.getColor(img_obj);
-				
-				$(this).mouseenter(function(){
-					//$(this).find('.inner-text').attr('style', '-webkit-text-fill-color: transparent; -webkit-background-clip: text; background-img:'+img_src+'; color: white;' );
-					$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
-				});
-				$(this).mouseleave(function(){
-					//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
-					$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-				});
-			}
-		});
 				
 		// Mouseover events (faster)
 		/*$(element).find('.hex').mouseenter(function(){
@@ -163,7 +165,7 @@ $.fn.hexagons = function(options) {
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
 		});*/
 
-		buildHtml();
+		buildHtml(); // Build the DOM
 		reorder(false);
 	}
 
