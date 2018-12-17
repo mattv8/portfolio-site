@@ -9,7 +9,7 @@ $.fn.hexagons = function(options) {
 	}, options);
 	
 	// Create colorThief object
-	var colorThief = new ColorThief();
+	//var colorThief = new ColorThief();
 
 	function initialise(element) {
 
@@ -46,8 +46,8 @@ $.fn.hexagons = function(options) {
 				var img_src = $(this).find('img').attr('src');//Get uri's of bg images
 
 				if(img_src !== undefined){ //if image is defined
-					var img_obj = new Image(100, 100); //Build image object
-					img_obj.src = img_src; //Attach bg image uri
+					//var img_obj = new Image(100, 100); //Build image object
+					//img_obj.src = img_src; //Attach bg image uri
 
 					// Attach bg image
 					$(this).find('.hex_inner').attr('style', 'background-image: url("'+img_src+'")');
@@ -59,7 +59,7 @@ $.fn.hexagons = function(options) {
 					} // end if
 					
 					// Experimental dynamic bacground color and text
-					var color = colorThief.getColor(img_obj); // Get the dominant color of image
+					/*var color = colorThief.getColor(img_obj); // Get the dominant color of image
 
 					$(this).mouseenter(function(){
 						//$(this).find('.inner-text').attr('style', '-webkit-text-fill-color: transparent; -webkit-background-clip: text; background-img:'+img_src+'; color: white;' );
@@ -68,7 +68,7 @@ $.fn.hexagons = function(options) {
 					$(this).mouseleave(function(){
 						//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-					})
+					})*/
 					
 				} // end if
 			})
@@ -149,7 +149,7 @@ $.fn.hexagons = function(options) {
 		});
 				
 		// Mouseover events (faster)
-		/*$(element).find('.hex').mouseenter(function(){
+		$(element).find('.hex').mouseenter(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:white');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: #A31F20');
 		});
@@ -157,7 +157,7 @@ $.fn.hexagons = function(options) {
 		$(element).find('.hex').mouseleave(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-		});*/
+		});
 
 		buildHtml(); // Build the DOM
 		reorder(false);
