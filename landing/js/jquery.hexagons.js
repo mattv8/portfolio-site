@@ -16,7 +16,7 @@ $.fn.hexagons = function(options) {
 		var width = 0;
 		var hexWidth = 0;
 		var hexHeight = 0;
-		var num = 0;
+		var hex_index = 0;
 		var $wrapper = null;
 
 		/**
@@ -40,9 +40,10 @@ $.fn.hexagons = function(options) {
 				$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
 			})
 			
-			num = 0;
+			hex_index = 0;
 			$(element).find('.hex').each(function(){
-				num = num + 1; // iterate counter
+				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
+				hex_index = hex_index + 1; // iterate hex index counter
 				var img_src = $(this).find('img').attr('src');//Get uri's of bg images
 
 				if(img_src !== undefined){ //if image is defined
@@ -99,7 +100,7 @@ $.fn.hexagons = function(options) {
 			updateScales();
 			width = $(element).width();
 
-			var newWidth = ( num / 1.5) * settings.hexWidth;
+			var newWidth = ( hex_index / 1.5) * settings.hexWidth;
 
 			if(newWidth < width){
 				width = newWidth;
