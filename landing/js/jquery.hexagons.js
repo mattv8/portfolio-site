@@ -38,46 +38,40 @@ $.fn.hexagons = function(options) {
 			$(element).find('.link').each(function(){
 				var link = $(this).find("link").attr("href"); // Find its associated anchor
 				$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
-			});
-
+			})
+			
 			num = 0;
 			$(element).find('.hex').each(function(){
-				num = num + 1;
-				var image = $(this).find('img').attr('src');
-				var css = 'url("'+image+'") ';
-
-				$(this).find('.hex_inner').attr('style', 'background-image: '+css);
-
-				if($(this).find('span').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-text').html($(this).find('span').html());
-				}else{
-					$(this).find('.inner-span').remove();
-				};
-
-			});
-			
-			// Experimental dynamic bacground color and text
-			/*$(element).find('.hex').each(function(){
-				//Get uri's of bg images
-				var img_src = $(this).find('img').attr('src');
+				num = num + 1; // iterate counter
+				var img_src = $(this).find('img').attr('src');//Get uri's of bg images
 
 				if(img_src !== undefined){ //if image is defined
 					var img_obj = new Image(100, 100); //Build image object
 					img_obj.src = img_src; //Attach bg image uri
 
-					// Get the dominant color of image
-					var color = colorThief.getColor(img_obj);
+					// Attach bg image
+					$(this).find('.hex_inner').attr('style', 'background-image: url("'+img_src+'")');
+
+					if($(this).find('span').length > 0){ // If span is defined
+						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
+					}else{
+						$(this).find('.inner-span').remove();
+					} // end if
+					
+					// Experimental dynamic bacground color and text
+					var color = colorThief.getColor(img_obj); // Get the dominant color of image
 
 					$(this).mouseenter(function(){
 						//$(this).find('.inner-text').attr('style', '-webkit-text-fill-color: transparent; -webkit-background-clip: text; background-img:'+img_src+'; color: white;' );
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
-					});
+					})
 					$(this).mouseleave(function(){
 						//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-					});
-				}
-			});*/
+					})
+					
+				} // end if
+			})
 			
 			//$(element).find('img, span, .inner-span').hide(); //hide .inner-span
 			$(element).find('img, span, link').hide();
@@ -90,7 +84,7 @@ $.fn.hexagons = function(options) {
 		function updateScales(){
 			hexWidth = settings.hexWidth;
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
-			edgeWidth = hexWidth / 2;
+			//var edgeWidth = hexWidth / 2;
 
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
@@ -105,7 +99,7 @@ $.fn.hexagons = function(options) {
 			updateScales();
 			width = $(element).width();
 
-			newWidth = ( num / 1.5) * settings.hexWidth;
+			var newWidth = ( num / 1.5) * settings.hexWidth;
 
 			if(newWidth < width){
 				width = newWidth;
@@ -120,7 +114,7 @@ $.fn.hexagons = function(options) {
 
 			var cols = 0;
 
-			$(element).find('.hex').each(function(index){
+			$(element).find('.hex').each(function(){
 
 				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2)));
 
@@ -155,7 +149,7 @@ $.fn.hexagons = function(options) {
 		});
 				
 		// Mouseover events (faster)
-		$(element).find('.hex').mouseenter(function(){
+		/*$(element).find('.hex').mouseenter(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:white');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: #A31F20');
 		});
@@ -163,7 +157,7 @@ $.fn.hexagons = function(options) {
 		$(element).find('.hex').mouseleave(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-		});
+		});*/
 
 		buildHtml(); // Build the DOM
 		reorder(false);
