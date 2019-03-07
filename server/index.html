@@ -1,18 +1,33 @@
-<!doctype html>
-<title>Site Maintenance</title>
-<style>
-  body { text-align: center; padding: 150px; }
-  h1 { font-size: 50px; }
-  body { font: 20px Helvetica, sans-serif; color: #333; }
-  article { display: block; text-align: left; width: 650px; margin: 0 auto; }
-  a { color: #dc8100; text-decoration: none; }
-  a:hover { color: #333; text-decoration: none; }
-</style>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Landing Page</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee" >
+	<link rel="stylesheet" type="text/css" href="css/hexagons.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>	
+	<script src="js/color-thief.min.js"></script>
+	<script src="js/jquery.hexagons.js"></script>
+</head>
+<body>
+	
+	<!-- Hexagons -->
+	<div class="hexagons">
+		<div class="hex"> <img src="https://metrics.sonic-server.net/render/d-solo/YAwA9Ooik/server-status?refresh=10s&orgId=1&panelId=20&width=300&height=300&tz=America%2FDenver.bmp" /> <span>TeamSpeak</span> </div>
+		<div class="hex"> <img src="https://metrics.sonic-server.net/render/d-solo/YAwA9Ooik/server-status?refresh=10s&orgId=1&panelId=12&width=300&height=300&tz=America%2FDenver.bmp" /> <span>Ark</span> </div>
+		<div class="hex"> <img src="https://metrics.sonic-server.net/render/d-solo/YAwA9Ooik/server-status?refresh=10s&orgId=1&panelId=33&width=300&height=300&tz=America%2FDenver.bmp" /> <span>NGINX</span> </div>
+		<div class="hex"> <img src="https://metrics.sonic-server.net/render/d-solo/YAwA9Ooik/server-status?refresh=10s&orgId=1&panelId=34&width=300&height=300&tz=America%2FDenver.bmp" /> <span>Apache</span> </div>
+		<div class="hex"> <img src="https://metrics.sonic-server.net/render/d-solo/YAwA9Ooik/server-status?refresh=10s&orgId=1&panelId=28&width=300&height=300&tz=America%2FDenver.bmp" /> <span>Email</span> </div>
+		<div class="hex"> <img src="https://metrics.sonic-server.net/render/d-solo/YAwA9Ooik/server-status?refresh=10s&orgId=1&panelId=15&width=300&height=300&tz=America%2FDenver.bmp" /> <span>TS Stats</span> </div>
+	</div>
+	
+	<!-- Script calls -->
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('.hexagons').hexagons();
+			$('.invisible').hide();
+		});
+	</script>
 
-<article>
-    <h1>Under construction.</h1>
-    <div>
-        <p>I am currently working on building this particular end of the site. Feel free to check back any time as I am actively working on this.</p>
-        <p>&mdash; Matt</p>
-    </div>
-</article>
+</body>
+</html>
