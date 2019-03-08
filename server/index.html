@@ -11,7 +11,15 @@
 </head>
 <body>
 	
-	<!-- Hexagons -->
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'Nodes')" id="defaultOpen">Nodes</button>
+  <button class="tablinks" onclick="openTab(event, 'Hosts')">Hosts</button>
+  <button class="tablinks" onclick="openTab(event, 'Web')">Web</button>
+</div>
+
+<div id="Nodes" class="tabcontent">
+  <h3>Nodes</h3>
+  <p></p>
 	<div class="hexagons">
 		<!-- <div class="hex link"> <img src="" /> <span></span> <link href="#"></link> </div> -->
 		<div class="hex"> <span>ArkServer</span> <img src="https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/host-stats?refresh=10s&orgId=1&panelId=2&width=300&height=300&tz=America%2FDenver" /> </div>
@@ -33,15 +41,41 @@
 		<div class="hex invisible"> </div> <!-- invisible -->
 		<div class="hex invisible"> </div> <!-- invisible -->
 		<div class="hex"> <span>Web</span> <img src="https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/host-stats?refresh=10s&orgId=1&panelId=12&width=300&height=300&tz=America%2FDenver" /> </div>
-	</div>
-	
-	<!-- Script calls -->
-	<script type="text/javascript">
-		$(document).ready(function () {
-			$('.hexagons').hexagons();
-			$('.invisible').hide();
-		});
-	</script>
+	</div>	
+</div>
+
+<div id="Hosts" class="tabcontent">
+  <h3>Hosts</h3>
+  <p>Coming soon.</p> 
+</div>
+
+<div id="Web" class="tabcontent">
+  <h3>Web</h3>
+  <p>Coming soon.</p>
+</div>
+			
+<!-- Script calls -->
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('.hexagons').hexagons();
+		$('.invisible').hide();
+	});
+	function openTab(evt, TabName) {
+		var i, tabcontent, tablinks;
+		tabcontent = document.getElementsByClassName("tabcontent");
+		for (i = 0; i < tabcontent.length; i++) {
+		tabcontent[i].style.display = "none";
+		}
+		tablinks = document.getElementsByClassName("tablinks");
+		for (i = 0; i < tablinks.length; i++) {
+		tablinks[i].className = tablinks[i].className.replace(" active", "");
+		}
+		document.getElementById(TabName).style.display = "block";
+		evt.currentTarget.className += " active";
+	}
+	// Get the element with id="defaultOpen" and click on it
+	document.getElementById("defaultOpen").click();
+</script>
 
 </body>
 </html>
