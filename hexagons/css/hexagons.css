@@ -145,7 +145,7 @@ body {
 @media (max-width: 1200px) { /* <- 3-2  hexagons per row */
 	.landing {
 		width: 100%;
-		/*height: 900px;*/
+		height: auto;
 		transform: translate(0%, 0%);
 		top: 0%;
 		left: 0%;
@@ -155,6 +155,7 @@ body {
 	
 	.tabcontent {
 		width: 100%;
+		height: auto;
 		position: relative;
 	}
 }
