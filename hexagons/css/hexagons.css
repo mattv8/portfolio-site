@@ -146,16 +146,14 @@ body {
 	.landing {
 		width: 100%;
 		height: auto;
-		transform: translate(0%, 0%);
-		top: 0%;
-		left: 0%;
+/*		transform: translate(-50%, 0%);*/
 		position: relative;
-		/*zoom: 2.5;*/
 	}
 	
 	.tabcontent {
 		width: 100%;
 		height: auto;
+/*		transform: translate(-50%, 0%);*/
 		position: relative;
 	}
 }
