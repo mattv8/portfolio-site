@@ -48,7 +48,6 @@ $.fn.hexagons = function(options) {
 				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
 				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
 				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
-				//console.log(bg_img_src)
 				
 				if(bg_img_src !== undefined){ //if image is defined
 					// Experimental colorThief
@@ -70,7 +69,7 @@ $.fn.hexagons = function(options) {
 					//var color = colorThief.getColor(img_obj); // Get the dominant color of image
 
 					$(this).mouseenter(function(){
-						$(this).find('.inner-span').attr('style', 'background-image: url('+hvr_img_src+');');
+						$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'");');
 						//$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
 					})
 					$(this).mouseleave(function(){
@@ -88,10 +87,10 @@ $.fn.hexagons = function(options) {
 				var metric_avail = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+(metric_idx+n_panels)+"&width=220&height=220&tz=America%2FDenver";
 
 				// Attach bg image
-				$(this).find('.hex_inner').attr('style', 'background-image: url('+metric_state+');');
+				$(this).find('.hex_inner').attr('style', 'background-image: url("'+metric_state+'");');
 				
 				$(this).mouseenter(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: url('+metric_avail+');');
+					$(this).find('.inner-span').attr('style', 'background-image: url("'+metric_avail+'");');
 				})
 				$(this).mouseleave(function(){
 					$(this).find('.inner-span').attr('style', 'background-image: none');
