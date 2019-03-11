@@ -129,20 +129,20 @@ $.fn.hexagons = function(options) {
 		 */
 		function reorder(animate){
 
+			//TODO: improve hex scale function with more robust break-points
+			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
+				scale = 2.3;
+			}else { scale = 1;}
+			
+			updateScales(scale); //call function above
+			
 			width = $(element).width(); //get width of hexagons wrapper div
 			
-			var newWidth = ( hex_index / 1.5) * settings.hexWidth; //calculate next wrapper div break point.
+			var newWidth = ( hex_index / 1.5) * settings.hexWidth * scale; //calculate next wrapper div break point.
 
 			if(newWidth < width){ //once break point is reached, re-order
 				width = newWidth;
 			}
-
-			//TODO: improve hex scale function with more robust break-points
-			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
-				scale = 2;
-			}else { scale = 1;}
-			
-			updateScales(scale); //call function above
 			
 			$wrapper.width(width); //load initial hex wrapper div size (preallocate)
 			var row = 0; // current row
@@ -150,6 +150,8 @@ $.fn.hexagons = function(options) {
 			var left = 0; // pos left
 			var top = 0; // pos top
 			var cols = 0; // start at col 0
+//			console.log(($('.hexagons').width() - width)/2);
+//			console.log(width)
 
 			$(element).find('.hex').each(function(){
 
