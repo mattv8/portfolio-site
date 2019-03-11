@@ -8,6 +8,7 @@ $.fn.hexagons = function(options) {
 		margin: 10,
 	}, options);
 	
+	// Experimental colorThief
 	// Create colorThief object
 	//var colorThief = new ColorThief();
 
@@ -44,14 +45,17 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hex').each(function(){
 				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
 				hex_index = hex_index + 1; // iterate hex index counter
-				var img_src = $(this).find('img').attr('src');//Get uri's of bg images
+				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of bg images
+				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of hover images
 
-				if(img_src !== undefined){ //if image is defined
+				if(bg_img_src !== undefined){ //if image is defined
+					
+					// Experimental colorThief
 					//var img_obj = new Image(100, 100); //Build image object
-					//img_obj.src = img_src; //Attach bg image uri
+					//img_obj.src = bg_img_src; //Attach bg image uri
 
 					// Attach bg image
-					$(this).find('.hex_inner').attr('style', 'background-image: url("'+img_src+'")');
+					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'")');
 
 					if($(this).find('span').length > 0){ // If span is defined
 						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
@@ -59,17 +63,17 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span').remove();
 					} // end if
 					
-					// Experimental dynamic bacground color and text
-					/*var color = colorThief.getColor(img_obj); // Get the dominant color of image
+					// Experimental colorThief
+					//var color = colorThief.getColor(img_obj); // Get the dominant color of image
 
 					$(this).mouseenter(function(){
-						//$(this).find('.inner-text').attr('style', '-webkit-text-fill-color: transparent; -webkit-background-clip: text; background-img:'+img_src+'; color: white;' );
-						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
+						$(this).find('.inner-span').attr('style', 'background-image: url('+hvr_img_src+');');
+						//$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
 					})
 					$(this).mouseleave(function(){
 						//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
-						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-					})*/
+						$(this).find('.inner-span').attr('style', 'background-image: none');
+					})
 					
 				} // end if
 			})
@@ -150,7 +154,7 @@ $.fn.hexagons = function(options) {
 		});
 				
 		// Mouseover events (faster)
-		$(element).find('.hex').mouseenter(function(){
+		/*$(element).find('.hex').mouseenter(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:white');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: #A31F20');
 		});
@@ -158,7 +162,7 @@ $.fn.hexagons = function(options) {
 		$(element).find('.hex').mouseleave(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-		});
+		});*/
 
 		buildHtml(); // Build the DOM
 		reorder(false);
