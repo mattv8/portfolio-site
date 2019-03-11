@@ -140,7 +140,7 @@ $.fn.hexagons = function(options) {
 			//TODO: improve hex scale function with more robust break-points
 			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
 				scale = 2;
-			}
+			}else { scale = 1;}
 			
 			updateScales(scale); //call function above
 			
