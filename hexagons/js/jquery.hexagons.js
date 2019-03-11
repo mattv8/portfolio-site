@@ -18,7 +18,8 @@ $.fn.hexagons = function(options) {
 		var hexWidth = 0;
 		var hexHeight = 0;
 		var hex_index = 1;
-		var metric_idx = 1;
+		var metric_idx = 1; // iterates through number of panels
+		var n_panels = 11; // Number of metric panels on dashboard
 		var $wrapper = null;
 
 		/**
@@ -41,39 +42,15 @@ $.fn.hexagons = function(options) {
 				var link = $(this).find("link").attr("href"); // Find its associated anchor
 				$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
 			})
-
-			$(element).find('.metrics').each(function(){
-
-				var metric_state = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+metric_idx+"&width=220&height=220&tz=America%2FDenver";
-				var metric_avail = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+(metric_idx+11)+"&width=220&height=220&tz=America%2FDenver";
-
-				// Attach bg image
-				$(this).find('.hex_inner').attr('style', 'background-image: url("'+metric_state+'")');
-
-				if($(this).find('span').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-text').html($(this).find('span').html());
-				}else{
-						$(this).find('.inner-span').remove();
-				} // end if
-				$(this).mouseenter(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: url('+metric_avail+');');
-				})
-				$(this).mouseleave(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: none');
-				})				
-				
-				metric_idx = metric_idx + 1; // iterate metric counter
 			
-			})
-			
+			// Hex generic with images
 			$(element).find('.hex').each(function(){
 				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
-				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of bg images
-				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of hover images
+				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
+				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
 				//console.log(bg_img_src)
 				
 				if(bg_img_src !== undefined){ //if image is defined
-									
 					// Experimental colorThief
 					//var img_obj = new Image(100, 100); //Build image object
 					//img_obj.src = bg_img_src; //Attach bg image uri
@@ -85,8 +62,7 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
 					}else{
 						$(this).find('.inner-span').remove();
-					} // end if
-					
+					} // end if					
 				} // end if
 				
 				if(hvr_img_src !== undefined){ //if image is defined
@@ -102,9 +78,33 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span').attr('style', 'background-image: none');
 					})
 				} // end if
-
+				
 				hex_index = hex_index + 1; // iterate hex index counter
-			}) 
+			})
+			
+			// Hex metrics
+			$(element).find('.metrics').each(function(){
+				var metric_state = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+metric_idx+"&width=220&height=220&tz=America%2FDenver";
+				var metric_avail = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+(metric_idx+n_panels)+"&width=220&height=220&tz=America%2FDenver";
+
+				// Attach bg image
+				$(this).find('.hex_inner').attr('style', 'background-image: url('+metric_state+');');
+				
+				$(this).mouseenter(function(){
+					$(this).find('.inner-span').attr('style', 'background-image: url('+metric_avail+');');
+				})
+				$(this).mouseleave(function(){
+					$(this).find('.inner-span').attr('style', 'background-image: none');
+				})				
+				
+				if($(this).find('span').length > 0){ // If span is defined
+						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
+					}else{
+						$(this).find('.inner-span').remove();
+				} // end if
+				
+				metric_idx = metric_idx + 1; // iterate metric counter
+			})
 			
 			//$(element).find('img, span, .inner-span').hide(); //hide .inner-span
 			$(element).find('img, span, link').hide();
@@ -118,7 +118,7 @@ $.fn.hexagons = function(options) {
 			hexWidth = settings.hexWidth;
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
 			//var edgeWidth = hexWidth / 2;
-
+			
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
@@ -147,7 +147,7 @@ $.fn.hexagons = function(options) {
 
 			var cols = 0;
 
-			$(element).find('.hex').each(function(){
+			$(element).find('.hex, .metrics').each(function(){
 
 				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2)));
 
