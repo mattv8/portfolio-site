@@ -2,7 +2,7 @@
 
 $.fn.hexagons = function(options) {
 	
-	// Defaults
+	// Defaults (global)
 	var settings = $.extend({
 		hexWidth: 250,
 		margin: 10,
@@ -17,9 +17,10 @@ $.fn.hexagons = function(options) {
 		var width = 0;
 		var hexWidth = 0;
 		var hexHeight = 0;
-		var hex_index = 1;
+		var hex_index = 0;
 		var metric_idx = 1; // iterates through number of panels
 		var n_panels = 11; // Number of metric panels on dashboard
+		var scale = 1; // initialize hex scale factor
 		var $wrapper = null;
 
 		/**
@@ -45,6 +46,9 @@ $.fn.hexagons = function(options) {
 			
 			// Hex generic with images
 			$(element).find('.hex').each(function(){
+				
+				hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
+				
 				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
 				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
 				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
@@ -78,7 +82,6 @@ $.fn.hexagons = function(options) {
 					})
 				} // end if
 				
-				hex_index = hex_index + 1; // iterate hex index counter
 			})
 			
 			// Hex metrics
@@ -109,66 +112,69 @@ $.fn.hexagons = function(options) {
 			$(element).find('img, span, link').hide();
 			
 		} //end buildHtml
-
+		
 		/**
 		 * Update all scale values
 		 */
-		function updateScales(){
-			hexWidth = settings.hexWidth;
+		function updateScales(scale){			
+			hexWidth = settings.hexWidth*scale;
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
-			//var edgeWidth = hexWidth / 2;
-			
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
 		}
 
 		/**
-		 * update css classes
+		 * Div re-size animation function. Returns updated div dimensions.
 		 */
 		function reorder(animate){
 
-			updateScales();
-			width = $(element).width();
+			width = $(element).width(); //get width of hexagons wrapper div
+			
+			var newWidth = ( hex_index / 1.5) * settings.hexWidth; //calculate next wrapper div break point.
 
-			var newWidth = ( hex_index / 1.5) * settings.hexWidth;
-
-			if(newWidth < width){
+			if(newWidth < width){ //once break point is reached, re-order
 				width = newWidth;
 			}
 
-			$wrapper.width(width);
-
+			//TODO: improve hex scale function with more robust break-points
+			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
+				scale = 2;
+			}
+			
+			updateScales(scale); //call function above
+			
+			$wrapper.width(width); //load initial hex wrapper div size (preallocate)
 			var row = 0; // current row
 			var upDown = 1; // 1 is down
 			var left = 0; // pos left
 			var top = 0; // pos top
+			var cols = 0; // start at col 0
 
-			var cols = 0;
+			$(element).find('.hex').each(function(){
 
-			$(element).find('.hex, .metrics').each(function(){
+				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2))); //determines top margin of hexagons
 
-				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2)));
-
-				if(animate == true){
+				if(animate == true){ //animate if specified
 					$(this).stop(true, false);
 					$(this).animate({'left': left, 'top': top});
 				}else{
 					$(this).css('left', left).css('top', top);
 				}
 
-				left = left + ( hexWidth - hexWidth / 4 + settings.margin );
-				upDown = (upDown + 1) % 2;
+				left = left + ( hexWidth - hexWidth / 4 + settings.margin ); //determines left margin of hexagons
+				upDown = (upDown + 1) % 2; //determines up/down in-line alignment of hexagons
 
-				if(row == 0){
+				if(row == 0){ // if first row
 					cols = cols + 1;
 				}
 
-				if(left + hexWidth > width){
+				if(left + hexWidth > width){ //if subsequent column
 					left = 0;
 					row = row + 1;
 					upDown = 1;
 				}
+				
 			});
 
 			$wrapper
@@ -177,9 +183,9 @@ $.fn.hexagons = function(options) {
 		}
 
 		$(window).resize(function(){
-			reorder(true);
+			reorder(true); //Set "animate" to true by default
 		});
-				
+		
 		// Mouseover events (faster)
 		/*$(element).find('.hex').mouseenter(function(){
 			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:white');
