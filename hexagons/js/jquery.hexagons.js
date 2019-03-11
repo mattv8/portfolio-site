@@ -70,6 +70,7 @@ $.fn.hexagons = function(options) {
 				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
 				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of bg images
 				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of hover images
+				//console.log(bg_img_src)
 				
 				if(bg_img_src !== undefined){ //if image is defined
 									
@@ -86,6 +87,9 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span').remove();
 					} // end if
 					
+				} // end if
+				
+				if(hvr_img_src !== undefined){ //if image is defined
 					// Experimental colorThief
 					//var color = colorThief.getColor(img_obj); // Get the dominant color of image
 
@@ -100,7 +104,7 @@ $.fn.hexagons = function(options) {
 				} // end if
 
 				hex_index = hex_index + 1; // iterate hex index counter
-			})
+			}) 
 			
 			//$(element).find('img, span, .inner-span').hide(); //hide .inner-span
 			$(element).find('img, span, link').hide();
