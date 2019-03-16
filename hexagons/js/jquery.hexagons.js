@@ -21,7 +21,7 @@ $.fn.hexagons = function(options) {
 		var metric_idx = 1; // iterates through number of panels
 		var n_panels = 11; // Number of metric panels on dashboard
 		var scale = 1; // initialize hex scale factor
-		var $wrapper = null;
+//		var $wrapper = null;
 
 		/**
 		 * All DOM building must go here. Function is called at end of script.
@@ -113,6 +113,10 @@ $.fn.hexagons = function(options) {
 			
 		} //end buildHtml
 		
+		
+		var invisible = $(element).find('.invisible');
+		var logo = $(element).find('.logo');
+		
 		/**
 		 * Update all scale values
 		 */
@@ -129,29 +133,25 @@ $.fn.hexagons = function(options) {
 		 */
 		function reorder(animate){
 
-			//TODO: improve hex scale function with more robust break-points
+			//TODO: make .invisible elements come back when up-sizing window
 			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
 				scale = 2.3;
-			}else { scale = 1;}
-			
+				$(element).find('.invisible').detach();
+				logo.insertBefore('.hexagons');
+			}else { 
+				scale = 1;
+//				invisible.appendTo("hexagons");
+			}
 			updateScales(scale); //call function above
 			
 			width = $(element).width(); //get width of hexagons wrapper div
-			
-			var newWidth = ( hex_index / 1.5) * settings.hexWidth * scale; //calculate next wrapper div break point.
-
-			if(newWidth < width){ //once break point is reached, re-order
-				width = newWidth;
-			}
-			
-			$wrapper.width(width); //load initial hex wrapper div size (preallocate)
+									
+//			$wrapper.width(width); //load initial hex wrapper div size (preallocate)
 			var row = 0; // current row
 			var upDown = 1; // 1 is down
 			var left = 0; // pos left
 			var top = 0; // pos top
 			var cols = 0; // start at col 0
-//			console.log(($('.hexagons').width() - width)/2);
-//			console.log(width)
 
 			$(element).find('.hex').each(function(){
 
@@ -166,11 +166,11 @@ $.fn.hexagons = function(options) {
 
 				left = left + ( hexWidth - hexWidth / 4 + settings.margin ); //determines left margin of hexagons
 				upDown = (upDown + 1) % 2; //determines up/down in-line alignment of hexagons
-
+				
 				if(row == 0){ // if first row
 					cols = cols + 1;
 				}
-
+				
 				if(left + hexWidth > width){ //if subsequent column
 					left = 0;
 					row = row + 1;
@@ -179,12 +179,14 @@ $.fn.hexagons = function(options) {
 				
 			});
 
-			$wrapper
-				.width(cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4)
-				.height((row + 1) * (hexHeight + settings.margin) + hexHeight / 2);
+//			$wrapper
+//				.width(cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4)
+//				.height((row + 1) * (hexHeight + settings.margin) + hexHeight / 2);
+			
+//			var minWidth = cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4;
 		}
 
-		$(window).resize(function(){
+		$(window).resize(function(){ // call reorder function when window resizes
 			reorder(true); //Set "animate" to true by default
 		});
 		
@@ -200,7 +202,7 @@ $.fn.hexagons = function(options) {
 		});*/
 
 		buildHtml(); // Build the DOM
-		reorder(false);
+		reorder(true);
 	}
 
 	return this.each(function() {

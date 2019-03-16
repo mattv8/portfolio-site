@@ -145,6 +145,7 @@ body {
 @media (max-width: 1200px) { /* <- 3-2  hexagons per row */
 	.landing {
 		width: 100%;
+		top: 200px;
 		height: auto;
 /*		transform: translate(-50%, 0%);*/
 		position: relative;
@@ -155,5 +156,16 @@ body {
 		height: auto;
 /*		transform: translate(-50%, 0%);*/
 		position: relative;
+	}
+	
+	.tab button {
+		padding: 20px 20px;
+		transition: 0.3s;
+		font-size: 4em;
+		color: white;
+	}
+	
+	.hexagons .inner-text{
+		font-size: 4em;
 	}
 }
