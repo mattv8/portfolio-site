@@ -128,7 +128,7 @@ body {
 .hexagons .inner-text{
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
-	font-size: 1.5em;
+/*	font-size: 1.5em;*/
 	padding-top: 30%;
 	color: white;
 }
@@ -146,14 +146,14 @@ body {
 	.landing {
 		width: 100%;
 		top: 200px;
-		height: auto;
+/*		height: 100%;*/
 /*		transform: translate(-50%, 0%);*/
 		position: relative;
 	}
 	
 	.tabcontent {
 		width: 100%;
-		height: auto;
+/*		height: 100%;*/
 /*		transform: translate(-50%, 0%);*/
 		position: relative;
 	}
@@ -165,7 +165,4 @@ body {
 		color: white;
 	}
 	
-	.hexagons .inner-text{
-		font-size: 4em;
-	}
 }

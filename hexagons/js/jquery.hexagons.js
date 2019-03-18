@@ -20,7 +20,7 @@ $.fn.hexagons = function(options) {
 		var hex_index = 0;
 		var metric_idx = 1; // iterates through number of panels
 		var n_panels = 11; // Number of metric panels on dashboard
-		var scale = 1; // initialize hex scale factor
+		var textHeight = 1; // initialize hex scale factor
 //		var $wrapper = null;
 
 		/**
@@ -114,18 +114,20 @@ $.fn.hexagons = function(options) {
 		} //end buildHtml
 		
 		
-		var invisible = $(element).find('.invisible');
-		var logo = $(element).find('.logo');
+//		var invisible = $(element).find('.invisible');
+//		var logo = $(element).find('.logo');
 		
 		/**
 		 * Update all scale values
 		 */
-		function updateScales(scale){			
-			hexWidth = settings.hexWidth*scale;
+		function updateScales(hexWidth){			
+//			hexWidth = settings.hexWidth*scale;
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
+			textHeight = hexHeight*.13; //pixel height of text is percentage of hex height
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
+			$(element).find('.hexagons, .inner-text').css({'fontSize': textHeight});
 		}
 
 		/**
@@ -133,19 +135,20 @@ $.fn.hexagons = function(options) {
 		 */
 		function reorder(animate){
 
+			width = $(element).width(); //get width of hexagons wrapper div
+
 			//TODO: make .invisible elements come back when up-sizing window
 			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
-				scale = 2.3;
+				hexWidth = width/2 + settings.margin*6;
 				$(element).find('.invisible').detach();
-				logo.insertBefore('.hexagons');
+				$(element).find('.logo').detach();
+//				logo.insertBefore('.hexagons');
 			}else { 
-				scale = 1;
+				hexWidth = settings.hexWidth;
 //				invisible.appendTo("hexagons");
 			}
-			updateScales(scale); //call function above
-			
-			width = $(element).width(); //get width of hexagons wrapper div
-									
+			updateScales(hexWidth); //call function above
+												
 //			$wrapper.width(width); //load initial hex wrapper div size (preallocate)
 			var row = 0; // current row
 			var upDown = 1; // 1 is down
