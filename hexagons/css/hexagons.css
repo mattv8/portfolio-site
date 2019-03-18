@@ -145,8 +145,8 @@ body {
 @media (max-width: 1200px) { /* <- 3-2  hexagons per row */
 	.landing {
 		width: 100%;
-		top: 200px;
-/*		height: 100%;*/
+/*		top: 200px;*/
+		height: 100%;
 /*		transform: translate(-50%, 0%);*/
 		position: relative;
 	}
