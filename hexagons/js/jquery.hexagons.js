@@ -30,8 +30,8 @@ $.fn.hexagons = function(options) {
 		function buildHtml(){
 
 			// add the 2 other boxes
-			//$(element).find('.hex').wrapAll('<div class="hexagons-inner-wrapper"></div>');
-			$wrapper = $(element).find('.hexagons');
+//			$(element).find('.hex').wrapAll('<div class="hexagons-inner-wrapper"></div>');
+//			$wrapper = $(element).find('.hexagons');
 
 			$(element).find('.hex').append('<div class="hex_l"></div>');
 			$(element).find('.hex_l').append('<div class="hex_r"></div>');
@@ -139,7 +139,7 @@ $.fn.hexagons = function(options) {
 
 			//TODO: make .invisible elements come back when up-sizing window
 			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
-				hexWidth = width/2 + settings.margin*6;
+				hexWidth = width/2 + settings.margin*4;
 				$(element).find('.invisible').detach();
 				$(element).find('.logo').detach();
 //				logo.insertBefore('.hexagons');
@@ -186,7 +186,6 @@ $.fn.hexagons = function(options) {
 //				.width(cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4)
 //				.height((row + 1) * (hexHeight + settings.margin) + hexHeight / 2);
 			
-//			var minWidth = cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4;
 		}
 
 		$(window).resize(function(){ // call reorder function when window resizes
