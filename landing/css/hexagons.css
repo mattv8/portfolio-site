@@ -2,6 +2,14 @@ body {
 	background: black;
 }
 
+#bgvideo {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	min-width: 100%; 
+	min-height: 100%;
+}
+
 /* Style of the landing page div */
 .landing {
 	position: absolute;
