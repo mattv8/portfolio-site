@@ -8,6 +8,12 @@ body {
 	bottom: 0;
 	min-width: 100%; 
 	min-height: 100%;
+	filter: blur(5px) saturate(50%);
+	transition: filter 0.2s;
+}
+
+#bgvideo:hover {
+	filter: none;
 }
 
 /* Style of the landing page div */
