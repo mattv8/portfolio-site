@@ -58,8 +58,9 @@ $.fn.hexagons = function(options) {
 					//var img_obj = new Image(100, 100); //Build image object
 					//img_obj.src = bg_img_src; //Attach bg image uri
 
-					// Attach bg image
-					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'")');
+					// Attach bg image and drop shadow
+					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
+					$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
 
 					if($(this).find('span').length > 0){ // If span is defined
 						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
