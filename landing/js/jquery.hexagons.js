@@ -62,10 +62,10 @@ $.fn.hexagons = function(options) {
 
 					// When hovering, show dominant color of image
 					$(this).mouseenter(function(){
-						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
 					});
 					$(this).mouseleave(function(){
-						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 					});
 
 				} // end if
@@ -73,10 +73,10 @@ $.fn.hexagons = function(options) {
 				// For hexagons with an image when hovering
 				if(hvr_img_src !== undefined){ //if image is defined
 					$(this).mouseenter(function(){
-						$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'");');
+						$(this).find('.inner-span').attr('style', 'transition: background-image 0.3s ease; background-image: url("'+hvr_img_src+'");');
 					})
 					$(this).mouseleave(function(){
-						$(this).find('.inner-span').attr('style', 'background-image: none');
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease; background-image: none');
 					})
 				} // end if
 				
