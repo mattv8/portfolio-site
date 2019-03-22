@@ -120,7 +120,7 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
 			$(element).find('.hexagons, .inner-text').css({'fontSize': textHeight});
-		}
+		} //end updateScales
 
 		/**
 		 * Div re-size animation function. Returns updated div dimensions.
@@ -170,7 +170,7 @@ $.fn.hexagons = function(options) {
 				}
 				
 			});	
-		}
+		} // end reorder(animate)
 
 		$(window).resize(function(){ // call reorder function when window resizes
 			reorder(true); //Set "animate" to true by default
@@ -178,12 +178,12 @@ $.fn.hexagons = function(options) {
 
 		buildHtml(); // Build the DOM
 		reorder(true);
-	}
+	} // end initialise(element)
 
 	return this.each(function() {
 		initialise(this);
 	});
 
-}
+} // end function(options)
 
 }(jQuery));
