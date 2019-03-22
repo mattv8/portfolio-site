@@ -8,7 +8,7 @@ body {
 	bottom: 0;
 	min-width: 100%; 
 	min-height: 100%;
-	filter: blur(5px) saturate(50%);
+	filter: blur(10px) saturate(20%);
 	transition: filter 0.2s;
 }
 
