@@ -53,7 +53,7 @@ $.fn.hexagons = function(options) {
 				if(bg_img_src !== undefined){ //if image is defined
 					// Experimental colorThief variables
 					var colorThief = new ColorThief(); // initialize colorThief
-					var img_obj = new Image(100, 100); // build image object
+					var img_obj = new Image(500, 500); // build image object
 					img_obj.src = bg_img_src; //attach bg image uri
 										
 					// Attach bg image and drop shadow
