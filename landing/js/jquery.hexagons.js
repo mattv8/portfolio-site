@@ -52,8 +52,7 @@ $.fn.hexagons = function(options) {
 				// For hexagons with links or solid color hover backgrounds
 				if(bg_img_src !== undefined){ //if image is defined
 					// Experimental colorThief variables
-					var colorThief = new ColorThief(); // initialize colorThief
-					var img_obj = new Image(500, 500); // build image object
+					var img_obj = new Image(360, 360); // build image object
 					img_obj.src = bg_img_src; //attach bg image uri
 										
 					// Attach bg image and drop shadow
@@ -68,6 +67,7 @@ $.fn.hexagons = function(options) {
 
 					// Experimental colorThief
 					// When hovering, show dominant color of image
+					var colorThief = new ColorThief(); // initialize colorThief
 					var color = colorThief.getColor(img_obj); // Get the dominant color of image
 					$(this).mouseenter(function(){
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
