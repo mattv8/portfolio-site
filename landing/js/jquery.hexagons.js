@@ -9,8 +9,8 @@ $.fn.hexagons = function(options) {
 	}, options);
 	
 	// Experimental colorThief
-//	// Create colorThief object
-//	var colorThief = new ColorThief();
+	// Create colorThief object
+	var colorThief = new ColorThief();
 
 	function initialise(element) {
 
