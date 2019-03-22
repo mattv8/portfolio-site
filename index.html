@@ -8,9 +8,11 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>	
 	<script src="landing/js/jquery.hexagons.js"></script>
 	<script src="landing/js/color-thief.min.js"></script>
+	<style>body{background: black; display:none;}</style> <!-- Hide body -->
 </head>
 <body>
 	
+	<!-- Background -->
 	<video autoplay muted loop id="bgvideo">
 		<source src="landing/video/BigTreesHI.mp4" type="video/mp4">
 	</video>
@@ -30,33 +32,36 @@
 	
 	<!-- Script calls -->
 	<script type="text/javascript">
-		
-		$(document).ready(function () {
-	
+		// Load these functions upon document load
+		$(document).ready(function() {
 			$('.hexagons').hexagons(); // Set up hexagons
 			$('.invisible').hide(); // Remove invisible elements
-		
-			// Play video after it has finished loading
-			var e = document.getElementById("bgvideo");
-			e.style.opacity = 0;
-			var vid = document.getElementById("bgvideo");
-			var tim = setInterval(function() {
-				if ( vid.readyState === 4) {
-					clearInterval(tim);
-					fade(e);
-				}
-			}, 100);
-			function fade(element) {
-				var op = 0;
-				var timer = setInterval(function() {
-					if (op >= 1) clearInterval(timer);
-					element.style.opacity = op;
-					element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-					op += op * 0.1 || 0.1;
-				}, 20);
-			}
-						
 		});
+		
+		// Then fade in the body.
+		$("img").on("load", function () {
+			$("body").fadeIn(10); // Fade in when loaded						
+		});
+		
+		// Finally, play video after it has finished loading
+		var e = document.getElementById("bgvideo");
+		e.style.opacity = 0;
+		var vid = document.getElementById("bgvideo");
+		var tim = setInterval(function() {
+			if ( vid.readyState === 4) {
+				clearInterval(tim);
+				fade(e);
+			}
+		}, 100);
+		function fade(element) {
+			var op = 0;
+			var timer = setInterval(function() {
+				if (op >= 1) clearInterval(timer);
+				element.style.opacity = op;
+				element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+				op += op * 0.1 || 0.1;
+			}, 20);
+		}
 	</script>
 
 </body>
