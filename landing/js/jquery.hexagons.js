@@ -108,6 +108,8 @@ $.fn.hexagons = function(options) {
 			
 			$(element).find('img, span, link').hide();
 			
+			$('.invisible').hide(); // Remove invisible elements
+			
 		} //end buildHtml
 				
 		/**
