@@ -17,17 +17,12 @@ $.fn.hexagons = function(options) {
 		var metric_idx = 1; // iterates through number of panels
 		var n_panels = 11; // Number of metric panels on dashboard
 		var textHeight = 1; // initialize hex scale factor
-//		var $wrapper = null;
 
 		/**
 		 * All DOM building must go here. Function is called at end of script.
 		 * This is to prevent half-loading of the page.
 		 */
 		function buildHtml(){
-
-			// add the 2 other boxes
-//			$(element).find('.hex').wrapAll('<div class="hexagons-inner-wrapper"></div>');
-//			$wrapper = $(element).find('.hexagons');
 
 			$(element).find('.hex').append('<div class="hex_l"></div>');
 			$(element).find('.hex_l').append('<div class="hex_r"></div>');
@@ -44,16 +39,16 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hex').each(function(){
 				
 				hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
-				
-				// TODO: Make .logo have index of 1 so it appears at the top when re-flowing
 				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
 				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
 				
 				// For hexagons with links or solid color hover backgrounds
 				if(bg_img_src !== undefined){ //if image is defined
-					// Experimental colorThief variables
+					// colorThief variables
 					var img_obj = new Image(360, 360); // build image object
 					img_obj.src = bg_img_src; //attach bg image uri
+					var colorThief = new ColorThief(); // initialize colorThief
+					var color = colorThief.getColor(img_obj); // Get the dominant color of image
 										
 					// Attach bg image and drop shadow
 					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
@@ -65,10 +60,7 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span').remove();
 					} // end if
 
-					// Experimental colorThief
 					// When hovering, show dominant color of image
-					var colorThief = new ColorThief(); // initialize colorThief
-					var color = colorThief.getColor(img_obj); // Get the dominant color of image
 					$(this).mouseenter(function(){
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
 					});
@@ -82,10 +74,8 @@ $.fn.hexagons = function(options) {
 				if(hvr_img_src !== undefined){ //if image is defined
 					$(this).mouseenter(function(){
 						$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'");');
-						//$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
 					})
 					$(this).mouseleave(function(){
-						//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
 						$(this).find('.inner-span').attr('style', 'background-image: none');
 					})
 				} // end if
@@ -116,20 +106,14 @@ $.fn.hexagons = function(options) {
 				metric_idx = metric_idx + 1; // iterate metric counter
 			})
 			
-			//$(element).find('img, span, .inner-span').hide(); //hide .inner-span
 			$(element).find('img, span, link').hide();
 			
 		} //end buildHtml
-		
-		
-//		var invisible = $(element).find('.invisible');
-//		var logo = $(element).find('.logo');
-		
+				
 		/**
 		 * Update all scale values
 		 */
 		function updateScales(hexWidth){			
-//			hexWidth = settings.hexWidth*scale;
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
 			textHeight = hexHeight*.13; //pixel height of text is percentage of hex height
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
@@ -150,14 +134,11 @@ $.fn.hexagons = function(options) {
 				hexWidth = width/2 + settings.margin*4;
 				$(element).find('.invisible').detach();
 				$(element).find('.logo').detach();
-//				logo.insertBefore('.hexagons');
 			}else { 
 				hexWidth = settings.hexWidth;
-//				invisible.appendTo("hexagons");
 			}
 			updateScales(hexWidth); //call function above
 												
-//			$wrapper.width(width); //load initial hex wrapper div size (preallocate)
 			var row = 0; // current row
 			var upDown = 1; // 1 is down
 			var left = 0; // pos left
@@ -188,28 +169,12 @@ $.fn.hexagons = function(options) {
 					upDown = 1;
 				}
 				
-			});
-
-//			$wrapper
-//				.width(cols * (hexWidth / 4 * 3 + settings.margin) + hexWidth / 4)
-//				.height((row + 1) * (hexHeight + settings.margin) + hexHeight / 2);
-			
+			});	
 		}
 
 		$(window).resize(function(){ // call reorder function when window resizes
 			reorder(true); //Set "animate" to true by default
 		});
-		
-		// Mouseover events (faster)
-		/*$(element).find('.hex').mouseenter(function(){
-			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:white');
-			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: #A31F20');
-		});
-
-		$(element).find('.hex').mouseleave(function(){
-			//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
-			$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
-		});*/
 
 		buildHtml(); // Build the DOM
 		reorder(true);
