@@ -7,10 +7,6 @@ $.fn.hexagons = function(options) {
 		hexWidth: 250,
 		margin: 10,
 	}, options);
-	
-	// Experimental colorThief
-	// Create colorThief object
-	var colorThief = new ColorThief();
 
 	function initialise(element) {
 
@@ -56,10 +52,10 @@ $.fn.hexagons = function(options) {
 				// For hexagons with links or solid color hover backgrounds
 				if(bg_img_src !== undefined){ //if image is defined
 					// Experimental colorThief variables
-					var img_obj = new Image(100, 100); //Build image object
-					img_obj.src = bg_img_src; //Attach bg image uri
-					var color = colorThief.getColor(img_obj); // Get the dominant color of image
-					
+					var colorThief = new ColorThief(); // initialize colorThief
+					var img_obj = new Image(100, 100); // build image object
+					img_obj.src = bg_img_src; //attach bg image uri
+										
 					// Attach bg image and drop shadow
 					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
 					$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
@@ -72,14 +68,14 @@ $.fn.hexagons = function(options) {
 
 					// Experimental colorThief
 					// When hovering, show dominant color of image
+					var color = colorThief.getColor(img_obj); // Get the dominant color of image
 					$(this).mouseenter(function(){
-						$(this).find('.inner-span').attr('style', 'background-image: url("'+color+'");');
-						//$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
-					})
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color: rgb(' + color + ')');
+					});
 					$(this).mouseleave(function(){
-						//$(this).find('.inner-text').attr('style', 'transition: color 0.5s ease;  color:inherit');
-						$(this).find('.inner-span').attr('style', 'background-image: none');
-					})
+						$(this).find('.inner-span').attr('style', 'transition: background-color 0.5s ease;  background-color:none');
+					});
+
 				} // end if
 				
 				// For hexagons with an image when hovering
