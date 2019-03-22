@@ -8,6 +8,9 @@ $.fn.hexagons = function(options) {
 		margin: 10,
 	}, options);
 
+	// Experimental colorThief variables
+	var colorThief = new ColorThief(); // initialize colorThief
+	
 	function initialise(element) {
 
 		var width = 0;
@@ -51,8 +54,7 @@ $.fn.hexagons = function(options) {
 				
 				// For hexagons with links or solid color hover backgrounds
 				if(bg_img_src !== undefined){ //if image is defined
-					// Experimental colorThief variables
-					var colorThief = new ColorThief(); // initialize colorThief
+
 					var img_obj = new Image(100, 100); // build image object
 					img_obj.src = bg_img_src; //attach bg image uri
 										
