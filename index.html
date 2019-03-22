@@ -7,14 +7,13 @@
 	<link rel="stylesheet" type="text/css" href="landing/css/hexagons.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>	
 	<script src="landing/js/jquery.hexagons.js"></script>
+	<script src="../landing/js/color-thief.min.js"></script>
 </head>
 <body>
 	
-<!--
 	<video autoplay muted loop id="bgvideo">
 		<source src="landing/video/rain.mp4" type="video/mp4">
 	</video>
--->
 	
 	<!-- Hexagons -->
 	<div class="hexagons landing">
@@ -33,6 +32,10 @@
 	<script type="text/javascript">
 		
 		$(document).ready(function () {
+			
+			// Create colorThief object
+			var colorThief = new ColorThief();
+			
 			$('.hexagons').hexagons(); // Set up hexagons
 			$('.invisible').hide(); // Remove invisible elements
 		
@@ -55,7 +58,7 @@
 					op += op * 0.1 || 0.1;
 				}, 20);
 			}
-			
+						
 		});
 	</script>
 
