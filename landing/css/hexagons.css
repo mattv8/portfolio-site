@@ -10,7 +10,6 @@ body {
 	min-height: 100%;
 	filter: blur(10px) saturate(20%);
 	transition: filter 0.2s;
-	z-index: -1;
 }
 
 #bgvideo:hover {
