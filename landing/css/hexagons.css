@@ -81,18 +81,22 @@ body {
 	color: black;
 }
 
-.column {
-	float: left;
-	display: block;
-	height: 400px;
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
 }
 
-.left {
-  	width: 65%;
+td { /*columns*/
+  padding: 8px;
 }
 
-.right {
-  	width: 35%;
+td:nth-child(1) { /*col1*/
+  width: 65%;
+  }
+
+td:nth-child(2) { /*col2*/
+  width: 35%;
 }
 
 /* ****** HEXAGONS ****** */

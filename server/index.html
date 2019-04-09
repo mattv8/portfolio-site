@@ -18,12 +18,12 @@
 <body>
 	
 <div class="tab">
-	<button class="tablinks" onclick="openTab(event, 'Nodes')" id="defaultOpen">Status</button>
-	<button class="tablinks" onclick="openTab(event, 'Tables')">Tables</button>
+	<button class="tablinks" onclick="openTab(event, 'Overview')" id="defaultOpen">Overview</button>
+	<button class="tablinks" onclick="openTab(event, 'Details')">Details</button>
 	<button class="tablinks" onclick="window.location.href='../'">Home</button>
 </div>
 
-<div id="Nodes" class="tabcontent">
+<div id="Overview" class="tabcontent">
 	<div class="hexagons">
 		<!-- <div class="hex link"> <img class="bg" src="" /> <span></span> <link href="#"></link> </div> -->
 		<div class="hex metrics"> <span>ArkServer</span> </div>
@@ -41,13 +41,23 @@
 	</div>	
 </div>
 
-<div id="Tables" class="tabcontent">
-	<div class="column left">
-		<iframe src="https://metrics.sonic-server.net/d-solo/THhuyhWmk/cluster-metrics?refresh=30s&orgId=1&panelId=47&from=1554842386142&to=1554845986143" frameborder="0" width="98%" height="100%"></iframe>
-	</div>
-	<div class="column right">
-		<iframe src="https://metrics.sonic-server.net/d-solo/THhuyhWmk/cluster-metrics?refresh=30s&orgId=1&kiosk&panelId=32&from=1554842864518&to=1554846464519" frameborder="0" width="98%" height="100%"></iframe>
-	</div>
+<div id="Details" class="tabcontent">
+	<table>
+    <tr>
+      <td><iframe src="https://metrics.sonic-server.net/d-solo/THhuyhWmk/cluster-metrics?refresh=5m&orgId=1&panelId=47" frameborder="0" width="100%" height="400px"></iframe></td>
+      <td><iframe src="https://metrics.sonic-server.net/d-solo/THhuyhWmk/cluster-metrics?refresh=5m&orgId=1&kiosk&panelId=32" frameborder="0" width="100%" height="400px"></iframe></td>
+    </tr>
+<!--
+    <tr>
+      <td>Eve</td>
+      <td>Jackson</td>
+    </tr>
+    <tr>
+      <td>Adam</td>
+      <td>Johnson</td>
+    </tr>
+-->
+  </table>
 </div>
 			
 <!-- Script calls -->
