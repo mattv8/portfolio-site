@@ -82,23 +82,22 @@ body {
 }
 
 /* Tables */
-table {
-  border-collapse: collapse;
-  width: 100%;
+.column {
+	float: left;
+	padding: .5%;
+	height: 100%;
 }
 
-td { /*columns*/
-  padding: 8px;
+.row {
+	width: 100%;
 }
 
-td:nth-child(1) { /*col1*/
-  width: 65%;
-  }
-
-td:nth-child(2) { /*col2*/
-  width: 35%;
+/* Clear floats after the columns */
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
 }
-
 /* ****** HEXAGONS ****** */
 .hexagons .hexagons-inner-wrapper{
 	display: inline-block;
