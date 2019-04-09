@@ -19,7 +19,7 @@
 	
 <div class="tab">
 	<button class="tablinks" onclick="openTab(event, 'Nodes')" id="defaultOpen">Status</button>
-	<button class="tablinks" onclick="window.location.href='https://metrics.sonic-server.net/d/THhuyhWmk/cluster-metrics?refresh=30s&orgId=1&kiosk'">Live Dashboard</button>
+	<button class="tablinks" onclick="openTab(event, 'Tables')">Tables</button>
 	<button class="tablinks" onclick="window.location.href='../'">Home</button>
 </div>
 
@@ -41,14 +41,13 @@
 	</div>	
 </div>
 
-<div id="Hosts" class="tabcontent">
-  <h3>Hosts</h3>
-  <p>Coming soon.</p> 
-</div>
-
-<div id="Web" class="tabcontent">
-  <h3>Web</h3>
-  <p>Coming soon.</p>
+<div id="Tables" class="tabcontent">
+	<div class="column left">
+		<iframe src="https://metrics.sonic-server.net/d-solo/THhuyhWmk/cluster-metrics?refresh=30s&orgId=1&panelId=47&from=1554842386142&to=1554845986143" frameborder="0" width="98%" height="100%"></iframe>
+	</div>
+	<div class="column right">
+		<iframe src="https://metrics.sonic-server.net/d-solo/THhuyhWmk/cluster-metrics?refresh=30s&orgId=1&kiosk&panelId=32&from=1554842864518&to=1554846464519" frameborder="0" width="98%" height="100%"></iframe>
+	</div>
 </div>
 			
 <!-- Script calls -->

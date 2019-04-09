@@ -81,6 +81,20 @@ body {
 	color: black;
 }
 
+.column {
+	float: left;
+	display: block;
+	height: 400px;
+}
+
+.left {
+  	width: 65%;
+}
+
+.right {
+  	width: 35%;
+}
+
 /* ****** HEXAGONS ****** */
 .hexagons .hexagons-inner-wrapper{
 	display: inline-block;
