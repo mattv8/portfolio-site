@@ -18,14 +18,6 @@ body {
 }
 
 /* Style of the landing page div */
-#landing-wrapper {
-	width: 100%;
-    height: 800px;
-    margin: 0 auto;
-    padding: 10px;
-    position: relative;
-}
-
 .landing {
 	width: 655px; /*fixed div size till break point */
 	height: 670px; /*fixed div size till break point */
