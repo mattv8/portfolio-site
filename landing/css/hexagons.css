@@ -85,28 +85,29 @@ body {
 }
 
 /* ****** HEXAGONS ****** */
-.hexagons .hexagons-inner-wrapper{
+/*.hexagons-inner-wrapper{
 	display: inline-block;
 	overflow: hidden;
 	width: 1044px;
 	position: relative;
 	height: auto;
-}
+}*/
 
 /* HEX SHAPE */
-.hexagons .hex {
+.hex {
 	position: absolute;
 	display: inline-block;
+	border-radius: 20px;
 }
 
-.hexagons .hex_l,
-.hexagons .hex_r{
+.hex_l,
+.hex_r{
 	overflow: hidden;
 	position: absolute;
 	/* -webkit-backface-visibility: hidden; */
 }
 
-.hexagons .hex_l{
+.hex_l{
 	visibility: hidden;
 	-moz-transform: rotate(60deg);
 	-ms-transform: rotate(60deg);
@@ -115,9 +116,9 @@ body {
 	transform: rotate(60deg);
 }
 
-.hexagons .hex_r{
+.hex_r{
 	visibility: hidden;
-	box-shadow: 5px 10px 10px gray;
+	/*box-shadow: 5px 10px 10px gray;*/
 	-moz-transform: rotate(-120deg);
 	-ms-transform: rotate(-120deg);
 	-o-transform: rotate(-120deg);
@@ -125,7 +126,7 @@ body {
 	transform: rotate(-120deg);
 }
 
-.hexagons .hex_inner{
+.hex_inner{
 	display: block;
 	visibility: visible;
 	-moz-transform: rotate(60deg);
@@ -140,7 +141,7 @@ body {
   	background-size: cover;
 }
 
-.hexagons .inner-span{
+.inner-span{
 	display: block;
 	background-position: inherit;
 	-webkit-background-size: cover;
@@ -151,7 +152,7 @@ body {
 	width: 100%;
 }
 
-.hexagons .inner-text{
+.inner-text{
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 /*	font-size: 1.5em;*/
@@ -159,7 +160,7 @@ body {
 	color: white;
 }
 
-.hexagons .hex .link {
+.hex .link {
 	cursor: pointer;
 	text-decoration: none;
 	color: white;
