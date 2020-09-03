@@ -3,18 +3,27 @@ body {
 }
 
 #bgvideo {
-	position: fixed;
-	right: 0;
-	bottom: 0;
-	min-width: 100%; 
-	min-height: 100%;
-	filter: blur(10px) saturate(20%);
-	transition: filter 0.2s;
-	z-index: -1;
-}
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    min-width: 100%;
+    min-height: 100%;
+    width: 100%;
+    height: auto;
+    z-index: -1000;
+    overflow: hidden;
+    -webkit-filter: blur(25px);
+    -moz-filter: blur(25px);
+    -o-filter: blur(25px);
+    -ms-filter: blur(25px);
+    filter: blur(25px);
 
 #bgvideo:hover {
-	filter: none;
+	-webkit-filter: none;
+    -moz-filter: none;
+    -o-filter: none;
+    -ms-filter: none;
+    filter: none;
 }
 
 /* Style of the landing page div */
