@@ -16,7 +16,9 @@ body {
     -moz-filter: blur(25px);
     -o-filter: blur(25px);
     -ms-filter: blur(25px);
-    filter: blur(25px);
+    filter: blur(25px) saturate(20%);
+	transition: filter 0.2s;
+}
 
 #bgvideo:hover {
 	-webkit-filter: none;
