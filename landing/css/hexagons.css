@@ -12,11 +12,11 @@ body {
     height: auto;
     z-index: -1000;
     overflow: hidden;
-    -webkit-filter: blur(25px);
-    -moz-filter: blur(25px);
-    -o-filter: blur(25px);
-    -ms-filter: blur(25px);
-    filter: blur(25px) saturate(20%);
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -o-filter: blur(10px);
+    -ms-filter: blur(10px);
+    filter: blur(10px) saturate(20%);
 	transition: filter 0.2s;
 }
 
