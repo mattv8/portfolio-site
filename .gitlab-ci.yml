@@ -35,8 +35,6 @@ deploy-to-production-server:
                 - branches #Changes to branches trigger pipeline
             # changes:
             #     - Public/**/* #Only run pipeline on changes to Public folder
-        variables:
-            GIT_STRATEGY: clone #Fixes bug specific to CentOS7
         when: manual #Runner will only run with manual intervention
         script:
             - if [ -z "$portfolio_production_webroot" ]; then echo "Need to set webroot" && exit 1; fi
