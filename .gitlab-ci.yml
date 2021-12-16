@@ -17,7 +17,7 @@ stages:
 #             refs:
 #                 - branches #Changes to branches trigger pipeline
 #             changes:
-#                 - /**/* #Only run pipeline on changes to root folder
+#                 - Public/**/* #Only run pipeline on changes to Public folder
 #         script:
 #             - if [ -z "$portfolio_development_webroot" ]; then echo "Need to set webroot" && exit 1; fi
 #             - sudo rsync -rv ./ $portfolio_development_webroot ---exclude-from=./_exclusions.txt --delete
@@ -33,8 +33,8 @@ deploy-to-production-server:
         only: 
             refs:
                 - branches #Changes to branches trigger pipeline
-            changes:
-                - /**/* #Only run pipeline on changes to Public folder
+            # changes:
+            #     - Public/**/* #Only run pipeline on changes to Public folder
         variables:
             GIT_STRATEGY: clone #Fixes bug specific to CentOS7
         when: manual #Runner will only run with manual intervention
