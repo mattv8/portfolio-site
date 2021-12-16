@@ -20,7 +20,7 @@ stages:
 #                 - Public/**/* #Only run pipeline on changes to Public folder
 #         script:
 #             - if [ -z "$portfolio_development_webroot" ]; then echo "Need to set webroot" && exit 1; fi
-#             - sudo rsync -rv ./ $portfolio_development_webroot ---exclude-from=./_exclusions.txt --delete
+#             - sudo rsync -rv ./Public/ $portfolio_development_webroot ---exclude-from=./_exclusions.txt --delete
 #             - sudo chown admin:admin $portfolio_development_webroot -R
 
 #### PRODUCTION ####
@@ -33,10 +33,10 @@ deploy-to-production-server:
         only: 
             refs:
                 - branches #Changes to branches trigger pipeline
-            # changes:
-            #     - Public/**/* #Only run pipeline on changes to Public folder
+            changes:
+                - Public/**/* #Only run pipeline on changes to Public folder
         when: manual #Runner will only run with manual intervention
         script:
             - if [ -z "$portfolio_production_webroot" ]; then echo "Need to set webroot" && exit 1; fi
-            - sudo rsync -rv ./ $portfolio_production_webroot ---exclude-from=./_exclusions.txt --delete
+            - sudo rsync -rv ./Public/ $portfolio_production_webroot ---exclude-from=./_exclusions.txt --delete
             - sudo chown admin:admin $portfolio_production_webroot -R
