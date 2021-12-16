@@ -1,0 +1,9 @@
+.git
+.gitignore
+.gitlab-ci.yml
+_exclusions.txt
+ LICENSE
+ README.md
+ vault
+ /core/wp-config.php
+ /core/wp-content

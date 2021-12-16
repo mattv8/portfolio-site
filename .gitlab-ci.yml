@@ -1,11 +1,44 @@
-    stages:
-     - deploy
-     
-    pages:
-     stage: deploy
-     script:
-     - if [ -z "$webroot" ]; then echo "Need to set webroot" && exit 1; fi
-     - sudo rsync -rv ./ $webroot --exclude '.git' --exclude '.gitlab-ci.yml' --exclude '.gitignore' --exclude 'LICENSE' --exclude 'README.md' --exclude 'vault' --exclude '/core/wp-config.php' --exclude '/core/wp-content'
-     - sudo chown admin:admin $webroot -R
-     only:
-     - master
+#####################################################
+#
+#   PORTFOLIO WEBSITE CI/CD PIPELINE
+#
+#
+
+stages:
+    # - development   #Pushes code to dev.webguyinternet.com server.
+    - production    #Pushes code to production server.
+
+# #### DEVELOPMENT ####
+# deploy-to-development-server:
+#         stage: development
+#         tags:
+#             - galaxyclass-webserver #Only runner with this tag will run this pipeline
+#         only: 
+#             refs:
+#                 - branches #Changes to branches trigger pipeline
+#             changes:
+#                 - /**/* #Only run pipeline on changes to root folder
+#         script:
+#             - if [ -z "$portfolio_development_webroot" ]; then echo "Need to set webroot" && exit 1; fi
+#             - sudo rsync -rv ./ $portfolio_development_webroot ---exclude-from=./_exclusions.txt --delete
+#             - sudo chown admin:admin $portfolio_development_webroot -R
+
+#### PRODUCTION ####
+deploy-to-production-server:
+        environment:
+            name: production
+        stage: production
+        tags:
+            - galaxyclass-webserver #Only runner with this tag will run this pipeline
+        only: 
+            refs:
+                - branches #Changes to branches trigger pipeline
+            changes:
+                - /**/* #Only run pipeline on changes to Public folder
+        variables:
+            GIT_STRATEGY: clone #Fixes bug specific to CentOS7
+        when: manual #Runner will only run with manual intervention
+        script:
+            - if [ -z "$portfolio_production_webroot" ]; then echo "Need to set webroot" && exit 1; fi
+            - sudo rsync -rv ./ $portfolio_production_webroot ---exclude-from=./_exclusions.txt --delete
+            - sudo chown admin:admin $portfolio_production_webroot -R
