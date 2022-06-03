@@ -38,5 +38,5 @@ deploy-to-production-server:
         when: manual #Runner will only run with manual intervention
         script:
             - if [ -z "$portfolio_production_webroot" ]; then echo "Need to set webroot" && exit 1; fi
-            - sudo rsync -avzr ./ $portfolio_production_webroot --exclude-from=./_exclusions.txt --delete
+            - sudo rsync -avzr ./Public/ $portfolio_production_webroot --exclude-from=./_exclusions.txt --delete
             - sudo chown admin:admin $portfolio_production_webroot -R

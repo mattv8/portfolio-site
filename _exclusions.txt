@@ -2,6 +2,9 @@
 .gitignore
 .gitlab-ci.yml
 _exclusions.txt
+LICENSE
+README.md
+Screenshot.png
 vault
 /core/wp-config.php
 /core/wp-content
