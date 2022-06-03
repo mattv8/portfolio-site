@@ -84,8 +84,8 @@ $.fn.hexagons = function(options) {
 			
 			// Hex metrics
 			$(element).find('.metrics').each(function(){
-				var metric_state = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+metric_idx+"&width=220&height=220&tz=America%2FDenver";
-				var metric_avail = "https://metrics.sonic-server.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+(metric_idx+n_panels)+"&width=220&height=220&tz=America%2FDenver";
+				var metric_state = "https://metrics.galaxyclass.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+metric_idx+"&width=220&height=220&tz=America%2FDenver";
+				var metric_avail = "https://metrics.galaxyclass.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+(metric_idx+n_panels)+"&width=220&height=220&tz=America%2FDenver";
 
 				// Attach bg image
 				$(this).find('.hex_inner').attr('style', 'background-image: url("'+metric_state+'");');
