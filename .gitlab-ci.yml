@@ -5,23 +5,27 @@
 #
 
 stages:
-    # - development   #Pushes code to dev.webguyinternet.com server.
+    - development   #Pushes code to dev.webguyinternet.com server.
     - production    #Pushes code to production server.
 
 # #### DEVELOPMENT ####
-# deploy-to-development-server:
-#         stage: development
-#         tags:
-#             - galaxyclass-webserver #Only runner with this tag will run this pipeline
-#         only: 
-#             refs:
-#                 - branches #Changes to branches trigger pipeline
-#             changes:
-#                 - Public/**/* #Only run pipeline on changes to Public folder
-#         script:
-#             - if [ -z "$portfolio_development_webroot" ]; then echo "Need to set webroot" && exit 1; fi
-#             - sudo rsync -rv ./Public/ $portfolio_development_webroot ---exclude-from=./_exclusions.txt --delete
-#             - sudo chown admin:admin $portfolio_development_webroot -R
+deploy-to-development-server:
+        stage: development
+        tags:
+            - cp2 #Only runner with this tag will run this pipeline
+        except:
+            changes: #Ignore changes to the following files
+                - _exclusings.txt
+                - .* #Ignore dot files
+                - "*.md" #Ignore .md files
+                - Screenshot.png
+        only:
+            refs:
+                - branches #Changes to branches trigger pipeline
+        script:
+            - if [ -z "$portfolio_development_webroot" ]; then echo "Need to set webroot" && exit 1; fi
+            - sudo rsync -avzr ./ $portfolio_development_webroot ---exclude-from=./_exclusions.txt --delete
+            - sudo chown admin:admin $portfolio_development_webroot -R
 
 #### PRODUCTION ####
 deploy-to-production-server:
@@ -29,14 +33,18 @@ deploy-to-production-server:
             name: production
         stage: production
         tags:
-            - galaxyclass-webserver #Only runner with this tag will run this pipeline
+            - cp2 #Only runner with this tag will run this pipeline
+        except:
+            changes: #Ignore changes to the following files
+                - _exclusings.txt
+                - .* #Ignore dot files
+                - "*.md" #Ignore .md files
+                - Screenshot.png
         only: 
             refs:
                 - branches #Changes to branches trigger pipeline
-            changes:
-                - Public/**/* #Only run pipeline on changes to Public folder
         when: manual #Runner will only run with manual intervention
         script:
             - if [ -z "$portfolio_production_webroot" ]; then echo "Need to set webroot" && exit 1; fi
-            - sudo rsync -avzr ./Public/ $portfolio_production_webroot --exclude-from=./_exclusions.txt --delete
+            - sudo rsync -avzr ./ $portfolio_production_webroot --exclude-from=./_exclusions.txt --delete
             - sudo chown admin:admin $portfolio_production_webroot -R
