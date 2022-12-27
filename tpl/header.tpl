@@ -36,7 +36,9 @@
 	<script src="lib/color-thief/color-thief.min.js"></script>
   <script src="js/functions.js"></script>
 	<script src="js/hexagons.js"></script>
-	{literal}<style>.hexagons{display:none;}</style>
+
+	{literal}
+  <style>.hexagons{display:none;}</style>
 
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-136799599-1"></script>
 	<script>
