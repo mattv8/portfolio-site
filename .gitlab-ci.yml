@@ -5,8 +5,8 @@
 #
 
 stages:
-    - development   #Pushes code to dev.webguyinternet.com server.
-    - production    #Pushes code to production server.
+    - development   #Pushes code to development site.
+    - production    #Pushes code to production site.
 
 # #### DEVELOPMENT ####
 deploy-to-development-server:
