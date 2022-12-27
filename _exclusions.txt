@@ -3,5 +3,5 @@
 .gitlab-ci.yml
 _exclusions.txt
 vault
-/core/wp-config.php
-/core/wp-content
+README.md
+Screenshot.png
