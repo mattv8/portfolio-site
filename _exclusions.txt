@@ -1,7 +1,19 @@
+################################################################
+#
+# Use this file to ignore files/directories during rsync process
+#
+
+# This file
+_exclusions.txt
+
+# GIT & GitLab System Files
 .git
 .gitignore
 .gitlab-ci.yml
-_exclusions.txt
-vault
+.vscode
 README.md
+robots.txt
 Screenshot.png
+
+# Keepass Vault
+vault
