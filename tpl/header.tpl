@@ -21,11 +21,11 @@
 
   {* Load Javascript Config Object *}
   <script>
+    "use strict";
     window.GLOBAL = {}; // GLOBAL Object namespace
     GLOBAL.config = {$js_config|json_encode nofilter};
 
-    {if $debug eq 'false' }{literal}
-      "use strict";
+    {if !isset($debug) or !$debug }{literal}
       const msg = "The console has been disabled for security purposes.";
       const console = {
         log : function(){ return msg; },
