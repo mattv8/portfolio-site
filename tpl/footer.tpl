@@ -1,5 +1,5 @@
 {* Footer Script *}
-{literal}
+{literal} 
 <script type="text/javascript">
   // Wait for images to load then execute scripts
   $('.hexagons').waitForImages(function() {
