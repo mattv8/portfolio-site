@@ -1,3 +1,8 @@
+/*
+	Hexagon Code
+	Written by Matthew Visnovsky
+*/
+
 (function($) {
 
 $.fn.hexagons = function(options) {
