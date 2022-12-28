@@ -24,7 +24,7 @@
     window.GLOBAL = {}; // GLOBAL Object namespace
     GLOBAL.config = {$js_config|json_encode nofilter};
 
-    {if !$debug }{literal}
+    {if $debug eq 'false' }{literal}
       "use strict";
       const msg = "The console has been disabled for security purposes.";
       const console = {
