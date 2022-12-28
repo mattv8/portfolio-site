@@ -6,7 +6,7 @@
     $('.hexagons').hexagons(); // Set up hexagons
     $('.hexagons').fadeIn(10); // Fade in when loaded
   });
-      
+  
   // Play video after it has finished loading
   var e = document.getElementById("bgvideo");
   e.style.opacity = 0;
