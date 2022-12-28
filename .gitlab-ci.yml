@@ -15,7 +15,7 @@ deploy-to-development-server:
             - cp2 #Only runner with this tag will run this pipeline
         except:
             changes: #Ignore changes to the following files
-                - _exclusings.txt
+                - "_exclusings.txt"
                 - .* #Ignore dot files
                 - "*.md" #Ignore .md files
                 - Screenshot.png
@@ -36,7 +36,7 @@ deploy-to-production-server:
             - cp2 #Only runner with this tag will run this pipeline
         except:
             changes: #Ignore changes to the following files
-                - _exclusings.txt
+                - "_exclusings.txt"
                 - .* #Ignore dot files
                 - "*.md" #Ignore .md files
                 - Screenshot.png
