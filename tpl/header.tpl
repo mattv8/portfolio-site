@@ -47,8 +47,12 @@
   <script src="lib/select2/js/select2.full.min.js"></script>
 	<script src="lib/wait-for-images/wait-for-images.min.js"></script>
 	<script src="lib/color-thief/color-thief.min.js"></script>
+  {if file_exists('js/all.min.js')}
+  <script src="js/all.min.js"></script>
+  {else}
   <script src="js/functions.js"></script>
 	<script src="js/hexagons.js"></script>
+  {/if}
 
 	{literal}
   <style>.hexagons{display:none;}</style>
