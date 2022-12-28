@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
+
   <title>{$site_title}</title>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -23,6 +23,18 @@
   <script>
     window.GLOBAL = {}; // GLOBAL Object namespace
     GLOBAL.config = {$js_config|json_encode nofilter};
+
+    {if !$debug }{literal}
+      "use strict";
+      const msg = "The console has been disabled for security purposes.";
+      const console = {
+        log : function(){ return msg; },
+        warn : function(){ return msg; },
+        error : function(){ return msg; },
+        time : function(){ return msg; },
+        timeEnd : function(){ return msg; },
+      };
+    {/literal}{/if}
   </script>
 
   {* Javascript Libraries*}
