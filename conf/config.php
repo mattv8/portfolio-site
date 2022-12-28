@@ -5,8 +5,8 @@
 #==============================================================================
 
 # Debug mode
-$debug = true;
-$smarty_debug = true;
+$debug = false;
+$smarty_debug = false;
 
 # Cache directory
 $smarty_compile_dir = "cache";
@@ -20,8 +20,8 @@ $site_title = "Portfolio | Landing";
 $js_config = array('');
 
 # Allow to override current settings with local configuration
-if (file_exists ($_SERVER['DOCUMENT_ROOT'].'/config.local.php')) {
-    include ($_SERVER['DOCUMENT_ROOT'].'/config.local.php');
+if (file_exists ($_SERVER['DOCUMENT_ROOT'].'/conf/config.local.php')) {
+    include ($_SERVER['DOCUMENT_ROOT'].'/conf/config.local.php');
 }
 
 # Smarty
