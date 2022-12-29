@@ -9,12 +9,11 @@
   <meta name="author" content="Matthew P. Visnovsky" />
   
   {* CSS Libraries *}
-  <link rel="stylesheet" type="text/css" href="lib/bootstrap5/css/bootstrap.min.css" />
+  {* <link rel="stylesheet" type="text/css" href="lib/bootstrap5/css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="lib/font-awesome5/css/all.min.css" />
   <link rel="stylesheet" type="text/css" href="lib/datatables/css/dataTables.bootstrap5.min.css" />
   <link rel="stylesheet" type="text/css" href="lib/datepicker-lightpick/css/lightpick.css" />
-  <link rel="stylesheet" type="text/css" href="lib/select2/css/select2.min.css" />
-	<link rel="stylesheet" type="text/css" href="css/hexagons.css" />
+  <link rel="stylesheet" type="text/css" href="lib/select2/css/select2.min.css" /> *}
 
   {* Fonts *}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee" >
@@ -39,12 +38,12 @@
 
   {* Javascript Libraries*}
   <script src="lib/jquery3/js/jquery-3.6.1.min.js"></script>
-  <script src="lib/bootstrap5/js/bootstrap.bundle.min.js"></script>
+  {* <script src="lib/bootstrap5/js/bootstrap.bundle.min.js"></script>
   <script src="lib/datatables/js/datatables.min.js"></script>
   <script src="lib/datatables/js/dataTables.bootstrap5.min.js"></script>
   <script src="lib/moment/moment.min.js"></script>
   <script src="lib/datepicker-lightpick/js/lightpick.js"></script>
-  <script src="lib/select2/js/select2.full.min.js"></script>
+  <script src="lib/select2/js/select2.full.min.js"></script> *}
 	<script src="lib/wait-for-images/wait-for-images.min.js"></script>
 	<script src="lib/color-thief/color-thief.min.js"></script>
   {if file_exists('js/all.min.js')}
@@ -52,6 +51,7 @@
   {else}
   <script src="js/functions.js"></script>
 	<script src="js/hexagons.js"></script>
+	<script src="js/proxmox.js"></script>
   {/if}
 
 	{literal}

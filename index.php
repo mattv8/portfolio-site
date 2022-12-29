@@ -47,7 +47,7 @@ $smarty->assign('site_title',$site_title);
 # Route to page
 #==============================================================================
 $result = "";
-$page = "index";
+$page = "landing";
 if (isset($_GET["page"]) and $_GET["page"]) { $page = $_GET["page"]; }
 if ( file_exists($page.".php") ) { require_once($page.".php"); }
 $smarty->assign('page',$page);

@@ -9,14 +9,17 @@
   
   // Play video after it has finished loading
   var e = document.getElementById("bgvideo");
-  e.style.opacity = 0;
-  var vid = document.getElementById("bgvideo");
-  var tim = setInterval(function() {
-    if ( vid.readyState === 4) {
-      clearInterval(tim);
-      fade(e);
-    }
-  }, 100);
+  if(e) {
+    e.style.opacity = 0;
+    var vid = document.getElementById("bgvideo");
+    var tim = setInterval(function() {
+      if ( vid.readyState === 4) {
+        clearInterval(tim);
+        fade(e);
+      }
+    }, 100);
+  }
+  
   function fade(element) {
     var op = 0;
     var timer = setInterval(function() {
@@ -26,6 +29,22 @@
       op += op * 0.1 || 0.1;
     }, 20);
   }
+  
+  // Tabs (for server page)
+	function openTab(evt, TabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(TabName).style.display = "block";
+    evt.currentTarget.className += " active";
+	}
+	document.getElementById("defaultOpen").click(); // Get the element with id="defaultOpen" and click on it
 </script>
 {/literal}
 

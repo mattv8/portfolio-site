@@ -167,7 +167,8 @@ body {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 /*	font-size: 1.5em;*/
-	padding-top: 35%;
+	/* padding-top: 35%; */
+	padding-top: 30%;
 	color: white;
 }
 
