@@ -19,8 +19,6 @@ $.fn.hexagons = function(options) {
 		var hexWidth = 0;
 		var hexHeight = 0;
 		var hex_index = 0;
-		var metric_idx = 1; // iterates through number of panels
-		var n_panels = 11; // Number of metric panels on dashboard
 		var textHeight = 1; // initialize hex scale factor
 
 		/**
@@ -91,30 +89,6 @@ $.fn.hexagons = function(options) {
 					})
 				} // end if
 				
-			})
-			
-			// Hex metrics
-			$(element).find('.metrics').each(function(){
-				var metric_state = "https://metrics.galaxyclass.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+metric_idx+"&width=220&height=220&tz=America%2FDenver";
-				var metric_avail = "https://metrics.galaxyclass.net/render/d-solo/L7ksDAjmz/website-status-page?refresh=15m&orgId=1&panelId="+(metric_idx+n_panels)+"&width=220&height=220&tz=America%2FDenver";
-
-				// Attach bg image
-				$(this).find('.hex_inner').attr('style', 'background-image: url("'+metric_state+'");');
-				
-				$(this).mouseenter(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: url("'+metric_avail+'");');
-				})
-				$(this).mouseleave(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: none');
-				})				
-				
-				if($(this).find('span').length > 0){ // If span is defined
-						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
-					}else{
-						$(this).find('.inner-span').remove();
-				} // end if
-				
-				metric_idx = metric_idx + 1; // iterate metric counter
 			})
 			
 			$(element).find('img, span, link').hide();
