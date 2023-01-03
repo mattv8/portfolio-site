@@ -51,7 +51,7 @@
   {else}
   <script src="js/functions.js"></script>
 	<script src="js/hexagons.js"></script>
-	<script src="js/proxmox.js"></script>
+	<script src="js/server.js"></script>
   {/if}
 
 	{literal}

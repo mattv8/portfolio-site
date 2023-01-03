@@ -1,6 +1,6 @@
 {include file="tpl/header.tpl"}
 
-<body>
+<body id="body">
 
 {if $error or $page eq 'error'}
 	<div class="alert alert-danger">

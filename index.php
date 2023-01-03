@@ -39,26 +39,24 @@ $smarty->debugging = $smarty_debug;
 
 # Assign configuration variables
 $smarty->assign('js_config',$js_config);// Javascript Config Object
-
 $smarty->assign('site_title',$site_title);
 
 
 #==============================================================================
 # Route to page
 #==============================================================================
-$result = "";
-$page = "landing";
-if (isset($_GET["page"]) and $_GET["page"]) { $page = $_GET["page"]; }
-if ( file_exists($page.".php") ) { require_once($page.".php"); }
-$smarty->assign('page',$page);
-
-if ($result) {
-    $smarty->assign('error',$result);
-} else {
-    $smarty->assign('error',"");
+// $page = "landing";
+if (isset($_GET["page"]) and $_GET["page"]) { 
+    $page = $_GET["page"];
+    $smarty->assign('page',$page);
+    $smarty->display($page.'.tpl');
 }
+if ( file_exists($page.".php") ) { require_once($page.".php"); }
 
 # Display
-$smarty->display('index.tpl');
+if (!isset($_GET["page"])) {
+    $smarty->assign('page','landing');
+    $smarty->display('index.tpl');
+}
 
 ?>

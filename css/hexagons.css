@@ -177,6 +177,16 @@ body {
 	text-decoration: none;
 	color: white;
 }
+
+.hex .button {
+	cursor: pointer;
+	text-decoration: none;
+	color: white;
+    border: none;
+    overflow: hidden;
+    outline: none;
+	padding: 0px;
+}
 /* ****** ****** ****** */
 
 

@@ -44,7 +44,14 @@
     document.getElementById(TabName).style.display = "block";
     evt.currentTarget.className += " active";
 	}
-	document.getElementById("defaultOpen").click(); // Get the element with id="defaultOpen" and click on it
+	if(document.getElementById("defaultOpen")){ document.getElementById("defaultOpen").click(); } // Get the element with id="defaultOpen" and click on it
+
+  // Back button functionality
+  console.log('Page loaded');
+  $(window).on('popstate', function(event) {
+    var page = event.originalEvent.state;// get the page from the state of the event
+    goToPage(page);// make an AJAX request to update the page
+  });
 </script>
 {/literal}
 

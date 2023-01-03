@@ -40,6 +40,12 @@ $.fn.hexagons = function(options) {
 				$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
 			})
 			
+			$(element).find('.button').each(function(){
+				var button = $(this).attr("onclick"); // Find its associated anchor
+				$(this).removeAttr('onclick');// Remove the extra onclick action
+				$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="button"></button>'); // wrap the <a></a>
+			})
+			
 			// Hex generic with images
 			$(element).find('.hex').each(function(){
 				
