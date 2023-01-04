@@ -17,3 +17,6 @@ Screenshot.png
 
 # Keepass Vault
 vault
+
+# Local Configuration File
+conf/config.local.php
