@@ -45,7 +45,7 @@ function pveTicket($credentials,$oldTicket) {
 
 # Saves the ticket to a config file
 function updateTicket($newTicket) {
-    $path = $_SERVER['DOCUMENT_ROOT'].'/conf/pve_ticket.php';
+    $path = $_SERVER['DOCUMENT_ROOT'].'/conf/config.local.php';
     $config = file_get_contents($path); // Read the contents of the config.local.php file
 
     // Use a single regex pattern to match both the 'ticket' and 'time' values
