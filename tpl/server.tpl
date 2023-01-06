@@ -1,4 +1,8 @@
+{*Page specific CSS*}
 <link rel="stylesheet" type="text/css" href="css/hexagons.css" />
+
+{*Page specific JS*}
+<script src="js/server.js"></script>
 
 <div class="tab">
 	<button class="tablinks" onclick="openTab(event, 'Overview')" id="defaultOpen">Overview</button>

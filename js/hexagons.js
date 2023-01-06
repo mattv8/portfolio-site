@@ -3,6 +3,32 @@
 	Written by Matthew Visnovsky
 */
 
+$(document).ready(function() {
+
+	// Wait for images to load then execute scripts
+	$('.hexagons').waitForImages(function() {
+		$('.hexagons').hexagons(); // Set up hexagons
+		$('.hexagons').fadeIn(10); // Fade in when loaded
+	});
+
+	// Play video after it has finished loading
+	var e = document.getElementById("bgvideo");
+	if(e) {
+		e.style.opacity = 0;
+		var vid = document.getElementById("bgvideo");
+		var tim = setInterval(function() {
+			if ( vid.readyState === 4) {
+			clearInterval(tim);
+			fade(e);
+			}
+		}, 100);
+	}
+
+	document.getElementById('loading-animation').style.display = 'none';// Hide the loading animation
+
+});// END $(document).ready( )
+
+
 (function($) {
 
 $.fn.hexagons = function(options) {
@@ -21,7 +47,7 @@ $.fn.hexagons = function(options) {
 		var hex_index = 0;
 		var textHeight = 1; // initialize hex scale factor
 
-		/**
+		/*
 		 * All DOM building must go here. Function is called at end of script.
 		 * This is to prevent half-loading of the page.
 		 */
@@ -97,7 +123,7 @@ $.fn.hexagons = function(options) {
 			
 		} //end buildHtml
 				
-		/**
+		/*
 		 * Update all scale values
 		 */
 		function updateScales(hexWidth){			
@@ -109,7 +135,7 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hexagons, .inner-text').css({'fontSize': textHeight});
 		} //end updateScales
 
-		/**
+		/*
 		 * Div re-size animation function. Returns updated div dimensions.
 		 */
 		function reorder(animate){

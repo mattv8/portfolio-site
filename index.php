@@ -45,17 +45,16 @@ $smarty->assign('site_title',$site_title);
 #==============================================================================
 # Route to page
 #==============================================================================
-// $page = "landing";
+$page = 'landing';
 if (isset($_GET["page"]) and $_GET["page"]) { 
     $page = $_GET["page"];
-    $smarty->assign('page',$page);
-    $smarty->display($page.'.tpl');
+    if ( file_exists($page.".php") ) { require_once($page.".php"); echo "Made it hereeeeee"; }
+    // $smarty->display($page.'.tpl');
 }
-if ( file_exists($page.".php") ) { require_once($page.".php"); }
+$smarty->assign('page',$page);
 
 # Display
 if (!isset($_GET["page"])) {
-    $smarty->assign('page','landing');
     $smarty->display('index.tpl');
 }
 

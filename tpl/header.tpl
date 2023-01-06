@@ -50,8 +50,6 @@
   <script src="js/all.min.js"></script>
   {else}
   <script src="js/functions.js"></script>
-	<script src="js/hexagons.js"></script>
-	<script src="js/server.js"></script>
   {/if}
 
 	{literal}
