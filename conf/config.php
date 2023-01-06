@@ -26,7 +26,7 @@ if (file_exists ($_SERVER['DOCUMENT_ROOT'].'/conf/config.local.php')) {
 
 # Smarty
 if (!defined("SMARTY")) {
-    define("SMARTY", "lib/smarty/Smarty.class.php");
+    define("SMARTY", "vendor/smarty/Smarty.class.php");
 }
 
 ?>
