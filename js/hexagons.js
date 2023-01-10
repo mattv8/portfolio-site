@@ -3,32 +3,6 @@
 	Written by Matthew Visnovsky
 */
 
-$(document).ready(function() {
-
-	// Wait for images to load then execute scripts
-	$('.hexagons').waitForImages(function() {
-		$('.hexagons').hexagons(); // Set up hexagons
-		$('.hexagons').fadeIn(10); // Fade in when loaded
-	});
-
-	// Play video after it has finished loading
-	var e = document.getElementById("bgvideo");
-	if(e) {
-		e.style.opacity = 0;
-		var vid = document.getElementById("bgvideo");
-		var tim = setInterval(function() {
-			if ( vid.readyState === 4) {
-			clearInterval(tim);
-			fade(e);
-			}
-		}, 100);
-	}
-
-	document.getElementById('loading-animation').style.display = 'none';// Hide the loading animation
-
-});// END $(document).ready( )
-
-
 (function($) {
 
 $.fn.hexagons = function(options) {
@@ -57,17 +31,21 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hex_l').append('<div class="hex_r"></div>');
 			$(element).find('.hex_r').append('<div class="hex_inner"></div>');
 			$(element).find('.hex_inner').append('<div class="inner-span"><div class="inner-text"></div></div>');
+			$(element).find('.inner-span').append('<div class="inner-p"><div class="inner-subtext"></div></div>');
 
 			// Hex Links
 			$(element).find('.link').each(function(){
 				var link = $(this).find("link").attr("href"); // Find its associated anchor
-				$(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); // wrap the <a></a>
+				if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); } // wrap the <a></a>
 			})
 			
+			// Hex Buttons
 			$(element).find('.button').each(function(){
 				var button = $(this).attr("onclick"); // Find its associated anchor
-				$(this).removeAttr('onclick');// Remove the extra onclick action
-				$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="button"></button>'); // wrap the <a></a>
+				if (button){
+					$(this).removeAttr('onclick');// Remove the extra onclick action
+					$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="button"></button>'); // wrap the <a></a>
+				}
 			})
 			
 			// Hex generic with images
@@ -76,6 +54,7 @@ $.fn.hexagons = function(options) {
 				hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
 				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
 				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
+				var p = $(this).find('p').text();//Get uri's of class='hvr' images
 				
 				// For hexagons with links or solid color hover backgrounds
 				if(bg_img_src !== undefined){ //if image is defined
@@ -89,12 +68,6 @@ $.fn.hexagons = function(options) {
 					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
 					$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
 
-					if($(this).find('span').length > 0){ // If span is defined
-						$(this).find('.inner-span .inner-text').html($(this).find('span').html());
-					}else{
-						$(this).find('.inner-span').remove();
-					} // end if
-
 					// When hovering, show dominant color of image
 					$(this).mouseenter(function(){
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
@@ -103,21 +76,43 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 					});
 
-				} // end if
+				}// end if
 				
 				// For hexagons with an image when hovering
-				if(hvr_img_src !== undefined){ //if image is defined
+				if(hvr_img_src !== undefined){// if hover image is defined
 					$(this).mouseenter(function(){
 						$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'")');
 					})
 					$(this).mouseleave(function(){
 						$(this).find('.inner-span').attr('style', 'background-image: none');
 					})
-				} // end if
+				}// end if
+
+				// For hexagons with programmatically defined background colors
+				if(bg_img_src === undefined) {// If image is not defined
+					// Attach bg image and drop shadow
+					$(this).find('.hex_inner').attr('style', 'background-color: white');
+					$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
+
+				}
+
+				// For hexagons with inner text
+				if($(this).find('span').length > 0){ // If span is defined
+					$(this).find('.inner-span .inner-text').html($(this).find('span').html());
+				}else{
+					$(this).find('.inner-span').remove();
+				}// end if
+
+				// For hexagons with inner sub-text
+				if($(this).find('p').length > 0){ // If span is defined
+					$(this).find('.inner-span .inner-p').html($(this).find('p').html());
+				}else{
+					$(this).find('.inner-p').remove();
+				}// end if
 				
 			})
 			
-			$(element).find('img, span, link').hide();
+			$(element).find('img, span, link, p').hide();
 			
 			$('.invisible').hide(); // Remove invisible elements
 			
@@ -126,9 +121,9 @@ $.fn.hexagons = function(options) {
 		/*
 		 * Update all scale values
 		 */
-		function updateScales(hexWidth){			
+		function updateScales(hexWidth){
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
-			textHeight = hexHeight*.13; //pixel height of text is percentage of hex height
+			textHeight = hexHeight*.12; //pixel height of text is percentage of hex height
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);

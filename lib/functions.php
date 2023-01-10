@@ -15,11 +15,12 @@ function pveTicket($credentials,$oldTicket) {
         $newTicket = '';
         $ch = curl_init();// create a new cURL resource
         $options = array(
-            CURLOPT_URL => $credentials['pveURL']."/api2/json/access/ticket",
             CURLOPT_POSTFIELDS => "username=$pveUN&password=$pvePW",
             CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_URL => $credentials['pveURL']."/api2/json/access/ticket",
         );
         curl_setopt_array($ch, $options);// set URL and other appropriate options
     
@@ -31,7 +32,7 @@ function pveTicket($credentials,$oldTicket) {
         } else {
             $response = json_decode($result,true);// do something with the response
             $newTicket = $response['data']['ticket'];
-            updateTicket($newTicket);
+            updateTicket($newTicket,'pve_ticket');
         }
         return $newTicket;
 
@@ -44,16 +45,16 @@ function pveTicket($credentials,$oldTicket) {
 }
 
 # Saves the ticket to a config file
-function updateTicket($newTicket) {
+function updateTicket($newTicket,$var) {
     $path = $_SERVER['DOCUMENT_ROOT'].'/conf/config.local.php';
     $config = file_get_contents($path); // Read the contents of the config.local.php file
 
     // Use a single regex pattern to match both the 'ticket' and 'time' values
-    $pattern = "/'ticket' => '(.*)',\s*'time' => '(.*)'/i";
+    $pattern = "/\\$$var\s*=\s*array\(\s*'ticket' => '(.*)',\s*'time' => '(.*)'\s*\);/i";
 
     // Use a callback function to perform the replacements
-    $replacement = function($matches) use ($newTicket) {
-        return "'ticket' => '$newTicket',\n\t'time' => '".time()."'";
+    $replacement = function($matches) use ($newTicket,$var) {
+        return "\$$var = array(\n\t'ticket' => '$newTicket',\n\t'time' => '".time()."'\n);";
     };
 
     // Perform all the replacements at once using preg_replace_callback

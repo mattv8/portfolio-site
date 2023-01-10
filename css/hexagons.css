@@ -112,13 +112,13 @@ body {
 }
 
 .hex_l,
-.hex_r{
+.hex_r {
 	overflow: hidden;
 	position: absolute;
 	/* -webkit-backface-visibility: hidden; */
 }
 
-.hex_l{
+.hex_l {
 	visibility: hidden;
 	-moz-transform: rotate(60deg);
 	-ms-transform: rotate(60deg);
@@ -127,7 +127,7 @@ body {
 	transform: rotate(60deg);
 }
 
-.hex_r{
+.hex_r {
 	visibility: hidden;
 	/*box-shadow: 5px 10px 10px gray;*/
 	-moz-transform: rotate(-120deg);
@@ -137,7 +137,7 @@ body {
 	transform: rotate(-120deg);
 }
 
-.hex_inner{
+.hex_inner {
 	display: block;
 	visibility: visible;
 	-moz-transform: rotate(60deg);
@@ -152,7 +152,7 @@ body {
   	background-size: cover;
 }
 
-.inner-span{
+.inner-span {
 	display: block;
 	background-position: inherit;
 	-webkit-background-size: cover;
@@ -161,14 +161,31 @@ body {
   	background-size: cover;
 	height: 100%;
 	width: 100%;
+	line-height: 1;
 }
 
-.inner-text{
+.inner-text {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
-/*	font-size: 1.5em;*/
-	/* padding-top: 35%; */
-	padding-top: 30%;
+	text-align: center;
+	padding-top: 38%;
+	color: white;
+}
+
+.inner-text-hover {
+	font-family: 'Bungee', cursive;
+	text-shadow: 2px 2px 5px black;
+	text-align: center;
+	padding-top: 38%;
+	color: white;
+	transform: scaleX(-1);/* Flip horizontally */
+}
+
+.inner-p {
+	font-family: 'Bungee', cursive;
+	text-shadow: 2px 2px 5px black;
+	text-align: center;
+	padding-top: 5px;
 	color: white;
 }
 
@@ -186,6 +203,23 @@ body {
     overflow: hidden;
     outline: none;
 	padding: 0px;
+}
+
+.flip {
+    animation: flip 500ms forwards;
+    animation-fill-mode: forwards;
+}
+.flip-back {
+    animation: flip-back 500ms forwards;
+    animation-fill-mode: forwards;
+}
+@keyframes flip {
+    from {transform: rotateY(0deg);}
+    to {transform: rotateY(180deg);}
+}
+@keyframes flip-back {
+    from {transform: rotateY(180deg);}
+    to {transform: rotateY(0deg);}
 }
 /* ****** ****** ****** */
 

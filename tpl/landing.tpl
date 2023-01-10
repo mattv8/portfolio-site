@@ -3,6 +3,7 @@
 
 {*Page specific JS*}
 <script src="js/hexagons.js"></script>
+<script src="js/landing.js"></script>
 
 {*Vide Background*}
 <video autoplay muted loop id="bgvideo">
