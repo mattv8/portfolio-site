@@ -10,7 +10,8 @@
 	<div class="hex button {$server.status}" onclick="this.remove()">
 		<span>{$key}</span>
 		<p>
-			Type: {$server.type}<br>
+			Type: {($server.type)?$server.type:'qemu'}<br>
+			Name: {$server.name}<br>
 			Status: {$server.status}<br>
 			Availability: {$server.availability}%<br>
 			Uptime: {$server.uptimeHR}<br>
