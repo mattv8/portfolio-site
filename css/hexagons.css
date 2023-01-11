@@ -164,29 +164,30 @@ body {
 	line-height: 1;
 }
 
-.inner-text {
+.inner-title {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
 	padding-top: 38%;
 	color: white;
+}
+
+.inner-text {
+	font-family: 'Bungee', cursive;
+	text-shadow: 2px 2px 5px black;
+	text-align: center;
+	padding-top: 5px;
+	color: white;
+	line-height: 1.5;
 }
 
 .inner-text-hover {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
-	padding-top: 38%;
+	padding-top: 20%;
 	color: white;
-	transform: scaleX(-1);/* Flip horizontally */
-}
-
-.inner-p {
-	font-family: 'Bungee', cursive;
-	text-shadow: 2px 2px 5px black;
-	text-align: center;
-	padding-top: 5px;
-	color: white;
+	transform: scaleX(-1);
 }
 
 .hex .link {

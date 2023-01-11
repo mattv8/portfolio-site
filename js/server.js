@@ -1,14 +1,15 @@
 // Wait for images to load then execute scripts
 $( document ).ready(function() {
     $('.hexagons').hexagons().ready(function() {// Set up hexagons
+        
+        $(this).find('.inner-text').hide()
+        $(this).find('.inner-text').addClass('inner-text-hover');
 
         $('.hex.running').each(function(){
-            // Attach bg image
             $(this).find('.hex_inner').css("background-color", "green");
         })
         
         $('.hex.stopped').each(function(){
-            // Attach bg image
             $(this).find('.hex_inner').css("background-color", "red");
         })
 
@@ -19,10 +20,8 @@ $( document ).ready(function() {
                 if(!parent.hasClass('flipped')){
                     parent.addClass('flip');
                     setTimeout(function() {
-                        parent.find('.inner-text, .inner-p').hide();
-                        if (!parent.find('.inner-text-hover').length){
-                            parent.find('.inner-span').append('<div class="inner-text-hover">'+flipText+'</div>');
-                        }
+                        parent.find('.inner-title').hide();
+                        parent.find('.inner-text').show();
                     }.bind(this), 140);
                     setTimeout(function() {
                         parent.addClass('flipped');
@@ -34,8 +33,8 @@ $( document ).ready(function() {
                 if(parent.hasClass('flipped')){
                     parent.addClass('flip-back');
                     setTimeout(function() {
-                        parent.find('.inner-text-hover').remove();
-                        parent.find('.inner-text, .inner-p').show();
+                        parent.find('.inner-text').hide();
+                        parent.find('.inner-title').show();
                     }.bind(this), 140);
                     setTimeout(function() {
                         parent.removeClass('flip flipped flip-back');

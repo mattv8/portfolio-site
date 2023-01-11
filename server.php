@@ -89,10 +89,11 @@ $queryFlux2 = 'from(bucket: "proxmox")
 $results = $queryApi->queryStream($queryFlux2);
 foreach ($results->each() as $record)
 {
-    // print_r($record);
     $servers[$record['host']][$record->getField()] = $record->getValue();
-    // echo "Value: " . $record->getValue()." Field: ".$record->getField()." Host: ".$record['host'];
-    // echo "<br>";
+    if($record->getField() == 'uptime'){
+        $servers[$record['host']]['uptimeHR'] = secondsToTime($record->getValue());
+    }
+    // echo "Value: " . $record->getValue()." Field: ".$record->getField()." Host: ".$record['host']."<br>";
 }
 $smarty->assign('servers',$servers);
 

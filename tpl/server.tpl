@@ -7,7 +7,17 @@
 
 <div class="hexagons" style="width:100%;">
 {foreach from=$servers item=server key=key}
-	<div class="hex button {$server.status}" onclick="this.remove()"><span>{$key}</span><p>Uptime: {$server.availability}%</p></div>
+	<div class="hex button {$server.status}" onclick="this.remove()">
+		<span>{$key}</span>
+		<p>
+			Type: {$server.type}<br>
+			Status: {$server.status}<br>
+			Availability: {$server.availability}%<br>
+			Uptime: {$server.uptimeHR}<br>
+			Disk Use: {({$server.disk / $server.maxdisk}*100)|round:2}%<br>
+			Mem Use: {({$server.mem / $server.maxmem}*100)|round:2}%<br>
+		</p>
+	</div>
 	{* <div class="hex invisible"> </div> <!-- invisible --> *}
 {/foreach}
 </div>

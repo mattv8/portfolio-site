@@ -30,8 +30,8 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hex').append('<div class="hex_l"></div>');
 			$(element).find('.hex_l').append('<div class="hex_r"></div>');
 			$(element).find('.hex_r').append('<div class="hex_inner"></div>');
-			$(element).find('.hex_inner').append('<div class="inner-span"><div class="inner-text"></div></div>');
-			$(element).find('.inner-span').append('<div class="inner-p"><div class="inner-subtext"></div></div>');
+			$(element).find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
+			$(element).find('.inner-span').append('<div class="inner-text"></div>');
 
 			// Hex Links
 			$(element).find('.link').each(function(){
@@ -98,16 +98,16 @@ $.fn.hexagons = function(options) {
 
 				// For hexagons with inner text
 				if($(this).find('span').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-text').html($(this).find('span').html());
+					$(this).find('.inner-span .inner-title').html($(this).find('span').html());
 				}else{
 					$(this).find('.inner-span').remove();
 				}// end if
 
 				// For hexagons with inner sub-text
 				if($(this).find('p').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-p').html($(this).find('p').html());
+					$(this).find('.inner-span .inner-text').html($(this).find('p').html());
 				}else{
-					$(this).find('.inner-p').remove();
+					$(this).find('.inner-text').remove();
 				}// end if
 				
 			})
@@ -127,7 +127,7 @@ $.fn.hexagons = function(options) {
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
-			$(element).find('.hexagons, .inner-text').css({'fontSize': textHeight});
+			$(element).find('.hexagons, .inner-title').css({'fontSize': textHeight});
 		} //end updateScales
 
 		/*
