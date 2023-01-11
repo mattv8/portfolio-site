@@ -55,6 +55,9 @@ $client = new Client([
 ]);
 $queryApi = $client->createQueryApi();
 
+#
+#   Availability Calculations
+#
 $HAdays = 60;// days to calculate availability
 $samp = 10;// Samples every 10 seconds
 $queryFlux = 'from(bucket: "proxmox")
@@ -77,6 +80,9 @@ foreach ($results->each() as $record)
     // echo "Count: " . $count." Avail: ".$avail." Host: ".$record['host']."<br>";
 }
 
+#
+#   System Information
+#
 $queryFlux2 = 'from(bucket: "proxmox")
 |> range(start: -1m)
 |> filter(fn: (r) => r["host"] != "Janeway" and r["host"] != "Sisko" and r["host"] != "Picard")
