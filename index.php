@@ -49,13 +49,10 @@ $page = 'landing';
 if (isset($_GET["page"]) and $_GET["page"]) { 
     $page = $_GET["page"];
     if ( file_exists($page.".php") ) { require_once($page.".php"); }
-    $smarty->display($page.'.tpl');
 }
 $smarty->assign('page',$page);
 
 # Display
-if (!isset($_GET["page"])) {
-    $smarty->display('index.tpl');
-}
+$smarty->display('index.tpl');
 
 ?>
