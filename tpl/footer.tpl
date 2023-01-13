@@ -2,9 +2,6 @@
 {literal} 
 <script type="text/javascript">
 
-  // Show the loading animation
-  showLoadingAnimation();
-
   // Back button functionality
   $(window).on('popstate', function(event) {
     var page = event.originalEvent.state;// get the page from the state of the event

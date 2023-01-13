@@ -19,6 +19,4 @@ $(document).ready(function() {
 		}, 100);
 	}
 
-	document.getElementById('loading-animation').style.display = 'none';// Hide the loading animation
-
 });// END $(document).ready( )
