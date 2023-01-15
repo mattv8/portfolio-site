@@ -9,7 +9,7 @@
 {foreach from=$servers item=server key=key}
 	<div class="hex button {$server.status}" onclick="this.remove()">
 		<span>{$key}</span>
-		<p>
+		<p class="inner-text-flipped">
 			Type: {($server.type)?$server.type:'qemu'}<br>
 			Name: {$server.name}<br>
 			Status: {$server.status}<br>

@@ -105,7 +105,11 @@ $.fn.hexagons = function(options) {
 
 				// For hexagons with inner sub-text
 				if($(this).find('p').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-text').html($(this).find('p').html());
+					$(this).find('.inner-span .inner-text')
+					.html($(this).find('p').html())
+					.removeClass('inner-text')
+					.addClass($(this).find('p').attr('class'));
+					$(this).find('p').remove();
 				}else{
 					$(this).find('.inner-text').remove();
 				}// end if

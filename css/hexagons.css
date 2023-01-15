@@ -41,11 +41,20 @@ body {
 	/*zoom: 1; /*hex scale*/
 }
 
+/* Style of the server page div */
+.server {
+	width: 1000px; /*fixed div size till break point */
 	text-align: center;
+	margin: 0;
+	position: absolute;
 	left: 50%;
-
-.row {
-	width: 100%;
+	transform: translate(-50%, -50%);
+	border: 1px solid #ccc !important;
+	border-radius: 16px;
+	display: flex;
+	flex-wrap: wrap;
+	min-height: auto;
+	/*zoom: 1; /*hex scale*/
 }
 
 /* ****** HEXAGONS ****** */
@@ -134,13 +143,16 @@ body {
 	line-height: 1.5;
 }
 
-.inner-text-hover {
+/* This is the class for flipped text */
+.inner-text-flipped {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
-	padding-top: 16%;
+	padding-top: 15%;
 	color: white;
-	transform: scaleX(-1);
+	display: none;
+	line-height: 1.2;
+	transform: scaleX(-1) !important;
 }
 
 .hex .link {
@@ -161,10 +173,12 @@ body {
 
 .flip {
     animation: flip 500ms forwards;
+	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
     animation-fill-mode: forwards;
 }
 .flip-back {
     animation: flip-back 500ms forwards;
+	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
     animation-fill-mode: forwards;
 }
 @keyframes flip {
@@ -255,7 +269,7 @@ body {
 
 
 /* RESPONSIVE */
-@media (max-width: 1200px) { /* <- 3-2  hexagons per row */
+@media (max-width: 1000px) { /* <- 3-2  hexagons per row */
 	.landing {
 		width: 100%;
 		height: 100%;
