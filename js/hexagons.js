@@ -165,9 +165,11 @@ $.fn.hexagons = function(options) {
 				top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
 				offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 				
-				// Set values
+				// Set positional values
 				if(animate == true){ //animate if specified
-					$(this).stop(true, false);
+					center = centerpoint($(container));// Get centerpoint of container
+					center.left = center.top -= hexWidth / 2;// Compensate for bounding box of hexagon element
+					$(this).css('left', center.left).css('top', center.top);// Set initial pos to center of container
 					$(this).animate({'left': left, 'top': top});
 				}else{
 					$(this).css('left', left).css('top', top);
@@ -192,7 +194,7 @@ $.fn.hexagons = function(options) {
 		});
 
 		buildHtml(); // Build the DOM
-		reorder(false);
+		reorder(true);
 	} // END initialise(container)
 
 	return this.each(function() {
@@ -202,3 +204,17 @@ $.fn.hexagons = function(options) {
 } // END function(options)
 
 }(jQuery));
+
+
+/* Local centerpoint function:
+ * Returns object containing top and left position relative to input element
+*/
+function centerpoint(element) {
+	var position = element.position();
+	var width = element.width();
+	var height = element.height();
+	return center = {
+	  left: position.left + width / 2,
+	  top: position.top + height / 2
+	}
+}
