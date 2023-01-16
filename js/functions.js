@@ -67,7 +67,10 @@ function rotate(selector,time) {
 //Loading Animation
 function showLoadingAnimation() {
   document.getElementById('loading-animation').style.display = 'block';
-}function centerpoint(element) {
+}
+
+
+function centerpoint(element) {
 	var position = element.position();
 	var width = element.width();
 	var height = element.height();
@@ -78,3 +81,14 @@ function showLoadingAnimation() {
 }
 
 
+function drawDot(xy, radius, parent) {
+	var dot = document.createElement("div");
+	dot.style.width = radius + "px";
+	dot.style.height = radius + "px";
+	dot.style.borderRadius = "50%";
+	dot.style.background = "red";
+	dot.style.position = "absolute";
+	dot.style.left = xy.left - radius/2 + "px";
+	dot.style.top = xy.top - radius/2 + "px";
+	parent.appendChild(dot);
+}
