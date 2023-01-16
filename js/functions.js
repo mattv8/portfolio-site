@@ -67,4 +67,14 @@ function rotate(selector,time) {
 //Loading Animation
 function showLoadingAnimation() {
   document.getElementById('loading-animation').style.display = 'block';
+}function centerpoint(element) {
+	var position = element.position();
+	var width = element.width();
+	var height = element.height();
+	return center = {
+	  left: position.left + width / 2,
+	  top: position.top + height / 2
+	}
 }
+
+
