@@ -13,7 +13,7 @@ $.fn.hexagons = function(options) {
 		margin: 10,
 	}, options);
 
-	function initialise(element) {
+	function initialise(container) {
 
 		var width = 0;
 		var hexWidth = 0;
@@ -27,20 +27,20 @@ $.fn.hexagons = function(options) {
 		 */
 		function buildHtml(){
 
-			$(element).find('.hex').append('<div class="hex_l"></div>');
-			$(element).find('.hex_l').append('<div class="hex_r"></div>');
-			$(element).find('.hex_r').append('<div class="hex_inner"></div>');
-			$(element).find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
-			$(element).find('.inner-span').append('<div class="inner-text"></div>');
+			$(container).find('.hex').append('<div class="hex_l"></div>');
+			$(container).find('.hex_l').append('<div class="hex_r"></div>');
+			$(container).find('.hex_r').append('<div class="hex_inner"></div>');
+			$(container).find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
+			$(container).find('.inner-span').append('<div class="inner-text"></div>');
 
 			// Hex Links
-			$(element).find('.link').each(function(){
+			$(container).find('.link').each(function(){
 				var link = $(this).find("link").attr("href"); // Find its associated anchor
 				if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); } // wrap the <a></a>
 			})
 			
 			// Hex Buttons
-			$(element).find('.button').each(function(){
+			$(container).find('.button').each(function(){
 				var button = $(this).attr("onclick"); // Find its associated anchor
 				if (button){
 					$(this).removeAttr('onclick');// Remove the extra onclick action
@@ -49,7 +49,7 @@ $.fn.hexagons = function(options) {
 			})
 			
 			// Hex Image
-			$(element).find('.hex').each(function(){
+			$(container).find('.hex').each(function(){
 				
 				hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
 				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
@@ -115,11 +115,11 @@ $.fn.hexagons = function(options) {
 					$(this).find('.inner-text').remove();
 				}
 				
-			});// END $(element).find('.hex').each(function()
+			});// END $(container).find('.hex').each(function()
 			
-			$(element).find('img, span, link, p').hide();// Hide hex builder tags
+			$(container).find('img, span, link, p').hide();// Hide hex builder tags
 			
-			$('.invisible').hide();// Remove invisible elements
+			$('.invisible').hide();// Remove invisible hexagons
 			
 		}// END buildHtml()
 				
@@ -129,10 +129,10 @@ $.fn.hexagons = function(options) {
 		function updateScales(hexWidth){
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
 			textHeight = hexHeight*.12;// pixel height of text is percentage of hex height
-			$(element).find('.hex').width(hexWidth).height(hexHeight);
-			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
-			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
-			$(element).find('.hexagons, .inner-title').css({'fontSize': textHeight});
+			$(container).find('.hex').width(hexWidth).height(hexHeight);
+			$(container).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
+			$(container).find('.hex_inner').width(hexWidth).height(hexHeight);
+			$(container).find('.hexagons, .inner-title').css({'fontSize': textHeight});
 		}// END updateScales()
 
 		/*
@@ -140,13 +140,13 @@ $.fn.hexagons = function(options) {
 		 */
 		function reorder(animate){
 
-			width = $(element).width();// get width of hexagons wrapper div
+			width = $(container).width();// get width of hexagons wrapper div
 
-			// TODO: make .invisible elements come back when up-sizing window
+			// TODO: make .invisible hexagons come back when up-sizing window
 			if($(window).width() < 1200) {// increase hex scale at break-point (for mobile)
 				hexWidth = width/2 + settings.margin*4;
-				$(element).find('.invisible').detach();
-				$(element).find('.logo').detach();
+				$(container).find('.invisible').detach();
+				$(container).find('.logo').detach();
 			}else { 
 				hexWidth = settings.hexWidth;
 			}
@@ -158,7 +158,7 @@ $.fn.hexagons = function(options) {
 			var left = 0;// pos left
 			var top = 0;// pos top
 
-			$(element).find('.hex').each(function(){
+			$(container).find('.hex').each(function(){
 
 				// console.log("Col: "+col, "Row: "+row);
 
@@ -193,7 +193,7 @@ $.fn.hexagons = function(options) {
 
 		buildHtml(); // Build the DOM
 		reorder(false);
-	} // END initialise(element)
+	} // END initialise(container)
 
 	return this.each(function() {
 		initialise(this);
