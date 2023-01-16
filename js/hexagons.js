@@ -7,15 +7,17 @@
 
 $.fn.hexagons = function(options) {
 	
-	// Defaults (global)
+	// Defaults. Can be overridden by options input.
 	var settings = $.extend({
 		hexWidth: 250,
 		margin: 10,
+		breakpoint: 1200,
+		rows: 3,
+		cols: 3,
 	}, options);
 
 	function initialise(container) {
 
-		var width = 0;
 		var hexWidth = 0;
 		var hexHeight = 0;
 		var hex_index = 0;
@@ -124,33 +126,30 @@ $.fn.hexagons = function(options) {
 		}// END buildHtml()
 				
 		/*
-		 * Update all scale values
-		 */
-		function updateScales(hexWidth){
-			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
-			textHeight = hexHeight*.12;// pixel height of text is percentage of hex height
-			$(container).find('.hex').width(hexWidth).height(hexHeight);
-			$(container).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
-			$(container).find('.hex_inner').width(hexWidth).height(hexHeight);
-			$(container).find('.hexagons, .inner-title').css({'fontSize': textHeight});
-		}// END updateScales()
-
-		/*
 		 * Div re-size animation function. Returns updated div dimensions.
 		 */
-		function reorder(animate){
+		let prevWidth;
+		var invisible = { el: $(container).find('.invisible'), neighbor: $(container).find('.invisible').prev() }
+		var logo = { el: $(container).find('.logo'), neighbor: $(container).find('.logo').prev() }
+		function reorder(animate,reorder){
 
-			width = $(container).width();// get width of hexagons wrapper div
+			var containerWidth = $(container).width();// get width of hexagons wrapper div
+			var currentWidth = $(window).width();// get width of window
 
-			// TODO: make .invisible hexagons come back when up-sizing window
-			if($(window).width() < 1200) {// increase hex scale at break-point (for mobile)
-				hexWidth = width/2 + settings.margin*4;
-				$(container).find('.invisible').detach();
-				$(container).find('.logo').detach();
-			}else { 
+			if (currentWidth <= settings.breakpoint) {// If breakpoint is reached while sizing down
+				hexWidth = containerWidth/2 + settings.margin*4;
+				if ($(container).find('.logo').length) { logo.el.detach(); }// Detach logo element(s)
+				if ($(container).find('.invisible').length){ invisible.el.detach(); }// Detach invisible element(s)
+			} else if (currentWidth >= settings.breakpoint && prevWidth < settings.breakpoint) {// Return elements that were detached
+				$.each(logo.neighbor, function(i, neighbor) { $(logo.el[i]).insertAfter(neighbor); });// Replace logo element(s)
+				$.each(invisible.neighbor, function(i, neighbor) { $(invisible.el[i]).insertAfter(neighbor); });// Replace invisible element(s)
+			} else {
 				hexWidth = settings.hexWidth;
 			}
-			updateScales(hexWidth);// call function above
+			prevWidth = currentWidth;
+
+			hexHeight = ( Math.sqrt(3) * hexWidth )/2;
+			updateScales(hexWidth,hexHeight);// Update hex width/height
 												
 			var row = 0;// start at row 0
 			var col = 0;// start at col 0
@@ -162,23 +161,27 @@ $.fn.hexagons = function(options) {
 
 				// console.log("Col: "+col, "Row: "+row);
 
-				top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
+				top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight/2 + (settings.margin/2)));// determines top margin of hexagons
 				offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 				
 				// Set positional values
-				if(animate == true){ //animate if specified
+				if(animate && !reorder){// animate if specified
 					center = centerpoint($(container));// Get centerpoint of container
-					center.left = center.top -= hexWidth / 2;// Compensate for bounding box of hexagon element
-					$(this).css('left', center.left).css('top', center.top);// Set initial pos to center of container
+					center.left = center.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
+					$(this).css('left', center.left).css('top', center.top + settings.margin*2);// Set initial pos to center of container
 					$(this).animate({'left': left, 'top': top});
-				}else{
+				} 				// Update CSS value for this iteration
+				else if(reorder){// Reorder event
+					$(this).stop(true, false);// Stop previous animations if reorder() is called again
+					$(this).animate({'left': left, 'top': top});
+				} else{
 					$(this).css('left', left).css('top', top);
 				}
 				
 				// Update values for the next iteration
-				left += ( hexWidth - hexWidth / 4 + settings.margin );// determines left margin of hexagons
+				left += ( hexWidth - (hexWidth / 4) + settings.margin );// determines left margin of hexagons
 				
-				if(left + hexWidth > width){// "Wrap" to next row
+				if(left + hexWidth > containerWidth){// "Wrap" to next row
 					left = col = 0;// Reset
 					row++;// Move to next row
 					offset = 1;// Reset offset
@@ -189,12 +192,23 @@ $.fn.hexagons = function(options) {
 			});
 		} // END reorder(animate)
 
+		/*
+		* Update all scale values
+		*/
+		function updateScales(hexWidth,hexHeight){
+			textHeight = hexHeight*.12;// pixel height of text is percentage of hex height
+			$(container).find('.hex').width(hexWidth).height(hexHeight);
+			$(container).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
+			$(container).find('.hex_inner').width(hexWidth).height(hexHeight);
+			$(container).find('.hexagons, .inner-title').css({'fontSize': textHeight});
+		}// END updateScales()
+
 		$(window).resize(function(){ // call reorder function when window resizes
-			reorder(true); //Set "animate" to true by default
+			reorder(true,true); //Set "animate" to true by default
 		});
 
-		buildHtml(); // Build the DOM
-		reorder(true);
+		buildHtml();// Build the DOM
+		reorder(true);// Re-calculate the position of the hex elements
 	} // END initialise(container)
 
 	return this.each(function() {
