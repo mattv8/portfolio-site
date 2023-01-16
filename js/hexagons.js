@@ -1,5 +1,5 @@
 /*
-	Hexagon Code
+	Hexagon Building Code
 	Written by Matthew Visnovsky
 */
 
@@ -19,7 +19,7 @@ $.fn.hexagons = function(options) {
 		var hexWidth = 0;
 		var hexHeight = 0;
 		var hex_index = 0;
-		var textHeight = 1; // initialize hex scale factor
+		var textHeight = 1;// initialize hex scale factor
 
 		/*
 		 * All DOM building must go here. Function is called at end of script.
@@ -48,7 +48,7 @@ $.fn.hexagons = function(options) {
 				}
 			})
 			
-			// Hex generic with images
+			// Hex Image
 			$(element).find('.hex').each(function(){
 				
 				hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
@@ -58,6 +58,7 @@ $.fn.hexagons = function(options) {
 				
 				// For hexagons with links or solid color hover backgrounds
 				if(bg_img_src !== undefined){ //if image is defined
+					
 					// colorThief variables
 					var img_obj = new Image(360, 360); // build image object
 					img_obj.src = bg_img_src; //attach bg image uri
@@ -76,7 +77,7 @@ $.fn.hexagons = function(options) {
 						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 					});
 
-				}// end if
+				}
 				
 				// For hexagons with an image when hovering
 				if(hvr_img_src !== undefined){// if hover image is defined
@@ -86,7 +87,7 @@ $.fn.hexagons = function(options) {
 					$(this).mouseleave(function(){
 						$(this).find('.inner-span').attr('style', 'background-image: none');
 					})
-				}// end if
+				}
 
 				// For hexagons with programmatically defined background colors
 				if(bg_img_src === undefined) {// If image is not defined
@@ -101,10 +102,10 @@ $.fn.hexagons = function(options) {
 					$(this).find('.inner-span .inner-title').html($(this).find('span').html());
 				}else{
 					$(this).find('.inner-span').remove();
-				}// end if
+				}
 
 				// For hexagons with inner sub-text
-				if($(this).find('p').length > 0){ // If span is defined
+				if($(this).find('p').length > 0){// If span is defined
 					$(this).find('.inner-span .inner-text')
 					.html($(this).find('p').html())
 					.removeClass('inner-text')
@@ -112,55 +113,56 @@ $.fn.hexagons = function(options) {
 					$(this).find('p').remove();
 				}else{
 					$(this).find('.inner-text').remove();
-				}// end if
+				}
 				
-			})
+			});// END $(element).find('.hex').each(function()
 			
-			$(element).find('img, span, link, p').hide();
+			$(element).find('img, span, link, p').hide();// Hide hex builder tags
 			
-			$('.invisible').hide(); // Remove invisible elements
+			$('.invisible').hide();// Remove invisible elements
 			
-		} //end buildHtml
+		}// END buildHtml()
 				
 		/*
 		 * Update all scale values
 		 */
 		function updateScales(hexWidth){
 			hexHeight = ( Math.sqrt(3) * hexWidth ) / 2;
-			textHeight = hexHeight*.12; //pixel height of text is percentage of hex height
+			textHeight = hexHeight*.12;// pixel height of text is percentage of hex height
 			$(element).find('.hex').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$(element).find('.hex_inner').width(hexWidth).height(hexHeight);
 			$(element).find('.hexagons, .inner-title').css({'fontSize': textHeight});
-		} //end updateScales
+		}// END updateScales()
 
 		/*
 		 * Div re-size animation function. Returns updated div dimensions.
 		 */
 		function reorder(animate){
 
-			width = $(element).width(); //get width of hexagons wrapper div
+			width = $(element).width();// get width of hexagons wrapper div
 
-			//TODO: make .invisible elements come back when up-sizing window
-			if($(window).width() < 1200) { //increase hex scale at break-point (for mobile)
+			// TODO: make .invisible elements come back when up-sizing window
+			if($(window).width() < 1200) {// increase hex scale at break-point (for mobile)
 				hexWidth = width/2 + settings.margin*4;
 				$(element).find('.invisible').detach();
 				$(element).find('.logo').detach();
 			}else { 
 				hexWidth = settings.hexWidth;
 			}
-			updateScales(hexWidth); //call function above
+			updateScales(hexWidth);// call function above
 												
-			var row = 0; // current row
-			var upDown = 1; // 1 is down
-			var left = 0; // pos left
-			var top = 0; // pos top
-			var cols = 0; // start at col 0
+			var row = 0;// current row
+			var upDown = 1;// 1 is down
+			var left = 0;// pos left
+			var top = 0;// pos top
+			var cols = 0;// start at col 0
 
 			$(element).find('.hex').each(function(){
 
-				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2))); //determines top margin of hexagons
-
+				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
+				
+				// Update CSS value for this iteration
 				if(animate == true){ //animate if specified
 					$(this).stop(true, false);
 					$(this).animate({'left': left, 'top': top});
@@ -168,34 +170,35 @@ $.fn.hexagons = function(options) {
 					$(this).css('left', left).css('top', top);
 				}
 
-				left = left + ( hexWidth - hexWidth / 4 + settings.margin ); //determines left margin of hexagons
-				upDown = (upDown + 1) % 2; //determines up/down in-line alignment of hexagons
+				// Update all margins for the next iteration
+				left = left + ( hexWidth - hexWidth / 4 + settings.margin );// determines left margin of hexagons
+				upDown = (upDown + 1) % 2;// determines up/down in-line alignment of hexagons
 				
-				if(row == 0){ // if first row
+				if(row == 0){// if first row
 					cols = cols + 1;
 				}
 				
-				if(left + hexWidth > width){ //if subsequent column
+				if(left + hexWidth > width){// if subsequent column
 					left = 0;
 					row = row + 1;
 					upDown = 1;
 				}
 				
-			});	
-		} // end reorder(animate)
+			});
+		} // END reorder(animate)
 
 		$(window).resize(function(){ // call reorder function when window resizes
 			reorder(true); //Set "animate" to true by default
 		});
 
 		buildHtml(); // Build the DOM
-		reorder(true);
-	} // end initialise(element)
+		reorder(false);
+	} // END initialise(element)
 
 	return this.each(function() {
 		initialise(this);
 	});
 
-} // end function(options)
+} // END function(options)
 
 }(jQuery));
