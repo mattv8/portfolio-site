@@ -152,38 +152,38 @@ $.fn.hexagons = function(options) {
 			}
 			updateScales(hexWidth);// call function above
 												
-			var row = 0;// current row
-			var upDown = 1;// 1 is down
+			var row = 0;// start at row 0
+			var col = 0;// start at col 0
+			var offset = 1;// 1 is down
 			var left = 0;// pos left
 			var top = 0;// pos top
-			var cols = 0;// start at col 0
 
 			$(element).find('.hex').each(function(){
 
-				top = ( row * (hexHeight + settings.margin) ) + (upDown * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
+				// console.log("Col: "+col, "Row: "+row);
+
+				top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
+				offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 				
-				// Update CSS value for this iteration
+				// Set values
 				if(animate == true){ //animate if specified
 					$(this).stop(true, false);
 					$(this).animate({'left': left, 'top': top});
 				}else{
 					$(this).css('left', left).css('top', top);
 				}
+				
+				// Update values for the next iteration
+				left += ( hexWidth - hexWidth / 4 + settings.margin );// determines left margin of hexagons
+				
+				if(left + hexWidth > width){// "Wrap" to next row
+					left = col = 0;// Reset
+					row++;// Move to next row
+					offset = 1;// Reset offset
+				} else {
+					col++;// Move to next column
+				}
 
-				// Update all margins for the next iteration
-				left = left + ( hexWidth - hexWidth / 4 + settings.margin );// determines left margin of hexagons
-				upDown = (upDown + 1) % 2;// determines up/down in-line alignment of hexagons
-				
-				if(row == 0){// if first row
-					cols = cols + 1;
-				}
-				
-				if(left + hexWidth > width){// if subsequent column
-					left = 0;
-					row = row + 1;
-					upDown = 1;
-				}
-				
 			});
 		} // END reorder(animate)
 
