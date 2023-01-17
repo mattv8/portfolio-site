@@ -139,17 +139,20 @@ $.fn.hexagons = function(callback, options) {
 		const center = centerpoint($container);// Get constant centerpoint of container
 		const debouncedReorder = _.debounce(function(animate, reorder){// Debounced resize with Lodash
 
-			var currentWidth = $(window).width();// get width of window
+			var currentWidth = $(window).width();// Get width of window
 
-			if (currentWidth <= settings.breakpoint) {// If breakpoint is reached while sizing down
-				hexWidth = $container.width()/2 + settings.margin*4;
-				if ($container.find('.logo').length) { logo.el.detach(); }// Detach logo element(s)
-				if ($container.find('.invisible').length){ invisible.el.detach(); }// Detach invisible element(s)
-			} else if (currentWidth >= settings.breakpoint && prevWidth < settings.breakpoint) {// Return elements that were detached
-				$.each(logo.neighbor, function(i, neighbor) { $(logo.el[i]).insertAfter(neighbor); });// Replace logo element(s)
-				$.each(invisible.neighbor, function(i, neighbor) { $(invisible.el[i]).insertAfter(neighbor); });// Replace invisible element(s)
-			} else {
-				hexWidth = settings.hexWidth;
+			if (currentWidth <= settings.breakpoint) {// If window is smaller than breakpoint
+				hexWidth = ( $container.width() + settings.margin*2 ) / 2;// Dynamic hex width
+				if (currentWidth < settings.breakpoint && prevWidth >= settings.breakpoint) {// Window is AT lower breakpoint
+					logo.el.detach();// Detach logo element(s)
+					invisible.el.detach();// Detach invisible element(s)
+				}
+			} else {// Else window is larger than breakpoint
+				hexWidth = settings.hexWidth;// Static hex width
+				if (currentWidth >= settings.breakpoint && prevWidth < settings.breakpoint) {// Window is AT upper breakpoint
+					$.each(logo.neighbor, function(i, neighbor) { $(logo.el[i]).insertAfter(neighbor); });// Replace logo element(s)
+					$.each(invisible.neighbor, function(i, neighbor) { $(invisible.el[i]).insertAfter(neighbor); });// Replace invisible element(s)
+				}
 			}
 			prevWidth = currentWidth;
 
@@ -194,7 +197,7 @@ $.fn.hexagons = function(callback, options) {
 				}
 
 			});
-		}, 50); // END reorder(animate)
+		}, 100); // END debouncedReorder
 
 		/*
 		* Update all scale values
