@@ -31,7 +31,6 @@ $.fn.hexagons = function(options) {
 		// Cached Selectors
 		var $container = $(container);
 		var $invisible = $('.invisible');
-		
 		function buildHtml(){
 
 			$container.find('.hex').append('<div class="hex_l"></div>');
@@ -137,9 +136,8 @@ $.fn.hexagons = function(options) {
 		let prevWidth;
 		var invisible = { el: $invisible, neighbor: $invisible.prev() }
 		var logo = { el: $container.find('.logo'), neighbor: $container.find('.logo').prev() }
-		const center = centerpoint($container);// Get centerpoint of container
-		
-		const debouncedReorder = _.debounce(function(animate, reorder){
+		const center = centerpoint($container);// Get constant centerpoint of container
+		const debouncedReorder = _.debounce(function(animate, reorder){// Debounced resize with Lodash
 
 			var currentWidth = $(window).width();// get width of window
 
@@ -209,25 +207,37 @@ $.fn.hexagons = function(options) {
 			$container.find('.hexagons, .inner-title').css({'fontSize': textHeight});
 		}// END updateScales()
 
-		buildHtml();// Build the DOM
-		debouncedReorder(true, false);// Build the order
+		buildHtml();// Build the initial DOM
+		debouncedReorder(true, false);// Build the initial order
 
-		$(window).resize(function(){ // call reorder function when window resizes
-			debouncedReorder(true, true);
+		$(window).resize(function(){
+			debouncedReorder(true, true);// call reorder function when window resizes
 		});
 
+		return center;// Returns centerpoint of initialized $container as {center:top, center:left} obj
+
 	} // END initialise(container)
+	
+	/*
+	 * RETURNS
+	*/
+	var center;
+	return {
+		each: this.each(function() {// For each .hex class element
+			center = initialise(this);// Return initialized hexagon DOM elements
+		}),
+		get center() {// Get value for center from initialise(this) above
+			return center;// And return it
+		}
+	};
 
-	return this.each(function() {
-		initialise(this);
-	});
-
-} // END function(options)
+} // END $.fn.hexagons = function(options) {}
 
 }(jQuery));
 
 
-/* Local centerpoint function:
+/*
+ * Local centerpoint function:
  * Returns object containing top and left position relative to input element
 */
 function centerpoint(element) {
