@@ -46,9 +46,9 @@ deploy-to-production-server:
         when: manual #Runner will only run with manual intervention
         image: node:latest
         script:
-            - sudo npm install uglifyjs-folder -g #Install uglifyjs-folder
-            - uglifyjs-folder ./js -o ./js/all.min.js -p "**/*.js" --comments #Minify all JS in the folder
-            - find ./js -type f -name "*.js" -not -name "all.min.js" -delete #Remove the unminified JS
+            - sudo npm install uglifyjs -g #Install uglifyjs
+            - for file in ./js/*.js; do uglifyjs "$file" -o "${file%.*}.min.js" -c; done; #Uglify inidividual files
+            - find ./js -type f -name "*.js" -not -name "*.min.js" -delete #Remove the unminified JS
             - if [ -z "$portfolio_production_webroot" ]; then echo "Need to set webroot" && exit 1; fi
             - sudo rsync -avzr ./ $portfolio_production_webroot --exclude-from='./_exclusions.txt' --delete
             - sudo chown admin:admin $portfolio_production_webroot -R
