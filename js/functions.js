@@ -90,5 +90,5 @@ function drawDot(xy, radius, parent) {
 	dot.style.position = "absolute";
 	dot.style.left = xy.left - radius/2 + "px";
 	dot.style.top = xy.top - radius/2 + "px";
-	parent.appendChild(dot);
+	parent.append(dot);
 }
