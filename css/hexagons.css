@@ -123,10 +123,10 @@ body {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
-	padding-top: 15%;
+	padding-top: 16%;
 	color: white;
 	display: none;
-	line-height: 1.2;
+	line-height: 1.5;
 	transform: scaleX(-1) !important;
 }
 
