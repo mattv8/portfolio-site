@@ -9,7 +9,7 @@
   <meta name="author" content="Matthew P. Visnovsky" />
   
   {* CSS Libraries *}
-  <link rel="stylesheet" type="text/css" href="vendor/bootstrap5/css/bootstrap.min.css" />
+  {* <link rel="stylesheet" type="text/css" href="vendor/bootstrap5/css/bootstrap.min.css" /> *}
   {* <link rel="stylesheet" type="text/css" href="vendor/font-awesome5/css/all.min.css" /> *}
   {* <link rel="stylesheet" type="text/css" href="vendor/datatables/css/dataTables.bootstrap5.min.css" /> *}
   {* <link rel="stylesheet" type="text/css" href="vendor/datepicker-lightpick/css/lightpick.css" /> *}
@@ -38,7 +38,7 @@
 
   {* Javascript Libraries*}
   <script src="vendor/jquery3/js/jquery-3.6.1.min.js"></script>
-  <script src="vendor/bootstrap5/js/bootstrap.bundle.min.js"></script>
+  {* <script src="vendor/bootstrap5/js/bootstrap.bundle.min.js"></script> *}
   {* <script src="vendor/datatables/js/datatables.min.js"></script> *}
   {* <script src="vendor/datatables/js/dataTables.bootstrap5.min.js"></script> *}
   {* <script src="vendor/moment/moment.min.js"></script> *}
