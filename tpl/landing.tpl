@@ -2,8 +2,10 @@
 <link rel="stylesheet" type="text/css" href="css/hexagons.css" />
 
 {*Page specific JS*}
+{if !file_exists('js/all.min.js')}
 <script src="js/hexagons.js"></script>
 <script src="js/landing.js"></script>
+{/if}
 
 {*Vide Background*}
 <video autoplay muted loop id="bgvideo">
