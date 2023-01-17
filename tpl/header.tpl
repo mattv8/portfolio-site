@@ -47,7 +47,7 @@
 	<script src="vendor/wait-for-images/wait-for-images.min.js"></script>
 	<script src="vendor/wait-for-images/wait-for-images.min.js"></script>
 	<script src="vendor/color-thief/color-thief.min.js"></script>
-	<script src="vendor/lodash/lodash.js"></script>
+	<script src="vendor/lodash/lodash.min.js"></script>
   {if file_exists('js/all.min.js')}
   <script src="js/all.min.js"></script>
   {else}
