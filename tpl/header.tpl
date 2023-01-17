@@ -45,7 +45,6 @@
   {* <script src="vendor/datepicker-lightpick/js/lightpick.js"></script> *}
   {* <script src="vendor/select2/js/select2.full.min.js"></script> *}
 	<script src="vendor/wait-for-images/wait-for-images.min.js"></script>
-	<script src="vendor/wait-for-images/wait-for-images.min.js"></script>
 	<script src="vendor/color-thief/color-thief.min.js"></script>
 	<script src="vendor/lodash/lodash.min.js"></script>
   {if file_exists('js/functions.min.js')}
