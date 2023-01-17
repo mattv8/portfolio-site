@@ -105,7 +105,7 @@ $.fn.hexagons = function(callback, options) {
 
 				// For hexagons with inner text
 				if($(this).find('span').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-title').html($(this).find('span').html());
+					$(this).find('.inner-span .inner-title').html($(this).find('span'));
 				}else{
 					$(this).find('.inner-span').remove();
 				}
@@ -123,7 +123,7 @@ $.fn.hexagons = function(callback, options) {
 				
 			});// END $(container).find('.hex').each(function()
 			
-			$container.find('img, span, link, p').hide();// Hide hex builder tags
+			$container.find('img, span, link, p').not('.inner-title > span').detach();// Hide hex builder tags
 			
 			$invisible.hide();// Remove invisible hexagons
 			
@@ -189,7 +189,8 @@ $.fn.hexagons = function(callback, options) {
 				left += ( hexWidth - (hexWidth / 4) + settings.margin );// determines left margin of hexagons
 				
 				if(left + hexWidth > $container.width()){// "Wrap" to next row
-					left = col = 0;// Reset
+					left = (currentWidth <= settings.breakpoint)?settings.margin:0;// Add left margin if <= breakpoint
+					col = 0;// Reset
 					row++;// Move to next row
 					offset = 1;// Reset offset
 				} else {
@@ -203,11 +204,26 @@ $.fn.hexagons = function(callback, options) {
 		* Update all scale values
 		*/
 		function updateScales(hexWidth,hexHeight){
-			textHeight = hexHeight*.12;// pixel height of text is percentage of hex height
 			$container.find('.hex').width(hexWidth).height(hexHeight);
 			$container.find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 			$container.find('.hex_inner').width(hexWidth).height(hexHeight);
-			$container.find('.hexagons, .inner-title').css({'fontSize': textHeight});
+			
+			textHeight = hexHeight*.15;// Initial pixel height of text as percentage of hex height
+			$container.find('.hexagons, .inner-title').css({'font-size': textHeight + 'px'});// Set initial text height
+			
+			// Recalculate text height if it exceeds the boundaries of the hexagon
+			var maxTitleWidth = hexWidth*.92;// Max width of .inner-title text relative to hexWidth
+			$container.find('.hexagons, .inner-title > span').each(function(){
+				var textWidth = $(this).outerWidth();// Get outer width of inner-title <span>
+				if (textWidth > maxTitleWidth) {
+					$(this).parent().css({
+						'display': 'inline-block',
+						'width': maxTitleWidth,
+						'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
+					});
+				 }
+			});
+
 		}// END updateScales()
 
 		buildHtml();// Build the initial DOM
