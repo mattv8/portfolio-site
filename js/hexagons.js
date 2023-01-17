@@ -29,8 +29,8 @@ $.fn.hexagons = function(callback, options) {
 		 */
 		
 		// Cached Selectors
-		var $container = $(container);
-		var $invisible = $('.invisible');
+		const $container = $(container);
+		const $invisible = $('.invisible');
 		function buildHtml(){
 
 			$container.find('.hex').append('<div class="hex_l"></div>');
