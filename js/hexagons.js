@@ -5,7 +5,7 @@
 
 (function($) {
 
-$.fn.hexagons = function(options) {
+$.fn.hexagons = function(callback, options) {
 	
 	// Defaults. Can be overridden by options input.
 	var settings = $.extend({
@@ -223,8 +223,9 @@ $.fn.hexagons = function(options) {
 	*/
 	var center;
 	return {
-		each: this.each(function() {// For each .hex class element
-			center = initialise(this);// Return initialized hexagon DOM elements
+		each: this.each(function() {
+			center = initialise(this);
+			if(callback){ callback(); }
 		}),
 		get center() {// Get value for center from initialise(this) above
 			return center;// And return it
