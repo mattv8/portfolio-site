@@ -12,7 +12,7 @@
 {else}
 <script src="js/landing.js"></script>
 {/if}
-
+    
 {*Vide Background*}
 <video autoplay muted loop id="bgvideo">
     <source src="assets/videos/BigTreesHI.mp4" type="video/mp4">
