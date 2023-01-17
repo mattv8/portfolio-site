@@ -2,8 +2,14 @@
 <link rel="stylesheet" type="text/css" href="css/hexagons.css" />
 
 {*Page specific JS*}
-{if !file_exists('js/all.min.js')}
+{if file_exists('js/hexagons.min.js')}
+<script src="js/hexagons.min.js"></script>
+{else}
 <script src="js/hexagons.js"></script>
+{/if}
+{if file_exists('js/server.min.js')}
+<script src="js/server.min.js"></script>
+{else}
 <script src="js/server.js"></script>
 {/if}
 
