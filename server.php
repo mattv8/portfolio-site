@@ -3,13 +3,14 @@
 # Configuration
 #==============================================================================
 require_once($_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php');
-
+require_once($_SERVER['DOCUMENT_ROOT'].'/conf/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/lib/functions.php');
 
 #==============================================================================
 # PVE API cURL Commands
 #==============================================================================
 
-$pveURL = $pve_creds['pveURL'];
+// $pveURL = $pve_creds['pveURL'];
 // $pve_ticket = pveTicket($pve_creds,$pve_ticket);// Request an API ticket
 // echo $pve_ticket;
 
@@ -60,24 +61,43 @@ $queryApi = $client->createQueryApi();
 #
 $HAdays = 60;// days to calculate availability
 $samp = 10;// Samples every 10 seconds
-$queryFlux = 'from(bucket: "proxmox")
+
+$q1 = 'from(bucket: "proxmox")
 |> range(start: -'.$HAdays.'d)
 |> filter(fn: (r) => r["_measurement"] == "system")
 |> filter(fn: (r) => r["_field"] == "status")
-// |> filter(fn: (r) => r["_value"] == "running")
+|> filter(fn: (r) => r["_value"] == "running")
 |> count()
-|> filter(fn: (r) => r["_value"] > '.strval(($HAdays/10)*$samp*60*24).')
 ';
 
-// Execute the query
-$results = $queryApi->queryStream($queryFlux);
+$q2 = 'from(bucket: "proxmox")
+|> range(start: -'.$HAdays.'d)
+|> filter(fn: (r) => r["_measurement"] == "system")
+|> filter(fn: (r) => r["_field"] == "status")
+|> filter(fn: (r) => r["_value"] == "stopped")
+|> count()
+';
+
+// Execute the queries
+$r_running = $queryApi->queryStream($q1);
+$r_stopped = $queryApi->queryStream($q2);
+
 $servers = array();
-foreach ($results->each() as $record)
-{
+foreach ($r_running->each() as $record) {
+    $host = $record->values['host'];
     $count = $record->getValue();
-    $avail = number_format($count/(($HAdays)*60/$samp*60*24),4);
-    $servers[$record['host']] = array('availability'=>$avail);
-    // echo "Count: " . $count." Avail: ".$avail." Host: ".$record['host']."<br>";
+    $servers[$host]['running_count'] = $count;
+}
+foreach ($r_stopped->each() as $record) {
+    $host = $record->values['host'];
+    $count = $record->getValue();
+    $servers[$host]['stopped_count'] = $count;
+}
+foreach ($servers as $host => $record) {
+    $delta = $HAdays*60*24*(60/$samp) - ($record['running_count'] + $record['stopped_count']);// Represents InfluxDB or node downtime
+    $availability = $record['running_count'] / ($record['running_count'] + $record['stopped_count'] + $delta);
+    $servers[$host]['availability'] = number_format($availability,6);
+    // echo "Host: $host Avail: $availability <br>";
 }
 
 #
@@ -93,8 +113,7 @@ $queryFlux2 = 'from(bucket: "proxmox")
 
 // Execute the query
 $results = $queryApi->queryStream($queryFlux2);
-foreach ($results->each() as $record)
-{
+foreach ($results->each() as $record) {
     $servers[$record['host']][$record->getField()] = $record->getValue();
     if($record->getField() == 'uptime'){
         $servers[$record['host']]['uptimeHR'] = secondsToTime($record->getValue());

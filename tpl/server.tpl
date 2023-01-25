@@ -21,7 +21,7 @@
 			Type: {($server.type)?$server.type:'qemu'}<br>
 			Name: {$server.name}<br>
 			Status: {$server.status}<br>
-			Availability: {$server.availability}%<br>
+			Availability: {$server.availability*100}%<br>
 			Uptime: {$server.uptimeHR}<br>
 			Disk Use: {({$server.disk / $server.maxdisk}*100)|round:2}%<br>
 			Mem Use: {({$server.mem / $server.maxmem}*100)|round:2}%<br>
