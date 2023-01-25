@@ -51,16 +51,16 @@ function fade(element) {
 
 
 // Continuously Rotate Function
+var step = 0;
 function rotate(selector,time) {
   if(selector){
     const element = selector.get(0);
-    element.style.transition = 'transform 0.75s cubic-bezier(.59,.22,.36,.81)';
+    element.style.transition = 'transform 0.75s cubic-bezier(.61,.01,.41,.99)';
     element.style.setProperty('transform-style', 'preserve-3d');
     element.style.setProperty('perspective', '1000px');
-    setTimeout(function() {
-      element.style.transform = 'rotateY(360deg)';
-      setTimeout(rotate, time);
-    }, time);
+    element.style.transform = `rotateY(${step}deg)`;
+    step += 180;
+    setTimeout(rotate, time, selector, (step)?time:step);
   }
 }
 
