@@ -81,7 +81,8 @@ function centerpoint(element) {
 }
 
 
-function drawDot(xy, radius, parent) {
+function drawDot(xy, parent, rad) {
+  var radius = (rad)?rad:5;// Default 5px
 	var dot = document.createElement("div");
 	dot.style.width = radius + "px";
 	dot.style.height = radius + "px";
