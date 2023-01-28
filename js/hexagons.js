@@ -1,6 +1,7 @@
 /*
 	Hexagon Building Code
 	Written by Matthew Visnovsky
+	(c) 2023
 */
 
 (function($) {
@@ -16,21 +17,20 @@ $.fn.hexagons = function(callback, options) {
 		cols: 3,
 	}, options);
 
-	function initialise(container) {
+	// Cached Selectors
+	const $container = this;
+	const $invisible = $('.invisible');
+	const center = centerpoint($container);// Get constant centerpoint of container
+	let corners;// Placeholder for cornerpoints of each hexagon
 
-		var hexWidth = 0;
-		var hexHeight = 0;
+	function initialise() {
+
 		var hex_index = 0;
-		var textHeight = 1;// initialize hex scale factor
 
 		/*
 		 * All DOM building must go here. Function is called at end of script.
 		 * This is to prevent half-loading of the page.
 		 */
-		
-		// Cached Selectors
-		const $container = $(container);
-		const $invisible = $('.invisible');
 		function buildHtml(){
 
 			$container.find('.hex').append('<div class="hex_l"></div>');
@@ -129,143 +129,154 @@ $.fn.hexagons = function(callback, options) {
 			
 		}// END buildHtml()
 				
-		
-		/*
-		 * Div re-size animation function. Returns updated div dimensions.
-		 */
-		let prevWidth;
-		var invisible = { el: $invisible, neighbor: $invisible.prev() }
-		var logo = { el: $container.find('.logo'), neighbor: $container.find('.logo').prev() }
-		const center = centerpoint($container);// Get constant centerpoint of container
-		const debouncedReorder = _.debounce(function(animate, reorder){// Debounced resize with Lodash
-
-			var currentWidth = $(window).width();// Get width of window
-
-			if (currentWidth <= settings.breakpoint) {// If window is smaller than breakpoint
-				hexWidth = ( $container.width() + settings.margin*2 ) / 2;// Dynamic hex width
-				if (currentWidth < settings.breakpoint && prevWidth >= settings.breakpoint) {// Window is AT lower breakpoint
-					logo.el.detach();// Detach logo element(s)
-					invisible.el.detach();// Detach invisible element(s)
-				}
-			} else {// Else window is larger than breakpoint
-				hexWidth = settings.hexWidth;// Static hex width
-				if (currentWidth >= settings.breakpoint && prevWidth < settings.breakpoint) {// Window is AT upper breakpoint
-					$.each(logo.neighbor, function(i, neighbor) { $(logo.el[i]).insertAfter(neighbor); });// Replace logo element(s)
-					$.each(invisible.neighbor, function(i, neighbor) { $(invisible.el[i]).insertAfter(neighbor); });// Replace invisible element(s)
-				}
-			}
-			prevWidth = currentWidth;
-
-			hexHeight = ( Math.sqrt(3) * hexWidth )/2;
-			updateScales(hexWidth,hexHeight);// Update hex width/height
-												
-			var row = 0;// start at row 0
-			var col = 0;// start at col 0
-			var offset = 1;// 1 is down
-			var left = 0;// pos left
-			var top = 0;// pos top
-
-			center.left = center.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
-			$container.find('.hex').each(function(){
-
-				// console.log("Col: "+col, "Row: "+row);
-
-				top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight/2 + (settings.margin/2)));// determines top margin of hexagons
-				offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
-				
-				// Set positional values
-				if(animate && !reorder){// animate if specified
-					$(this).css('left', center.left).css('top', center.top + settings.margin*2);// Set initial pos to center of container
-					$(this).animate({'left': left, 'top': top});
-				} 				// Update CSS value for this iteration
-				else if(reorder){// Reorder event
-					$(this).stop(true, false);// Stop previous animations if reorder() is called again
-					$(this).animate({'left': left, 'top': top});
-				} else{
-					$(this).css('left', left).css('top', top);
-				}
-				
-				// Update values for the next iteration
-				left += ( hexWidth - (hexWidth / 4) + settings.margin );// determines left margin of hexagons
-				
-				if(left + hexWidth > $container.width()){// "Wrap" to next row
-					left = (currentWidth <= settings.breakpoint)?settings.margin:0;// Add left margin if <= breakpoint
-					col = 0;// Reset
-					row++;// Move to next row
-					offset = 1;// Reset offset
-				} else {
-					col++;// Move to next column
-				}
-
-			});
-		}, 100); // END debouncedReorder
-
-		/*
-		* Update all scale values
-		*/
-		function updateScales(hexWidth,hexHeight){
-			$container.find('.hex').width(hexWidth).height(hexHeight);
-			$container.find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
-			$container.find('.hex_inner').width(hexWidth).height(hexHeight);
-			
-			textHeight = hexHeight*.15;// Initial pixel height of text as percentage of hex height
-			$container.find('.hexagons, .inner-title').css({'font-size': textHeight + 'px'});// Set initial text height
-			
-			// Recalculate text height if it exceeds the boundaries of the hexagon
-			var maxTitleWidth = hexWidth*.92;// Max width of .inner-title text relative to hexWidth
-			$container.find('.hexagons, .inner-title > span').each(function(){
-				var textWidth = $(this).outerWidth();// Get outer width of inner-title <span>
-				if (textWidth > maxTitleWidth) {
-					$(this).parent().css({
-						'display': 'inline-block',
-						'width': maxTitleWidth,
-						'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
-					});
-				 }
-			});
-
-		}// END updateScales()
-
 		buildHtml();// Build the initial DOM
-		debouncedReorder(true, false);// Build the initial order
-
+		corners = reorder(true, false);// Arrange the hexagons, save cornerpoints
+		
 		$(window).resize(function(){
 			debouncedReorder(true, true);// call reorder function when window resizes
 		});
 
-		return center;// Returns centerpoint of initialized $container as {center:top, center:left} obj
 
 	} // END initialise(container)
+
 	
+	/*
+	* Div re-size animation function. Returns updated div dimensions.
+	*/
+	let prevWidth;
+	var invisible = { el: $invisible, neighbor: $invisible.prev() }
+	var logo = { el: $container.find('.logo'), neighbor: $container.find('.logo').prev() }
+	function reorder(animate, reorder) {
+		
+		var corners = Array(); // Initialize corners array
+		var currentWidth = $(window).width();// Get width of window
+
+		if (currentWidth <= settings.breakpoint) {// If window is smaller than breakpoint
+			var hexWidth = ( $container.width() + settings.margin*2 ) / 2;// Dynamic hex width
+			if (currentWidth < settings.breakpoint && prevWidth >= settings.breakpoint) {// Window is AT lower breakpoint
+				logo.el.detach();// Detach logo element(s)
+				invisible.el.detach();// Detach invisible element(s)
+			}
+		} else {// Else window is larger than breakpoint
+			hexWidth = settings.hexWidth;// Static hex width
+			if (currentWidth >= settings.breakpoint && prevWidth < settings.breakpoint) {// Window is AT upper breakpoint
+				$.each(logo.neighbor, function(i, neighbor) { $(logo.el[i]).insertAfter(neighbor); });// Replace logo element(s)
+				$.each(invisible.neighbor, function(i, neighbor) { $(invisible.el[i]).insertAfter(neighbor); });// Replace invisible element(s)
+			}
+		}
+		prevWidth = currentWidth;
+
+		var hexHeight = ( Math.sqrt(3) * hexWidth )/2;
+		updateScales(hexWidth,hexHeight);// Update hex width/height
+											
+		var row = 0;// start at row 0
+		var col = 0;// start at col 0
+		var offset = 1;// 1 is down
+		var left = 0;// pos left
+		var top = 0;// pos top
+
+		center.left = center.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
+		$container.find('.hex').each(function(i){
+
+			// console.log("Col: "+col, "Row: "+row);
+
+			top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight/2 + (settings.margin/2)));// determines top margin of hexagons
+			offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
+			
+			// drawDot({top:top,left:left},$container);
+			corners[i] = {left:left,top:top};
+
+			// Set positional values
+			if(animate && !reorder){// animate if specified
+				$(this).css('left', center.left).css('top', center.top + settings.margin*2);// Set initial pos to center of container
+				$(this).animate({'left': left, 'top': top});
+			} 				// Update CSS value for this iteration
+			else if(reorder){// Reorder event
+				$(this).stop(true, false);// Stop previous animations if reorder() is called again
+				$(this).animate({'left': left, 'top': top});
+			} else{
+				$(this).css('left', left).css('top', top);
+			}
+
+			// Update values for the next iteration
+			left += ( hexWidth - (hexWidth / 4) + settings.margin );// determines left margin of hexagons
+			
+			if(left + hexWidth > $container.width()){// "Wrap" to next row
+				left = (currentWidth <= settings.breakpoint)?settings.margin:0;// Add left margin if <= breakpoint
+				col = 0;// Reset
+				row++;// Move to next row
+				offset = 1;// Reset offset
+			} else {
+				col++;// Move to next column
+			}
+
+		});
+
+		return corners;
+		
+	}; // END reorder
+
+	/*
+	* Debounce reorder() using Lodash for 
+	*/
+	const debouncedReorder = _.debounce(reorder, 100);// Debounced resize with Lodash
+
+	/*
+	* Update all scale values
+	*/
+	var textHeight = 1;// initialize hex scale factor
+	function updateScales(hexWidth,hexHeight){
+		$container.find('.hex').width(hexWidth).height(hexHeight);
+		$container.find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
+		$container.find('.hex_inner').width(hexWidth).height(hexHeight);
+		
+		textHeight = hexHeight*.15;// Initial pixel height of text as percentage of hex height
+		$container.find('.hexagons, .inner-title').css({'font-size': textHeight + 'px'});// Set initial text height
+		
+		// Recalculate text height if it exceeds the boundaries of the hexagon
+		var maxTitleWidth = hexWidth*.92;// Max width of .inner-title text relative to hexWidth
+		$container.find('.hexagons, .inner-title > span').each(function(){
+			var textWidth = $(this).outerWidth();// Get outer width of inner-title <span>
+			if (textWidth > maxTitleWidth) {
+				$(this).parent().css({
+					'display': 'inline-block',
+					'width': maxTitleWidth,
+					'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
+				});
+				}
+		});
+
+	}// END updateScales()
+	
+
+	/*
+	* Local centerpoint function:
+	* Returns object containing top and left position relative to input element
+	*/
+	function centerpoint(element) {
+		let center;
+		var position = element.position();
+		var width = element.width();
+		var height = element.height();
+		return center = {
+			left: position.left + width / 2,
+			top: position.top + height / 2
+		}
+	}
+
+
 	/*
 	 * RETURNS
 	*/
-	var center;
 	return {
 		each: this.each(function() {
-			center = initialise(this);
-			if(callback){ callback(); }
+			initialise(this);
+			if(callback){
+				callback(center, corners); 
+			}
 		}),
-		get center() {// Get value for center from initialise(this) above
-			return center;// And return it
-		}
 	};
 
 } // END $.fn.hexagons = function(options) {}
 
 }(jQuery));
-
-
-/*
- * Local centerpoint function:
- * Returns object containing top and left position relative to input element
-*/
-function centerpoint(element) {
-	var position = element.position();
-	var width = element.width();
-	var height = element.height();
-	return center = {
-	  left: position.left + width / 2,
-	  top: position.top + height / 2
-	}
-}
