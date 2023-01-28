@@ -23,7 +23,7 @@ $.fn.hexagons = function(callback, options) {
 	const center = centerpoint($container);// Get constant centerpoint of container
 	let corners;// Placeholder for cornerpoints of each hexagon
 
-	function initialise() {
+	function initialize() {
 
 		var hex_index = 0;
 
@@ -137,7 +137,7 @@ $.fn.hexagons = function(callback, options) {
 		});
 
 
-	} // END initialise(container)
+	} // END initialize(container)
 
 	
 	/*
@@ -270,7 +270,7 @@ $.fn.hexagons = function(callback, options) {
 	*/
 	return {
 		each: this.each(function() {
-			initialise(this);
+			initialize(this);
 			if(callback){
 				callback(center, corners); 
 			}
