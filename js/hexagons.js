@@ -31,9 +31,9 @@ $.fn.hexagons = function(callback, options) {
 			debouncedReorder(true, true);// call reorder function when window resizes
 		});
 
-		return pts;
+		return _.assign(pts,{center:center});
 
-	} // END initialize(container)
+	}// END initialize(container)
 
 
 	/*
@@ -168,7 +168,6 @@ $.fn.hexagons = function(callback, options) {
 		prevWidth = currentWidth;
 
 		var hexHeight = ( Math.sqrt(3) * hexWidth )/2;
-		updateScales(hexWidth,hexHeight);// Update hex width/height
 											
 		var row = 0;// start at row 0
 		var col = 0;// start at col 0
@@ -214,9 +213,11 @@ $.fn.hexagons = function(callback, options) {
 
 		});
 
-		return points = {corners:corners, hexHeight: hexHeight, hexWidth: hexWidth};
+		updateScales(hexWidth,hexHeight);// Update hex width/height
 		
-	}; // END reorder
+		return points = {corners:corners};
+		
+	};// END reorder
 
 
 	/*
@@ -228,7 +229,7 @@ $.fn.hexagons = function(callback, options) {
 	/*
 	* Update all scale values
 	*/
-	async function updateScales(hexWidth,hexHeight){
+	function updateScales(hexWidth,hexHeight){
 		let textHeight;// initialize hex scale factor
 
 		$container.find('.hex').width(hexWidth).height(hexHeight);
@@ -276,9 +277,7 @@ $.fn.hexagons = function(callback, options) {
 	return {
 		each: this.each(function() {
 			initialize(this).then(function(points) {
-				if(callback){
-					callback(points);
-				};
+				if(callback){ callback(points); };
 			});
 		}),
 	};
