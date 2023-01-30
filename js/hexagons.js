@@ -21,17 +21,17 @@ $.fn.hexagons = function(callback, options) {
 	const $container = this;
 	const $invisible = $('.invisible');
 	const center = centerpoint($container);// Get constant centerpoint of container
-	let corners;// Placeholder for cornerpoints of each hexagon
 
-	function initialize() {
+	async function initialize() {
 
-		buildHtml();// Build the initial DOM
-		corners = reorder(true, false);// Arrange the hexagons, save cornerpoints
+		await buildHtml();// Build the initial DOM
+		let pts = await reorder(true, false);// Arrange the hexagons, save cornerpoints
 		
 		$(window).resize(function(){
 			debouncedReorder(true, true);// call reorder function when window resizes
 		});
 
+		return pts;
 
 	} // END initialize(container)
 
@@ -40,7 +40,7 @@ $.fn.hexagons = function(callback, options) {
 	* All DOM building must go here. Function is called at end of script.
 	* This is to prevent half-loading of the page.
 	*/
-	function buildHtml(){
+	async function buildHtml(){
 
 		$container.find('.hex').append('<div class="hex_l"></div>');
 		$container.find('.hex_l').append('<div class="hex_r"></div>');
@@ -144,9 +144,9 @@ $.fn.hexagons = function(callback, options) {
 	* Div re-size animation function. Returns updated div dimensions.
 	*/
 	let prevWidth;
-	var invisible = { el: $invisible, neighbor: $invisible.prev() }
-	var logo = { el: $container.find('.logo'), neighbor: $container.find('.logo').prev() }
-	function reorder(animate, reorder) {
+	const invisible = { el: $invisible, neighbor: $invisible.prev() }
+	const logo = { el: $container.find('.logo'), neighbor: $container.find('.logo').prev() }
+	async function reorder(animate, reorder) {
 		
 		var corners = Array(); // Initialize corners array
 		var currentWidth = $(window).width();// Get width of window
@@ -214,7 +214,7 @@ $.fn.hexagons = function(callback, options) {
 
 		});
 
-		return corners;
+		return points = {corners:corners, hexHeight: hexHeight, hexWidth: hexWidth};
 		
 	}; // END reorder
 
@@ -228,7 +228,7 @@ $.fn.hexagons = function(callback, options) {
 	/*
 	* Update all scale values
 	*/
-	function updateScales(hexWidth,hexHeight){
+	async function updateScales(hexWidth,hexHeight){
 		let textHeight;// initialize hex scale factor
 
 		$container.find('.hex').width(hexWidth).height(hexHeight);
@@ -275,10 +275,11 @@ $.fn.hexagons = function(callback, options) {
 	*/
 	return {
 		each: this.each(function() {
-			initialize(this);
-			if(callback){
-				callback(center, corners); 
-			}
+			initialize(this).then(function(points) {
+				if(callback){
+					callback(points);
+				};
+			});
 		}),
 	};
 
