@@ -25,110 +25,6 @@ $.fn.hexagons = function(callback, options) {
 
 	function initialize() {
 
-		var hex_index = 0;
-
-		/*
-		 * All DOM building must go here. Function is called at end of script.
-		 * This is to prevent half-loading of the page.
-		 */
-		function buildHtml(){
-
-			$container.find('.hex').append('<div class="hex_l"></div>');
-			$container.find('.hex_l').append('<div class="hex_r"></div>');
-			$container.find('.hex_r').append('<div class="hex_inner"></div>');
-			$container.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
-			$container.find('.inner-span').append('<div class="inner-text"></div>');
-
-			// Hex Links
-			$container.find('.link').each(function(){
-				var link = $(this).find("link").attr("href"); // Find its associated anchor
-				if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); } // wrap the <a></a>
-			})
-			
-			// Hex Buttons
-			$container.find('.button').each(function(){
-				var button = $(this).attr("onclick"); // Find its associated anchor
-				if (button){
-					$(this).removeAttr('onclick');// Remove the extra onclick action
-					$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="button"></button>'); // wrap the <a></a>
-				}
-			})
-			
-			// Hex Image
-			$container.find('.hex').each(function(){
-				
-				hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
-				var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
-				var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
-				var p = $(this).find('p').text();//Get uri's of class='hvr' images
-				
-				// For hexagons with links or solid color hover backgrounds
-				if(bg_img_src !== undefined){ //if image is defined
-					
-					// colorThief variables
-					var img_obj = new Image(360, 360); // build image object
-					img_obj.src = bg_img_src; //attach bg image uri
-					var colorThief = new ColorThief(); // initialize colorThief
-					var color = colorThief.getColor(img_obj); // Get the dominant color of image
-										
-					// Attach bg image and drop shadow
-					$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
-					$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
-
-					// When hovering, show dominant color of image
-					$(this).mouseenter(function(){
-						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
-					});
-					$(this).mouseleave(function(){
-						$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
-					});
-
-				}
-				
-				// For hexagons with an image when hovering
-				if(hvr_img_src !== undefined){// if hover image is defined
-					$(this).mouseenter(function(){
-						$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'")');
-					})
-					$(this).mouseleave(function(){
-						$(this).find('.inner-span').attr('style', 'background-image: none');
-					})
-				}
-
-				// For hexagons with programmatically defined background colors
-				if(bg_img_src === undefined) {// If image is not defined
-					// Attach bg image and drop shadow
-					$(this).find('.hex_inner').attr('style', 'background-color: white');
-					$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
-
-				}
-
-				// For hexagons with inner text
-				if($(this).find('span').length > 0){ // If span is defined
-					$(this).find('.inner-span .inner-title').html($(this).find('span'));
-				}else{
-					$(this).find('.inner-span').remove();
-				}
-
-				// For hexagons with inner sub-text
-				if($(this).find('p').length > 0){// If span is defined
-					$(this).find('.inner-span .inner-text')
-					.html($(this).find('p').html())
-					.removeClass('inner-text')
-					.addClass($(this).find('p').attr('class'));
-					$(this).find('p').remove();
-				}else{
-					$(this).find('.inner-text').remove();
-				}
-				
-			});// END $(container).find('.hex').each(function()
-			
-			$container.find('img, span, link, p').not('.inner-title > span').detach();// Hide hex builder tags
-			
-			$invisible.hide();// Remove invisible hexagons
-			
-		}// END buildHtml()
-				
 		buildHtml();// Build the initial DOM
 		corners = reorder(true, false);// Arrange the hexagons, save cornerpoints
 		
@@ -139,7 +35,111 @@ $.fn.hexagons = function(callback, options) {
 
 	} // END initialize(container)
 
-	
+
+	/*
+	* All DOM building must go here. Function is called at end of script.
+	* This is to prevent half-loading of the page.
+	*/
+	function buildHtml(){
+
+		$container.find('.hex').append('<div class="hex_l"></div>');
+		$container.find('.hex_l').append('<div class="hex_r"></div>');
+		$container.find('.hex_r').append('<div class="hex_inner"></div>');
+		$container.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
+		$container.find('.inner-span').append('<div class="inner-text"></div>');
+
+		// Hex Links
+		$container.find('.link').each(function(){
+			var link = $(this).find("link").attr("href"); // Find its associated anchor
+			if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); } // wrap the <a></a>
+		})
+		
+		// Hex Buttons
+		$container.find('.button').each(function(){
+			var button = $(this).attr("onclick"); // Find its associated anchor
+			if (button){
+				$(this).removeAttr('onclick');// Remove the extra onclick action
+				$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="button"></button>'); // wrap the <a></a>
+			}
+		})
+		
+		// Hex Image
+		var hex_index = 0;
+		$container.find('.hex').each(function(){
+			
+			hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
+			var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
+			var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
+			var p = $(this).find('p').text();//Get uri's of class='hvr' images
+			
+			// For hexagons with links or solid color hover backgrounds
+			if(bg_img_src !== undefined){ //if image is defined
+				
+				// colorThief variables
+				var img_obj = new Image(360, 360); // build image object
+				img_obj.src = bg_img_src; //attach bg image uri
+				var colorThief = new ColorThief(); // initialize colorThief
+				var color = colorThief.getColor(img_obj); // Get the dominant color of image
+									
+				// Attach bg image and drop shadow
+				$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
+				$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
+
+				// When hovering, show dominant color of image
+				$(this).mouseenter(function(){
+					$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
+				});
+				$(this).mouseleave(function(){
+					$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
+				});
+
+			}
+			
+			// For hexagons with an image when hovering
+			if(hvr_img_src !== undefined){// if hover image is defined
+				$(this).mouseenter(function(){
+					$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'")');
+				})
+				$(this).mouseleave(function(){
+					$(this).find('.inner-span').attr('style', 'background-image: none');
+				})
+			}
+
+			// For hexagons with programmatically defined background colors
+			if(bg_img_src === undefined) {// If image is not defined
+				// Attach bg image and drop shadow
+				$(this).find('.hex_inner').attr('style', 'background-color: white');
+				$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
+
+			}
+
+			// For hexagons with inner text
+			if($(this).find('span').length > 0){ // If span is defined
+				$(this).find('.inner-span .inner-title').html($(this).find('span'));
+			}else{
+				$(this).find('.inner-span').remove();
+			}
+
+			// For hexagons with inner sub-text
+			if($(this).find('p').length > 0){// If span is defined
+				$(this).find('.inner-span .inner-text')
+				.html($(this).find('p').html())
+				.removeClass('inner-text')
+				.addClass($(this).find('p').attr('class'));
+				$(this).find('p').remove();
+			}else{
+				$(this).find('.inner-text').remove();
+			}
+			
+		});// END $(container).find('.hex').each(function()
+		
+		$container.find('img, span, link, p').not('.inner-title > span').detach();// Hide hex builder tags
+		
+		$invisible.hide();// Remove invisible hexagons
+		
+	}// END buildHtml()
+
+
 	/*
 	* Div re-size animation function. Returns updated div dimensions.
 	*/
@@ -151,8 +151,9 @@ $.fn.hexagons = function(callback, options) {
 		var corners = Array(); // Initialize corners array
 		var currentWidth = $(window).width();// Get width of window
 
+		let hexWidth;// Initialize
 		if (currentWidth <= settings.breakpoint) {// If window is smaller than breakpoint
-			var hexWidth = ( $container.width() + settings.margin*2 ) / 2;// Dynamic hex width
+			hexWidth = ( $container.width() + settings.margin*2 ) / 2;// Dynamic hex width
 			if (currentWidth < settings.breakpoint && prevWidth >= settings.breakpoint) {// Window is AT lower breakpoint
 				logo.el.detach();// Detach logo element(s)
 				invisible.el.detach();// Detach invisible element(s)
@@ -176,6 +177,7 @@ $.fn.hexagons = function(callback, options) {
 		var top = 0;// pos top
 
 		center.left = center.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
+		
 		$container.find('.hex').each(function(i){
 
 			// console.log("Col: "+col, "Row: "+row);
@@ -216,16 +218,19 @@ $.fn.hexagons = function(callback, options) {
 		
 	}; // END reorder
 
+
 	/*
-	* Debounce reorder() using Lodash for 
+	* Debounce reorder() using Lodash
 	*/
 	const debouncedReorder = _.debounce(reorder, 100);// Debounced resize with Lodash
+
 
 	/*
 	* Update all scale values
 	*/
-	var textHeight = 1;// initialize hex scale factor
 	function updateScales(hexWidth,hexHeight){
+		let textHeight;// initialize hex scale factor
+
 		$container.find('.hex').width(hexWidth).height(hexHeight);
 		$container.find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 		$container.find('.hex_inner').width(hexWidth).height(hexHeight);
@@ -243,7 +248,7 @@ $.fn.hexagons = function(callback, options) {
 					'width': maxTitleWidth,
 					'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
 				});
-				}
+			}
 		});
 
 	}// END updateScales()
