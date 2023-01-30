@@ -22,6 +22,9 @@ $.fn.hexagons = function(callback, options) {
 	const $invisible = $('.invisible');
 	const center = centerpoint($container);// Get constant centerpoint of container
 
+	/*
+	* Initialization of the Hexagon DOM. Done asynchronously so objects are returned in proper timing.
+	*/
 	async function initialize() {
 
 		await buildHtml();// Build the initial DOM
