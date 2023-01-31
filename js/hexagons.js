@@ -216,7 +216,7 @@ $.fn.hexagons = function(callback, options) {
 
 		});
 
-		updateScales(hexWidth,hexHeight);// Update hex width/height
+		setTimeout(function() { updateScales(hexWidth,hexHeight); }, (!reorder)?150:0);// Update hex width/height
 		
 		return points = {corners:corners};
 		
