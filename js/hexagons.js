@@ -20,21 +20,19 @@ $.fn.hexagons = function(callback, options) {
 	// Cached Selectors
 	const $container = this;
 	const $invisible = $('.invisible');
-	const center = centerpoint($container);// Get constant centerpoint of container
 
 	/*
 	* Initialization of the Hexagon DOM. Done asynchronously so objects are returned in proper timing.
 	*/
 	async function initialize() {
 
+		const center = centerpoint($container);// Get constant centerpoint of container
 		await buildHtml();// Build the initial DOM
-		let pts = await reorder(true, false);// Arrange the hexagons, save cornerpoints
-		
+		let corners = await reorder(true, false);// Arrange the hexagons, save cornerpoints
 		$(window).resize(function(){
-			debouncedReorder(true, true);// call reorder function when window resizes
+			debouncedReorder(true, true);// Debounced reorder() function when window resizes
 		});
-
-		return _.assign(pts,{center:center});
+		return points = {corners:corners, center:center};
 
 	}// END initialize(container)
 
@@ -149,6 +147,7 @@ $.fn.hexagons = function(callback, options) {
 	let prevWidth;
 	const invisible = { el: $invisible, neighbor: $invisible.prev() }
 	const logo = { el: $container.find('.logo'), neighbor: $container.find('.logo').prev() }
+	const spawnPoint = centerpoint($container);// Get constant centerpoint of container
 	async function reorder(animate, reorder) {
 		
 		var corners = Array(); // Initialize corners array
@@ -178,7 +177,7 @@ $.fn.hexagons = function(callback, options) {
 		var left = 0;// pos left
 		var top = 0;// pos top
 
-		center.left = center.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
+		spawnPoint.left = spawnPoint.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
 		
 		$container.find('.hex').each(function(i){
 
@@ -192,7 +191,7 @@ $.fn.hexagons = function(callback, options) {
 
 			// Set positional values
 			if(animate && !reorder){// animate if specified
-				$(this).css('left', center.left).css('top', center.top + settings.margin*2);// Set initial pos to center of container
+				$(this).css('left', spawnPoint.left).css('top', spawnPoint.top + settings.margin*2);// Set initial pos to center of container
 				$(this).animate({'left': left, 'top': top});
 			} 				// Update CSS value for this iteration
 			else if(reorder){// Reorder event
