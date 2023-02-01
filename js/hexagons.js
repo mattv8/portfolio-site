@@ -26,13 +26,12 @@ $.fn.hexagons = function(callback, options) {
 	*/
 	async function initialize() {
 
-		const center = centerpoint($container);// Get constant centerpoint of container
 		await buildHtml();// Build the initial DOM
-		let corners = await reorder(true, false);// Arrange the hexagons, save cornerpoints
+		let elems = await reorder(true, false);// Arrange the hexagons, save cornerpoints
 		$(window).resize(function(){
 			debouncedReorder(true, true);// Debounced reorder() function when window resizes
 		});
-		return {corners: corners, center: center};
+		return elems;
 
 	}// END initialize(container)
 
@@ -150,7 +149,7 @@ $.fn.hexagons = function(callback, options) {
 	const spawnPoint = centerpoint($container);// Get constant centerpoint of container
 	async function reorder(animate, reorder) {
 		
-		var corners = Array(); // Initialize corners array
+		var elem = Array(); // Initialize corners array
 		var currentWidth = $(window).width();// Get width of window
 
 		let hexWidth;// Initialize
@@ -186,8 +185,8 @@ $.fn.hexagons = function(callback, options) {
 			top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight/2 + (settings.margin/2)));// determines top margin of hexagons
 			offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 			
-			// drawDot({top:top,left:left},$container);
-			corners[i] = {left:left,top:top};
+			var topLevelClass = $(this).attr('class').split(' ')[1];
+			elem[i] = {class:topLevelClass, corner:{left:left,top:top}, this:this};
 
 			// Set positional values
 			if(animate && !reorder){// animate if specified
@@ -215,9 +214,9 @@ $.fn.hexagons = function(callback, options) {
 
 		});
 
-		setTimeout(function() { updateScales(hexWidth,hexHeight); }, (!reorder)?100:0);// Update hex width/height
+		setTimeout(function() { updateScales(hexWidth,hexHeight); }, (!reorder)?150:0);// Update hex width/height
 		
-		return corners;
+		return elem;
 		
 	};// END reorder
 
