@@ -23,14 +23,16 @@ $(document).ready(function() {
 		e.style.opacity = 0;
 		var vid = document.getElementById("bgvideo");
 		var tim = setInterval(function() {
-			if ( vid.readyState === 4) {
-			clearInterval(tim);
-			fade(e);
+			if (vid.readyState === 4) {
+				clearInterval(tim);
+				fade(e);
 			}
 		}, 100);
 	}
 
-});// END $(document).ready( )function expand(selector, center, start, animationDistance, timing) {
+});// END $(document).ready( )
+// This function calculates the slope of the line between the center and start points and uses it to determine the direction of the animation.
+function expand(selector, center, start, animationDistance, timing) {
 	let slope = (start.top - center.top) / (start.left - center.left);
 	
 	// Set the direction of the animation. 1 for right or up, -1 for left or down
