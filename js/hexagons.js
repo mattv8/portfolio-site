@@ -186,7 +186,7 @@ $.fn.hexagons = function(callback, options) {
 			offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 			
 			var topLevelClass = $(this).attr('class').split(' ')[1];
-			elem[i] = {class:topLevelClass, corner:{left:left,top:top}, this:this};
+			elem[i] = {class:topLevelClass, corner:{left:left,top:top}, selector:$(this)};
 
 			// Set positional values
 			if(animate && !reorder){// animate if specified
