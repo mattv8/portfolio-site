@@ -32,7 +32,7 @@ $.fn.hexagons = function(callback, options) {
 		$(window).resize(function(){
 			debouncedReorder(true, true);// Debounced reorder() function when window resizes
 		});
-		return points = {corners:corners, center:center};
+		return {corners: corners, center: center};
 
 	}// END initialize(container)
 
@@ -217,7 +217,7 @@ $.fn.hexagons = function(callback, options) {
 
 		setTimeout(function() { updateScales(hexWidth,hexHeight); }, (!reorder)?100:0);// Update hex width/height
 		
-		return points = {corners:corners};
+		return corners;
 		
 	};// END reorder
 
