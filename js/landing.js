@@ -5,6 +5,7 @@ $(document).ready(function() {
 		$('.hexagons').hexagons(function(elems) {// Set up hexagons
 			var center = elems[_.findKey(elems, {class:'logo'})].corner;// Save centerpoint
 			var animating = _.remove(elems, function(e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
+			// animating.forEach( function(e) { orbit(e.selector, center, e.corner, .10); });
 			animating.forEach( function(e) {
 				$('.hexagons').hover(function() {
 					expand(e.selector, center, e.corner, 25, 1);
@@ -31,6 +32,29 @@ $(document).ready(function() {
 	}
 
 });// END $(document).ready( )
+
+
+// This function animates an element to orbit around a given centerpoint
+function orbit(element, center, period) {
+	let startTime = Date.now();
+	let angle = 0;
+	let radius = Math.abs(element.offset().left - center.left);
+	let x = element.offset().left;
+	let y = element.offset().top;
+  
+	function animateOrbit() {
+		let elapsedTime = (Date.now() - startTime); // Calculate the elapsed time since the start of the animation
+		angle = (4 * elapsedTime) / (period * 1000); // Calculate the current angle based on the elapsed time and the period
+		x = center.left + radius * Math.cos(angle * Math.PI / 180); // Calculate the current x position based on the centerpoint, radius, and angle
+		y = center.top + radius * Math.sin(angle * Math.PI / 180); // Calculate the current y position based on the centerpoint, radius, and angle
+		element.css({ left: x + "px", top: y + "px" }); // Update the position of the element using CSS
+		requestAnimationFrame(animateOrbit); // Request the next animation frame
+	}
+  
+	animateOrbit(); // Start the animation
+}
+  
+
 // This function calculates the slope of the line between the center and start points and uses it to determine the direction of the animation.
 function expand(selector, center, start, animationDistance, timing) {
 	let slope = (start.top - center.top) / (start.left - center.left);
