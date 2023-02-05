@@ -57,6 +57,9 @@ function orbit(element, center, period) {
 
 // This function calculates the slope of the line between the center and start points and uses it to determine the direction of the animation.
 function expand(selector, center, start, animationDistance, timing) {
+	
+	$(selector).stop(true, false);// Stop previous animations if expand() is called again
+	
 	let slope = (start.top - center.top) / (start.left - center.left);
 	
 	// Set the direction of the animation. 1 for right or up, -1 for left or down
