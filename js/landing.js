@@ -65,7 +65,7 @@ function expand(selector, center, start, animationDistance, timing) {
 	// Set the direction of the animation. 1 for right or up, -1 for left or down
 	let direction = 1;
 	if (center.left > start.left) {
-	  direction = -1;
+	 	direction = -1;
 	}
 	
 	let newLeft = start.left;
@@ -73,21 +73,21 @@ function expand(selector, center, start, animationDistance, timing) {
 	
 	// If the start and center points have the same x coordinate, move vertically
 	if (start.left === center.left) {
-	  if (center.top > start.top) {
-		direction = -1;
-	  }
-	  newTop = start.top + direction * animationDistance;
+	  	if (center.top > start.top) {
+			direction = -1;
+		}
+	  	newTop = start.top + direction * animationDistance;
 	} else {
-	  newLeft = start.left + direction * animationDistance / Math.sqrt(1 + slope * slope);
-	  newTop = start.top + direction * slope * animationDistance / Math.sqrt(1 + slope * slope);
+		newLeft = start.left + direction * animationDistance / Math.sqrt(1 + slope * slope);
+		newTop = start.top + direction * slope * animationDistance / Math.sqrt(1 + slope * slope);
 	}
 
 	// jQuery's animate method to animate the element to the new position
 	$(selector).animate({
-	  left: newLeft,
-	  top: newTop
+		left: newLeft,
+		top: newTop
 	}, {
-	  duration: timing * 1000,
-	  easing: "swing"
+		duration: timing * 1000,
+		easing: "swing"
 	});
-  }
+}
