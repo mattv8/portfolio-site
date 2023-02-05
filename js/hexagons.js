@@ -173,7 +173,7 @@ $.fn.hexagons = function(callback, options) {
 		var row = 0;// start at row 0
 		var col = 0;// start at col 0
 		var offset = 1;// 1 is down
-		var left = 0;// pos left
+		var left = left = (currentWidth <= settings.breakpoint)?settings.margin:0;// Add left margin if <= breakpoint
 		var top = 0;// pos top
 
 		spawnPoint.left = spawnPoint.top -= hexWidth/2 + settings.margin;// Compensate for bounding box of hexagon element
