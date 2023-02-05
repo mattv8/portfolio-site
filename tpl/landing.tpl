@@ -13,6 +13,16 @@
 <script src="js/landing.js"></script>
 {/if}
 
+{if $debug}
+<style>
+.landing {
+	border-style: solid;
+	border-width: 1px;
+	border-color: blue;
+}
+</style>
+{/if}
+
 {*Vide Background*}
 <video autoplay muted loop id="bgvideo">
     <source src="assets/videos/BigTreesHI.mp4" type="video/mp4">
