@@ -30,7 +30,7 @@ body {
 
 /* Style of the landing page div */
 .landing {
-	width: 655px; /*fixed div size till break point */
+	width: 646px; /*fixed div size till break point */
 	height: 670px; /*fixed div size till break point */
 	text-align: center;
 	margin: 0;
