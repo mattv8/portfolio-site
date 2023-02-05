@@ -21,7 +21,7 @@
 {*Hexagons*}
 <div class="hexagons landing">
     <div class="hex link"> <img class="bg" src="assets/images/landing/1.jpg" /><span>Programming</span><link href="https://git.visnovsky.us/Matt" /></div>
-    <div class="hex button" onclick="goToPage('placeholder')"><img class="bg" src="assets/images/landing/2.jpg" /><span>Engineering</span></div>
+    <div class="hex button" onclick="('placeholder')"><img class="bg" src="assets/images/landing/2.jpg" /><span>Engineering</span></div>
     <div class="hex button" onclick="goToPage('server')"><img class="bg" src="assets/images/landing/3.jpg" /><span>Server</span></div>
     <div class="hex button" onclick="goToPage('placeholder')"><img class="bg" src="assets/images/landing/4.jpg" /><span>Photography</span></div>
     <div class="hex logo"> <img class="bg" src="assets/images/landing/logo.png" /></div>
