@@ -2,39 +2,75 @@
     Javascript Functions
 */
 
-function goToPage(page,selector) {
+function goToPage(page,replaceSelector) {
   
   // Redirect to root if page is null
   if(page == null){ window.location.href = '/'; return; }
 
   // Get logo selector
   const logo = $('.logo');
-  
+
   // Else route to specified page asynchronously
   $.ajax({
-    url: 'index.php',
-    type: 'GET',
-    data: { page: page },
-    beforeSend: function() {// Start loading animation
-      if (logo) { rotate(logo,500); }
-      else { showLoadingAnimation(); }
-    },
-    complete: function() {// Stop loading animation
-      document.getElementById('loading-animation').style.display = 'none';// Hide the loading animation
-    },
-    success: function(response) {
-      if(selector){ 
-        $(selector).html(response); // Swap selector for response, which is a tpl
-      } else {
-        $(document.body).fadeOut(500, function() {
-          var newPage = document.open("text/html", "replace");// Create the new page
-          newPage.write(response);// Write the new TPL to the page
-          newPage.close();// Finish
-          $(document.body).fadeIn(500);// Display
-        });
-      }
-      history.pushState(page, null, '/?page=' + page);// add the page to the browser's history
-    },
+      url: 'index.php',
+      type: 'GET',
+      data: { page: page },
+      beforeSend: function() {// Start loading animation
+        if (logo) { rotate(logo,500); }
+        else { showLoadingAnimation(); }
+      },
+      complete: function() {// Stop loading animation
+        document.getElementById('loading-animation').style.display = 'none';// Hide the loading animation
+      },
+      success: function(response) {
+          let selector;
+          if (replaceSelector) { 
+              selector = document.getElementById(replaceSelector);
+              selector.style.transition = 'opacity 500ms';
+              selector.style.opacity = 0;
+          } else {
+              document.body.style.transition = 'opacity 500ms';
+              document.body.style.opacity = 0;
+          }
+          setTimeout(function() {
+              if (replaceSelector) {
+                  var parser = new DOMParser();
+                  var newDoc = parser.parseFromString(response, 'text/html');
+                  var container = newDoc.getElementById(replaceSelector);
+                  selector.innerHTML = container.innerHTML;
+          
+                  var scripts = container.getElementsByTagName('script');
+                  for (var i = 0; i < scripts.length; i++) {
+                      var script = document.createElement('script');
+                      script.type = 'text/javascript';
+                      script.src = scripts[i].src;
+                      selector.appendChild(script);
+                  }
+          
+                  selector.style.transition = 'opacity 500ms';
+                  selector.style.opacity = 1;
+              } else {
+                  var parser = new DOMParser();
+                  var newDoc = parser.parseFromString(response, 'text/html');
+                  document.head.innerHTML = newDoc.head.innerHTML;
+                  document.body.innerHTML = newDoc.body.innerHTML;
+          
+                  var scripts = newDoc.getElementsByTagName('script');
+                  for (var i = 0; i < scripts.length; i++) {
+                      var script = document.createElement('script');
+                      script.type = 'text/javascript';
+                      script.src = scripts[i].src;
+                      document.body.appendChild(script);
+                  }
+          
+                  document.body.style.transition = 'opacity 500ms';
+                  document.body.style.opacity = 1;
+              }
+
+          }, 500);
+          
+          history.pushState(page, null, '/?page=' + page);// add the page to the browser's history
+      },
   });
 }
 
