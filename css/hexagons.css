@@ -45,7 +45,6 @@ body {
 .hex {
 	position: absolute;
 	display: inline-block;
-	border-radius: 20px;
 }
 
 .hex_l,
