@@ -13,7 +13,18 @@
 <script src="js/server.js"></script>
 {/if}
 
-<div class="hexagons" style="width:100%;">
+<style>
+.server {
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    transform: translate(0%, 0%);
+    position: relative;
+}
+</style>
+
+<div class="hexagons server">
 {foreach from=$servers item=server key=key}
 	<div class="hex button {$server.status}" onclick="this.remove()">
 		<span>{$key}</span>
