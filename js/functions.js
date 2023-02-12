@@ -22,51 +22,50 @@ function goToPage(page,replaceSelector) {
 
       },
       success: function(response) {
-          let selector;
-          if (replaceSelector) { 
-              selector = document.getElementById(replaceSelector);
-              selector.style.transition = 'opacity 500ms';
-              selector.style.opacity = 0;
-          } else {
-              document.body.style.transition = 'opacity 500ms';
-              document.body.style.opacity = 0;
-          }
-          setTimeout(function() {
-              if (replaceSelector) {
-                  var parser = new DOMParser();
-                  var newDoc = parser.parseFromString(response, 'text/html');
-                  var container = newDoc.getElementById(replaceSelector);
-                  selector.innerHTML = container.innerHTML;
-          
-                  var scripts = container.getElementsByTagName('script');
-                  for (var i = 0; i < scripts.length; i++) {
-                      var script = document.createElement('script');
-                      script.type = 'text/javascript';
-                      script.src = scripts[i].src;
-                      selector.appendChild(script);
-                  }
-          
-                  selector.style.transition = 'opacity 500ms';
-                  selector.style.opacity = 1;
-              } else {
-                  var parser = new DOMParser();
-                  var newDoc = parser.parseFromString(response, 'text/html');
-                  document.head.innerHTML = newDoc.head.innerHTML;
-                  document.body.innerHTML = newDoc.body.innerHTML;
-          
-                  var scripts = newDoc.getElementsByTagName('script');
-                  for (var i = 0; i < scripts.length; i++) {
-                      var script = document.createElement('script');
-                      script.type = 'text/javascript';
-                      script.src = scripts[i].src;
-                      document.body.appendChild(script);
-                  }
-          
-                  document.body.style.transition = 'opacity 500ms';
-                  document.body.style.opacity = 1;
-              }
-
-          }, 500);
+        let selector;
+        if (replaceSelector) { 
+            selector = document.getElementById(replaceSelector);
+            selector.style.transition = 'opacity 500ms';
+            selector.style.opacity = 0;
+        } else {
+            document.body.style.transition = 'opacity 500ms';
+            document.body.style.opacity = 0;
+        }
+        setTimeout(function() {
+            if (replaceSelector) {
+                var parser = new DOMParser();
+                var newDoc = parser.parseFromString(response, 'text/html');
+                var container = newDoc.getElementById(replaceSelector);
+                selector.innerHTML = container.innerHTML;
+        
+                var scripts = container.getElementsByTagName('script');
+                for (var i = 0; i < scripts.length; i++) {
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = scripts[i].src;
+                    selector.appendChild(script);
+                }
+        
+                selector.style.transition = 'opacity 500ms';
+                selector.style.opacity = 1;
+            } else {
+                var parser = new DOMParser();
+                var newDoc = parser.parseFromString(response, 'text/html');
+                document.head.innerHTML = newDoc.head.innerHTML;
+                document.body.innerHTML = newDoc.body.innerHTML;
+        
+                var scripts = newDoc.getElementsByTagName('script');
+                for (var i = 0; i < scripts.length; i++) {
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = scripts[i].src;
+                    document.body.appendChild(script);
+                }
+        
+                document.body.style.transition = 'opacity 500ms';
+                document.body.style.opacity = 1;
+            }
+        }, 500);
           
           history.pushState(page, null, '/?page=' + page);// add the page to the browser's history
       },
