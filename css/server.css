@@ -1,0 +1,30 @@
+/* This is the class for flipped text */
+.inner-text-flipped {
+	font-family: 'Bungee', cursive;
+	text-shadow: 2px 2px 5px black;
+	text-align: center;
+	padding-top: 16%;
+	color: white;
+	display: none;
+	line-height: 1.5;
+	transform: scaleX(-1) !important;
+}
+
+.flip {
+    animation: flip 500ms forwards;
+	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+    animation-fill-mode: forwards;
+}
+.flip-back {
+    animation: flip-back 500ms forwards;
+	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+    animation-fill-mode: forwards;
+}
+@keyframes flip {
+    from {transform: rotateY(0deg);}
+    to {transform: rotateY(180deg);}
+}
+@keyframes flip-back {
+    from {transform: rotateY(180deg);}
+    to {transform: rotateY(0deg);}
+}

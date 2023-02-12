@@ -14,6 +14,7 @@
   {* <link rel="stylesheet" type="text/css" href="vendor/datatables/css/dataTables.bootstrap5.min.css" /> *}
   {* <link rel="stylesheet" type="text/css" href="vendor/datepicker-lightpick/css/lightpick.css" /> *}
   {* <link rel="stylesheet" type="text/css" href="vendor/select2/css/select2.min.css" /> *}
+  <link rel="stylesheet" type="text/css" href="css/hexagons.css" />
 
   {* Fonts *}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee" >
