@@ -17,10 +17,9 @@ function goToPage(page,replaceSelector) {
       data: { page: page },
       beforeSend: function() {// Start loading animation
         if (logo) { rotate(logo,500); }
-        else { showLoadingAnimation(); }
       },
       complete: function() {// Stop loading animation
-        document.getElementById('loading-animation').style.display = 'none';// Hide the loading animation
+
       },
       success: function(response) {
           let selector;
