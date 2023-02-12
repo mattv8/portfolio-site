@@ -31,8 +31,8 @@ $( document ).ready(function() {
                 if(parent.hasClass('flipped')){
                     parent.addClass('flip-back');
                     setTimeout(function() {
-                        parent.find('.inner-text-flipped').hide();
                         parent.find('.inner-title').show();
+                        parent.find('.inner-text-flipped').hide();
                         parent.css('filter', 'drop-shadow(-5px 5px 10px black)');
                         setTimeout(function() {
                             parent.removeClass('flip flipped flip-back');
