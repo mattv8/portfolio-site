@@ -57,16 +57,6 @@ $.fn.hexagons = function(callback, options) {
 	  	</svg>`;
 		$container.append(svgFilter);
 
-		// Hex Default
-		$container.find('.hex').not('.rounded').each(function(){
-			$(this).css('filter', 'drop-shadow(-5px 5px 10px black);');// Drop Shadow
-		})
-
-		// Hex with Rounded Corners
-		$container.find('.hex.rounded').each(function(){
-			$(this).css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
-		})
-
 		// Hex Links
 		$container.find('.hex.link').each(function(){
 			var link = $(this).find("link").attr("href"); // Find its associated anchor
@@ -90,6 +80,13 @@ $.fn.hexagons = function(callback, options) {
 			var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
 			var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
 			var p = $(this).find('p').text();//Get uri's of class='hvr' images
+
+			// Hex CSS Modifiers
+			if ($(this).hasClass('rounded')) {
+				$(this).css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+			} else {
+				$(this).css('filter', 'drop-shadow(-5px 5px 10px black)');
+			}
 			
 			// For hexagons with links or solid color hover backgrounds
 			if(bg_img_src !== undefined){ //if image is defined
@@ -291,7 +288,7 @@ $.fn.hexagons = function(callback, options) {
 	 * RETURNS
 	*/
 	return {
-		each: this.each(function() {
+		each: this.each( function() {
 			initialize(this).then(function(points) {
 				if(callback){ callback(points); };
 			});
