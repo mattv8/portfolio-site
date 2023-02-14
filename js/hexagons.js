@@ -228,7 +228,7 @@ $.fn.hexagons = function(callback, options) {
 
 		});
 
-		updateScales(hexWidth,hexHeight);// Update hex width/height
+		await updateScales(hexWidth,hexHeight,reorder);// Update hex width/height
 		
 		return elem;
 		
@@ -244,31 +244,40 @@ $.fn.hexagons = function(callback, options) {
 	/*
 	* Update all scale values
 	*/
-	function updateScales(hexWidth,hexHeight){
+	let prevTextHeight;
+	async function updateScales(hexWidth,hexHeight,reorder){
 		let textHeight;// initialize hex scale factor
 
 		$container.find('.hex').width(hexWidth).height(hexHeight);
 		$container.find('.hex_inner').width(hexWidth).height(hexHeight);
 		
 		textHeight = hexHeight*.15;// Initial pixel height of text as percentage of hex height
-		$container.find('.hexagons, .inner-title').css({'font-size': textHeight + 'px'});// Set initial text height
-		
-		setTimeout(function() { scaleFonts(hexWidth); }, 150);// Update hex width/height giving DOM enough time to build
+		if (prevTextHeight !== textHeight) {
+			$container.find('.hexagons, .inner-title').css({'font-size': textHeight + 'px'});// Set initial text height
+			prevTextHeight = textHeight;
+		}
+
+		if (reorder) {
+			scaleFonts(hexWidth);// Update hex title font
+		} else {
+			setTimeout(function() { scaleFonts(hexWidth); }, 150);// Update hex title font giving DOM enough time to build
+		}
 		
 		function scaleFonts(hexWidth) {
 			// Recalculate text height if it exceeds the boundaries of the hexagon
-			var maxTitleWidth = hexWidth*.92;// Max width of .inner-title text relative to hexWidth
-			$container.find('.hexagons, .inner-title > span').each(function(){
-				var textWidth = $(this).outerWidth();// Get outer width of inner-title <span>
-				if (textWidth > maxTitleWidth) {
-					$(this).parent().css({
-						'display': 'inline-block',
-						'width': maxTitleWidth,
-						'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
-					});
-				}
+			var maxTitleWidth = hexWidth * 0.92; // Max width of .inner-title text relative to hexWidth
+			var $elementsToUpdate = $container.find('.inner-title > span').filter(function() {
+			  return this.offsetWidth > maxTitleWidth;
 			});
-		}
+			$elementsToUpdate.each(function() {
+			  var $parent = $(this).parent();
+			  $parent.css({
+				display: 'inline-block',
+				width: maxTitleWidth,
+				'font-size': (maxTitleWidth / this.offsetWidth) * textHeight + 'px'
+			  });
+			});
+		  }
 
 	}// END updateScales()
 	
