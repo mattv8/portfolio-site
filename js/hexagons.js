@@ -28,7 +28,7 @@ $.fn.hexagons = function(callback, options) {
 	async function initialize() {
 
 		await buildHtml();// Build the initial DOM
-		let elems = await reorder(true, false);// Arrange the hexagons, save cornerpoints
+		let elems = reorder(true, false);// Arrange the hexagons, save cornerpoints
 		$(window).resize(function(){
 			debouncedReorder(true, true);// Debounced reorder() function when window resizes
 		});
