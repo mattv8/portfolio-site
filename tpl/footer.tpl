@@ -1,11 +1,12 @@
 {* Footer Script *}
 <script type="text/javascript">
 
-  // Back button functionality
-  $(window).on('popstate', function(event) {
-    var page = (event.originalEvent.state) ? event.originalEvent.state : '{$default_page}';// get the page from the state of the event
-    goToPage(page,'page-content');// make an AJAX request to update the page
+  // Back/Forward button functionality
+  $(window).on('popstate hashchange', function(event) {
+    var page = (event.originalEvent.state) ? event.originalEvent.state : '{$default_page}';
+    goToPage(page, 'page-content');
   });
+
 
 </script>
 
