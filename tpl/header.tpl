@@ -36,7 +36,7 @@
   {* Javascript Libraries*}
   <script src="vendor/jquery3/js/jquery-3.6.1.min.js"></script>
 	<script src="vendor/wait-for-images/wait-for-images.min.js"></script>
-	<script src="vendor/color-thief/color-thief.min.js"></script>
+	<script src="vendor/color-thief/color-thief.umd.js"></script>
 	<script src="vendor/lodash/lodash.min.js"></script>
   {if file_exists('js/functions.min.js')}
   <script src="js/functions.min.js"></script>
