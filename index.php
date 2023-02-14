@@ -40,12 +40,13 @@ $smarty->debugging = $smarty_debug;
 # Assign configuration variables
 $smarty->assign('js_config',$js_config);// Javascript Config Object
 $smarty->assign('site_title',$site_title);
+$smarty->assign('default_page',$default_page);
 
 
 #==============================================================================
 # Route to page
 #==============================================================================
-$page = 'landing';
+$page = $default_page;
 if (isset($_GET["page"]) and $_GET["page"]) { 
     $page = $_GET["page"];
     if ( file_exists($page.".php") ) { require_once($page.".php"); }

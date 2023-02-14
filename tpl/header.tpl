@@ -9,12 +9,8 @@
   <meta name="author" content="Matthew P. Visnovsky" />
   
   {* CSS Libraries *}
-  {* <link rel="stylesheet" type="text/css" href="vendor/bootstrap5/css/bootstrap.min.css" /> *}
-  {* <link rel="stylesheet" type="text/css" href="vendor/font-awesome5/css/all.min.css" /> *}
-  {* <link rel="stylesheet" type="text/css" href="vendor/datatables/css/dataTables.bootstrap5.min.css" /> *}
-  {* <link rel="stylesheet" type="text/css" href="vendor/datepicker-lightpick/css/lightpick.css" /> *}
-  {* <link rel="stylesheet" type="text/css" href="vendor/select2/css/select2.min.css" /> *}
   <link rel="stylesheet" type="text/css" href="css/hexagons.css" />
+  <link rel="stylesheet" type="text/css" href="css/all.css" />
 
   {* Fonts *}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee" >
@@ -39,12 +35,6 @@
 
   {* Javascript Libraries*}
   <script src="vendor/jquery3/js/jquery-3.6.1.min.js"></script>
-  {* <script src="vendor/bootstrap5/js/bootstrap.bundle.min.js"></script> *}
-  {* <script src="vendor/datatables/js/datatables.min.js"></script> *}
-  {* <script src="vendor/datatables/js/dataTables.bootstrap5.min.js"></script> *}
-  {* <script src="vendor/moment/moment.min.js"></script> *}
-  {* <script src="vendor/datepicker-lightpick/js/lightpick.js"></script> *}
-  {* <script src="vendor/select2/js/select2.full.min.js"></script> *}
 	<script src="vendor/wait-for-images/wait-for-images.min.js"></script>
 	<script src="vendor/color-thief/color-thief.min.js"></script>
 	<script src="vendor/lodash/lodash.min.js"></script>
@@ -56,6 +46,12 @@
 
 	{literal}
   <style>.hexagons{display:none;}</style>
+
+  <script>
+    $(document).ready(function() {
+      loadVideo('bgvideo');
+    });
+  </script>
 
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-136799599-1"></script>
 	<script>

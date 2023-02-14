@@ -13,11 +13,12 @@ $smarty_compile_dir = "cache";
 $smarty_cache_dir = "cache/smarty";
 
 $site_title = "Portfolio | Landing";
+$default_page = 'landing';
 
 # If desired, specify an associative array to be JSON encoded and passed to Javascript (loaded in header.tpl)
 #   Example: $js_config_obj = array('foo1'=>'bar1', 'foo2'=>'bar2');
 #   Load from any Javascript file like 'js_config_obj.autofill_attributes'
-$js_config = array('');
+$js_config = array('default_page'=>$default_page);
 
 # Allow to override current settings with local configuration
 if (file_exists ($_SERVER['DOCUMENT_ROOT'].'/conf/config.local.php')) {
