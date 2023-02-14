@@ -49,7 +49,7 @@
 
   <script>
     $(document).ready(function() {
-      loadVideo('bgvideo');
+      loadVideo('bgvideo');// Graceful load background video
     });
   </script>
 
