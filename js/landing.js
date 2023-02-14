@@ -18,19 +18,6 @@ $(document).ready(function() {
 		$('.hexagons').fadeIn(10); // Fade in when loaded
 	});
 
-	// Play video after it has finished loading
-	var e = document.getElementById("bgvideo");
-	if(e) {
-		e.style.opacity = 0;
-		var vid = document.getElementById("bgvideo");
-		var tim = setInterval(function() {
-			if (vid.readyState === 4) {
-				clearInterval(tim);
-				fade(e);
-			}
-		}, 100);
-	}
-
 });// END $(document).ready( )
 
 

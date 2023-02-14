@@ -5,7 +5,7 @@
 function goToPage(page,replaceSelector) {
   
   // Redirect to root if page is null
-  if(page == null){ window.location.href = '/'; return; }
+  if(!page){ page = GLOBAL.default_page; }
 
   // Get logo selector
   const logo = $('.logo');
@@ -16,7 +16,7 @@ function goToPage(page,replaceSelector) {
       type: 'GET',
       data: { page: page },
       beforeSend: function() {// Start loading animation
-        if (logo) { rotate(logo,500); }
+        if (logo.length > 0) { rotate(logo,500); }
       },
       complete: function() {// Stop loading animation
 
@@ -126,4 +126,25 @@ function drawDot(xy, parent, rad) {
 	dot.style.left = xy.left - radius/2 + "px";
 	dot.style.top = xy.top - radius/2 + "px";
 	parent.append(dot);
+}
+
+
+/**
+ * Function to handle the display of the background video
+ * 
+ * This function checks if the video has already been cached from a previous page load. 
+ * If the video is not cached, it sets an interval to check if the video is ready to play. 
+ * Once the video is ready, it calls the fade function.
+ */
+function loadVideo(videoId) {
+  const vid = document.getElementById(videoId);
+  if (vid && window.performance && window.performance.getEntriesByType("navigation")[0].type !== "back_forward") {
+    vid.style.opacity = 0;
+    var time = setInterval(function() {
+      if (vid.readyState === 4) {
+        clearInterval(time);
+        fade(vid);
+      }
+    }, 100);
+  }
 }
