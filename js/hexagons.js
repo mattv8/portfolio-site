@@ -73,24 +73,23 @@ $.fn.hexagons = function(callback, options) {
 		})
 		
 		// Hex Image
-		var hex_index = 0;
 		$container.find('.hex').each(function(){
+
+			var $hex = $(this);
 			
-			hex_index = hex_index + 1; // iterate hex index counter (counts total # of hexagons)
-			var bg_img_src = $(this).find('.bg').attr('src');//Get uri's of class='bg' images
-			var hvr_img_src = $(this).find('.hvr').attr('src');//Get uri's of class='hvr' images
-			var p = $(this).find('p').text();//Get uri's of class='hvr' images
+			var bg_img_src = $hex.find('.bg').attr('src');//Get uri's of class='bg' images
+			var hvr_img_src = $hex.find('.hvr').attr('src');//Get uri's of class='hvr' images
 
 			// Hex CSS Modifiers
-			if ($(this).hasClass('rounded')) {
-				$(this).css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+			if ($hex.hasClass('rounded')) {
+				$hex.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
 			} else {
-				$(this).css('filter', 'drop-shadow(-5px 5px 10px black)');
+				$hex.css('filter', 'drop-shadow(-5px 5px 10px black)');
 			}
 			
 			// For hexagons with links or solid color hover backgrounds
-			if(bg_img_src !== undefined){ //if image is defined
-				
+			if (bg_img_src !== undefined) { //if image is defined
+
 				// colorThief variables
 				var img_obj = new Image(360, 360); // build image object
 				img_obj.src = bg_img_src; //attach bg image uri
@@ -98,50 +97,50 @@ $.fn.hexagons = function(callback, options) {
 				var color = colorThief.getColor(img_obj); // Get the dominant color of image
 									
 				// Attach bg image
-				$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
+				$hex.find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');// Attach bg image
 
 				// When hovering, show dominant color of image
-				$(this).mouseenter(function(){
-					$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
+				$hex.mouseenter(function(){
+					$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
 				});
-				$(this).mouseleave(function(){
-					$(this).find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
+				$hex.mouseleave(function(){
+					$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 				});
 
 			}
-			
+
 			// For hexagons with an image when hovering
 			if(hvr_img_src !== undefined){// if hover image is defined
-				$(this).mouseenter(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'")');
+				$hex.mouseenter(function(){
+					$hex.find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'")');
 				})
-				$(this).mouseleave(function(){
-					$(this).find('.inner-span').attr('style', 'background-image: none');
+				$hex.mouseleave(function(){
+					$hex.find('.inner-span').attr('style', 'background-image: none');
 				})
 			}
 
 			// For hexagons with programmatically defined background colors
 			if(bg_img_src === undefined) {// If image is not defined
 				// Attach bg image and drop shadow
-				$(this).find('.hex_inner').attr('style', 'background-color: white');
+				$hex.find('.hex_inner').attr('style', 'background-color: white');
 			}
 
 			// For hexagons with inner text
-			if($(this).find('span').length > 0){ // If span is defined
-				$(this).find('.inner-span .inner-title').html($(this).find('span'));
+			if($hex.find('span').length > 0){ // If span is defined
+				$hex.find('.inner-span .inner-title').html($hex.find('span'));
 			}else{
-				$(this).find('.inner-span').remove();
+				$hex.find('.inner-span').remove();
 			}
 
 			// For hexagons with inner sub-text
-			if($(this).find('p').length > 0){// If span is defined
-				$(this).find('.inner-span .inner-text')
-				.html($(this).find('p').html())
+			if($hex.find('p').length > 0){// If span is defined
+				$hex.find('.inner-span .inner-text')
+				.html($hex.find('p').html())
 				.removeClass('inner-text')
-				.addClass($(this).find('p').attr('class'));
-				$(this).find('p').remove();
+				.addClass($hex.find('p').attr('class'));
+				$hex.find('p').remove();
 			}else{
-				$(this).find('.inner-text').remove();
+				$hex.find('.inner-text').remove();
 			}
 			
 		});// END $(container).find('.hex').each(function()
@@ -193,24 +192,26 @@ $.fn.hexagons = function(callback, options) {
 		
 		$container.find('.hex').each(function(i){
 
+			var $hex = $(this);
+
 			// console.log("Col: "+col, "Row: "+row);
 
 			top = ( row * (hexHeight + settings.margin) ) + (offset * (hexHeight/2 + (settings.margin/2)));// determines top margin of hexagons
 			offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 			
-			var topLevelClass = $(this).attr('class').split(' ')[1];
-			elem[i] = {class:topLevelClass, corner:{left:left,top:top}, selector:$(this)};
+			var topLevelClass = $hex.attr('class').split(' ')[1];
+			elem[i] = {class:topLevelClass, corner:{left:left,top:top}, selector:$hex};
 
 			// Set positional values
 			if(animate && !reorder){// animate if specified
-				$(this).css('left', spawnPoint.left).css('top', spawnPoint.top + settings.margin*2);// Set initial pos to center of container
-				$(this).animate({'left': left, 'top': top});
+				$hex.css('left', spawnPoint.left).css('top', spawnPoint.top + settings.margin*2);// Set initial pos to center of container
+				$hex.animate({'left': left, 'top': top});
 			} 				// Update CSS value for this iteration
 			else if(reorder){// Reorder event
-				$(this).stop(true, false);// Stop previous animations if reorder() is called again
-				$(this).animate({'left': left, 'top': top});
+				$hex.stop(true, false);// Stop previous animations if reorder() is called again
+				$hex.animate({'left': left, 'top': top});
 			} else{
-				$(this).css('left', left).css('top', top);
+				$hex.css('left', left).css('top', top);
 			}
 
 			// Update values for the next iteration
