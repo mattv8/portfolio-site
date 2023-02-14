@@ -4,45 +4,15 @@
 	display: inline-block;
 }
 
-.hex_l,
-.hex_r {
-	overflow: hidden;
-	position: absolute;
-	/* -webkit-backface-visibility: hidden; */
-}
-
-.hex_l {
-	visibility: hidden;
-	-moz-transform: rotate(60deg);
-	-ms-transform: rotate(60deg);
-	-o-transform: rotate(60deg);
-	-webkit-transform: rotate(60deg);
-	transform: rotate(60deg);
-}
-
-.hex_r {
-	visibility: hidden;
-	/*box-shadow: 5px 10px 10px gray;*/
-	-moz-transform: rotate(-120deg);
-	-ms-transform: rotate(-120deg);
-	-o-transform: rotate(-120deg);
-	-webkit-transform: rotate(-120deg);
-	transform: rotate(-120deg);
-}
-
 .hex_inner {
 	display: block;
-	visibility: visible;
-	-moz-transform: rotate(60deg);
-	-ms-transform: rotate(60deg);
-	-o-transform: rotate(60deg);
-	-webkit-transform: rotate(60deg);
-	transform: rotate(60deg);
 	background-position: center top;
   	-webkit-background-size: cover;
   	-moz-background-size: cover;
   	-o-background-size: cover;
   	background-size: cover;
+	-webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+	clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
 .inner-span {
@@ -83,7 +53,8 @@
 .hex .button {
 	cursor: pointer;
 	text-decoration: none;
-	color: white;
+	color: transparent;
+	background-color: transparent;
     border: none;
     overflow: hidden;
     outline: none;

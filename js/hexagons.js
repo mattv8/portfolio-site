@@ -15,6 +15,7 @@ $.fn.hexagons = function(callback, options) {
 		breakpoint: 1000,
 		rows: 3,
 		cols: 3,
+		radius: 5,
 	}, options);
 
 	// Cached Selectors
@@ -42,20 +43,38 @@ $.fn.hexagons = function(callback, options) {
 	*/
 	async function buildHtml(){
 
-		$container.find('.hex').append('<div class="hex_l"></div>');
-		$container.find('.hex_l').append('<div class="hex_r"></div>');
-		$container.find('.hex_r').append('<div class="hex_inner"></div>');
+		$container.find('.hex').append('<div class="hex_inner"></div>');
 		$container.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
 		$container.find('.inner-span').append('<div class="inner-text"></div>');
 
+		// SVG defining the rounding of hex corners
+		const svgFilter = `
+		<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+			<filter id="rounded-edges"><feGaussianBlur in="SourceGraphic" stdDeviation="${settings.radius}" result="blur" />
+				<feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="rounded-edges" />
+				<feComposite in="SourceGraphic" in2="rounded-edges" operator="atop"/>
+			</filter>
+	  	</svg>`;
+		$container.append(svgFilter);
+
+		// Hex Default
+		$container.find('.hex').not('.hex.rounded').each(function(){
+			$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');// Drop Shadow
+		})
+
+		// Hex with Rounded Corners
+		$container.find('.hex.rounded').each(function(){
+			$(this).attr('style', 'filter: url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+		})
+		
 		// Hex Links
-		$container.find('.link').each(function(){
+		$container.find('.hex.link').each(function(){
 			var link = $(this).find("link").attr("href"); // Find its associated anchor
 			if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); } // wrap the <a></a>
 		})
 		
 		// Hex Buttons
-		$container.find('.button').each(function(){
+		$container.find('.hex.button').each(function(){
 			var button = $(this).attr("onclick"); // Find its associated anchor
 			if (button){
 				$(this).removeAttr('onclick');// Remove the extra onclick action
@@ -81,9 +100,8 @@ $.fn.hexagons = function(callback, options) {
 				var colorThief = new ColorThief(); // initialize colorThief
 				var color = colorThief.getColor(img_obj); // Get the dominant color of image
 									
-				// Attach bg image and drop shadow
+				// Attach bg image
 				$(this).find('.hex_inner').attr('style', 'background-image: url("'+bg_img_src+'");');
-				$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
 
 				// When hovering, show dominant color of image
 				$(this).mouseenter(function(){
@@ -234,7 +252,6 @@ $.fn.hexagons = function(callback, options) {
 		let textHeight;// initialize hex scale factor
 
 		$container.find('.hex').width(hexWidth).height(hexHeight);
-		$container.find('.hex_l, .hex_r').width(hexWidth).height(hexHeight);
 		$container.find('.hex_inner').width(hexWidth).height(hexHeight);
 		
 		textHeight = hexHeight*.15;// Initial pixel height of text as percentage of hex height
