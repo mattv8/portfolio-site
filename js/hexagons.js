@@ -228,7 +228,7 @@ $.fn.hexagons = function(callback, options) {
 
 		});
 
-		setTimeout(function() { updateScales(hexWidth,hexHeight); }, (!reorder)?150:0);// Update hex width/height
+		updateScales(hexWidth,hexHeight);// Update hex width/height
 		
 		return elem;
 		
@@ -253,18 +253,22 @@ $.fn.hexagons = function(callback, options) {
 		textHeight = hexHeight*.15;// Initial pixel height of text as percentage of hex height
 		$container.find('.hexagons, .inner-title').css({'font-size': textHeight + 'px'});// Set initial text height
 		
-		// Recalculate text height if it exceeds the boundaries of the hexagon
-		var maxTitleWidth = hexWidth*.92;// Max width of .inner-title text relative to hexWidth
-		$container.find('.hexagons, .inner-title > span').each(function(){
-			var textWidth = $(this).outerWidth();// Get outer width of inner-title <span>
-			if (textWidth > maxTitleWidth) {
-				$(this).parent().css({
-					'display': 'inline-block',
-					'width': maxTitleWidth,
-					'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
-				});
-			}
-		});
+		setTimeout(function() { scaleFonts(hexWidth); }, 150);// Update hex width/height giving DOM enough time to build
+		
+		function scaleFonts(hexWidth) {
+			// Recalculate text height if it exceeds the boundaries of the hexagon
+			var maxTitleWidth = hexWidth*.92;// Max width of .inner-title text relative to hexWidth
+			$container.find('.hexagons, .inner-title > span').each(function(){
+				var textWidth = $(this).outerWidth();// Get outer width of inner-title <span>
+				if (textWidth > maxTitleWidth) {
+					$(this).parent().css({
+						'display': 'inline-block',
+						'width': maxTitleWidth,
+						'font-size': (maxTitleWidth/textWidth)*textHeight + 'px'
+					});
+				}
+			});
+		}
 
 	}// END updateScales()
 	
