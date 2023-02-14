@@ -13,16 +13,15 @@
 <script src="js/server.js"></script>
 {/if}
 
-<style>
-.server {
-    width: 100%;
-    height: 100%;
-    left: 0%;
-    top: 0%;
-    transform: translate(0%, 0%);
-    position: relative;
-}
-</style>
+{if $debug}
+	<style>
+	.server {
+		border-style: solid;
+		border-width: 1px;
+		border-color: blue;
+	}
+	</style>
+{/if}
 
 <div class="hexagons server">
 {foreach from=$servers item=server key=key}
