@@ -26,7 +26,7 @@
 
 <div class="hexagons server">
 {foreach from=$servers item=server key=key}
-	<div class="hex button {$server.status}" onclick="this.remove()">
+	<div class="hex rounded button {$server.status}" onclick="this.remove()">
 		<span>{$key}</span>
 		<p class="inner-text-flipped">
 			Type: {($server.type)?$server.type:'qemu'}<br>

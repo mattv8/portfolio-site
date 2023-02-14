@@ -19,7 +19,7 @@ $( document ).ready(function() {
                     setTimeout(function() {
                         parent.find('.inner-title').hide();
                         parent.find('.inner-text-flipped').show();
-                        parent.css('filter', 'drop-shadow(5px 5px 10px black)');
+                        parent.css('filter', 'filter: url(#rounded-edges) drop-shadow(5px 5px 10px black)');
                         setTimeout(function() {
                             parent.addClass('flipped');
                         }.bind(this), animTime/2);
@@ -33,7 +33,7 @@ $( document ).ready(function() {
                     setTimeout(function() {
                         parent.find('.inner-title').show();
                         parent.find('.inner-text-flipped').hide();
-                        parent.css('filter', 'drop-shadow(-5px 5px 10px black)');
+                        parent.css('filter', 'filter: url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
                         setTimeout(function() {
                             parent.removeClass('flip flipped flip-back');
                         }.bind(this), animTime/2);
