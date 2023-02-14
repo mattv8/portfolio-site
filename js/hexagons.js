@@ -73,7 +73,7 @@ $.fn.hexagons = function(callback, options) {
 		})
 		
 		// Hex Image
-		$container.find('.hex').each(function(){
+		$container.find('.hex').each(function(hexId){
 
 			var $hex = $(this);
 			
@@ -127,7 +127,7 @@ $.fn.hexagons = function(callback, options) {
 
 			// For hexagons with inner text
 			if($hex.find('span').length > 0){ // If span is defined
-				$hex.find('.inner-span .inner-title').html($hex.find('span'));
+				$hex.find('.inner-span .inner-title').html($hex.find('span')).attr('id', `title-${hexId}`);
 			}else{
 				$hex.find('.inner-span').remove();
 			}
