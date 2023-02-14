@@ -58,15 +58,15 @@ $.fn.hexagons = function(callback, options) {
 		$container.append(svgFilter);
 
 		// Hex Default
-		$container.find('.hex').not('.hex.rounded').each(function(){
-			$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');// Drop Shadow
+		$container.find('.hex').not('.rounded').each(function(){
+			$(this).css('filter', 'drop-shadow(-5px 5px 10px black);');// Drop Shadow
 		})
 
 		// Hex with Rounded Corners
 		$container.find('.hex.rounded').each(function(){
-			$(this).attr('style', 'filter: url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+			$(this).css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
 		})
-		
+
 		// Hex Links
 		$container.find('.hex.link').each(function(){
 			var link = $(this).find("link").attr("href"); // Find its associated anchor
@@ -127,8 +127,6 @@ $.fn.hexagons = function(callback, options) {
 			if(bg_img_src === undefined) {// If image is not defined
 				// Attach bg image and drop shadow
 				$(this).find('.hex_inner').attr('style', 'background-color: white');
-				$(this).attr('style', 'filter: drop-shadow(-5px 5px 10px black);');
-
 			}
 
 			// For hexagons with inner text
