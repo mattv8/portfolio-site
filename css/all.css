@@ -1,0 +1,29 @@
+body {
+	background: black;
+}
+
+#bgvideo {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1000;
+    overflow: hidden;
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -o-filter: blur(10px);
+    -ms-filter: blur(10px);
+    filter: blur(10px) saturate(20%);
+	transition: filter 0.2s;
+}
+
+#bgvideo:hover {
+	-webkit-filter: none;
+    -moz-filter: none;
+    -o-filter: none;
+    -ms-filter: none;
+    filter: none;
+}
