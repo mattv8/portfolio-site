@@ -43,9 +43,8 @@ $.fn.hexagons = function(callback, options) {
 	*/
 	async function buildHtml(){
 
-		$container.find('.hex').append('<div class="hex_inner"></div>');
-		$container.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
-		$container.find('.inner-span').append('<div class="inner-text"></div>');
+		$container.find('.hex').append('<div class="hex_inner"><div class="inner-title"></div></div>');
+		$container.find('.hex_inner').append('<div class="inner-text"></div>');
 
 		// SVG defining the rounding of hex corners
 		const svgFilter = `
@@ -75,7 +74,7 @@ $.fn.hexagons = function(callback, options) {
 		// Hex Image
 		$container.find('.hex').each(function(hexId){
 
-			var $hex = $(this);
+			const $hex = $(this);
 			
 			var bg_img_src = $hex.find('.bg').attr('src');//Get uri's of class='bg' images
 			var hvr_img_src = $hex.find('.hvr').attr('src');//Get uri's of class='hvr' images
@@ -101,10 +100,10 @@ $.fn.hexagons = function(callback, options) {
 
 				// When hovering, show dominant color of image
 				$hex.mouseenter(function(){
-					$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
+					$hex.find('.hex_inner').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
 				});
 				$hex.mouseleave(function(){
-					$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
+					$hex.find('.hex_inner').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 				});
 
 			}
@@ -112,10 +111,10 @@ $.fn.hexagons = function(callback, options) {
 			// For hexagons with an image when hovering
 			if(hvr_img_src !== undefined){// if hover image is defined
 				$hex.mouseenter(function(){
-					$hex.find('.inner-span').attr('style', 'background-image: url("'+hvr_img_src+'")');
+					$hex.find('.hex_inner').attr('style', 'background-image: url("'+hvr_img_src+'")');
 				})
 				$hex.mouseleave(function(){
-					$hex.find('.inner-span').attr('style', 'background-image: none');
+					$hex.find('.hex_inner').attr('style', 'background-image: none');
 				})
 			}
 
@@ -127,14 +126,14 @@ $.fn.hexagons = function(callback, options) {
 
 			// For hexagons with inner text
 			if($hex.find('span').length > 0){ // If span is defined
-				$hex.find('.inner-span .inner-title').html($hex.find('span')).attr('id', `title-${hexId}`);
+				$hex.find('.hex_inner .inner-title').html($hex.find('span')).attr('id', `title-${hexId}`);
 			}else{
-				$hex.find('.inner-span').remove();
+				$hex.find('.hex_inner').remove();
 			}
 
 			// For hexagons with inner sub-text
 			if($hex.find('p').length > 0){// If span is defined
-				$hex.find('.inner-span .inner-text')
+				$hex.find('.hex_inner .inner-text')
 				.html($hex.find('p').html())
 				.removeClass('inner-text')
 				.addClass($hex.find('p').attr('class'));
@@ -192,7 +191,7 @@ $.fn.hexagons = function(callback, options) {
 		
 		$container.find('.hex').each(function(i){
 
-			var $hex = $(this);
+			const $hex = $(this);
 
 			// console.log("Col: "+col, "Row: "+row);
 
