@@ -25,16 +25,22 @@
 	
 }
 
+/* ****** Flipped Text ****** */
+
 /* This is the class for flipped text */
 .inner-text-flipped {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
-	padding-top: 16%;
+	vertical-align: middle;
 	color: white;
-	display: none;
 	line-height: 1.5;
-	transform: scaleX(-1) !important;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scaleX(-1) !important;
+	width: 100%;
+	display: none;
 }
 
 .flip {
