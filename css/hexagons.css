@@ -1,11 +1,13 @@
 /* ****** HEXAGONS ****** */
 .hex {
 	position: absolute;
+	pointer-events: none;
 	display: inline-block;
 }
 
 .hex_inner {
 	display: block;
+	pointer-events: all;
 	background-position: center top;
   	-webkit-background-size: cover;
   	-moz-background-size: cover;
