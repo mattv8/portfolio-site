@@ -3,7 +3,7 @@
 
   // Back/Forward button functionality
   $(window).on('popstate hashchange', function(event) {
-    var page = (event.originalEvent.state) ? event.originalEvent.state : '{$default_page}';
+    var page = event.originalEvent.state;
     goToPage(page, 'page-content');
   });
 

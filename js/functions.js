@@ -5,7 +5,7 @@
 function goToPage(page,replaceSelector) {
   
   // Redirect to root if page is null
-  if(!page){ page = GLOBAL.default_page; }
+  if(!page){ page = GLOBAL.config.default_page; }
 
   // Get logo selector
   const logo = $('.logo');
@@ -67,7 +67,8 @@ function goToPage(page,replaceSelector) {
             }
         }, 500);
           
-          history.pushState(page, null, '/?page=' + page);// add the page to the browser's history
+        var popstate = (page === GLOBAL.config.default_page) ? null : `/?page=${page}`;
+        history.pushState(page, null, popstate);// add the page to the browser's history
       },
   });
 }
