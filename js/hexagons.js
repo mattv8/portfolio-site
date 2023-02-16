@@ -60,7 +60,7 @@ $.fn.hexagons = function(callback, options) {
 		// Hex Links
 		$container.find('.hex.link').each(function(){
 			var link = $(this).find("link").attr("href"); // Find its associated anchor
-			if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="link"></a>'); } // wrap the <a></a>
+			if(link) { $(this).find('.hex_inner').wrap('<a href="'+link+'" class="hex_link"></a>'); } // wrap the <a></a>
 		})
 		
 		// Hex Buttons
@@ -68,10 +68,10 @@ $.fn.hexagons = function(callback, options) {
 			var button = $(this).attr("onclick"); // Find its associated anchor
 			if (button){
 				$(this).removeAttr('onclick');// Remove the extra onclick action
-				$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="button"></button>'); // wrap the <a></a>
+				$(this).find('.hex_inner').wrap('<button onclick="'+button+'" class="hex_button"></button>'); // wrap the <a></a>
 			}
 		})
-		
+
 		// Hex Image
 		$container.find('.hex').each(function(hexId){
 

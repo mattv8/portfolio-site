@@ -50,13 +50,13 @@
 	line-height: 1.5;
 }
 
-.hex .link {
+.hex .hex_link {
 	cursor: pointer;
 	text-decoration: none;
 	color: white;
 }
 
-.hex .button {
+.hex .hex_button {
 	cursor: pointer;
 	text-decoration: none;
 	color: transparent;
