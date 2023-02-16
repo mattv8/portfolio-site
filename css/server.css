@@ -32,7 +32,6 @@
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
-	vertical-align: middle;
 	color: white;
 	line-height: 1.5;
 	position: absolute;
@@ -43,7 +42,7 @@
 	display: none;
 }
 
-.flip {
+.flipping {
     animation: flip 500ms forwards;
 	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
     animation-fill-mode: forwards;
