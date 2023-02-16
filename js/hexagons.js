@@ -75,7 +75,7 @@ $.fn.hexagons = function(callback, options) {
 		// Hex Image
 		$container.find('.hex').each(function(hexId){
 
-			var $hex = $(this);
+			const $hex = $(this);
 			
 			var bg_img_src = $hex.find('.bg').attr('src');//Get uri's of class='bg' images
 			var hvr_img_src = $hex.find('.hvr').attr('src');//Get uri's of class='hvr' images
@@ -192,7 +192,7 @@ $.fn.hexagons = function(callback, options) {
 		
 		$container.find('.hex').each(function(i){
 
-			var $hex = $(this);
+			const $hex = $(this);
 
 			// console.log("Col: "+col, "Row: "+row);
 
