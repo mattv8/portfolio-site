@@ -66,3 +66,38 @@
     outline: none;
 	padding: 0px;
 }
+
+/* ****** Flipped Hexagon Text ****** */
+
+.inner-text-flipped {
+	font-family: 'Bungee', cursive;
+	text-shadow: 2px 2px 5px black;
+	text-align: center;
+	color: white;
+	line-height: 1.5;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scaleX(-1) !important;
+	width: 100%;
+	display: none;
+}
+
+.flipping {
+    animation: flipped 500ms forwards;
+	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+    animation-fill-mode: forwards;
+}
+.flip-back {
+    animation: flip-back 500ms forwards;
+	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+    animation-fill-mode: forwards;
+}
+@keyframes flipped {
+    from {transform: rotateY(0deg);}
+    to {transform: rotateY(180deg);}
+}
+@keyframes flip-back {
+    from {transform: rotateY(180deg);}
+    to {transform: rotateY(0deg);}
+}

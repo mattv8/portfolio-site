@@ -142,10 +142,44 @@ $.fn.hexagons = function(callback, options) {
 			}else{
 				$hex.find('.inner-text').remove();
 			}
+
+			// For hexagons with flipped text
+			const animTime = 500;// This must be same as CSS .flip and .flip-back time
+            if ($hex.hasClass('flip')) {
+				$hex.find('.inner-text-flipped').attr('id', `fliptext-${hexId}`).wrapInner('<span></span>') // wrap the <span></span>
+                $hex.find('.hex_inner').on({
+                    mouseenter: function () {
+                        if(!$hex.hasClass('flipped')){
+                            $hex.addClass('flipping');
+                            setTimeout(function() {
+                                $hex.find('.inner-title').hide();
+                                $hex.find('.inner-text-flipped').show();
+                                $hex.css('filter', 'url(#rounded-edges)  drop-shadow(5px 5px 10px black)');
+                                setTimeout(function() {
+                                    $hex.addClass('flipped');
+                                }.bind(this), animTime/2);
+                            }.bind(this), animTime/2);
+                        }
+                    },
+                    mouseleave: function () {
+                        if($hex.hasClass('flipped')){
+                            $hex.addClass('flip-back');
+                            setTimeout(function() {
+                                $hex.find('.inner-title').show();
+                                $hex.find('.inner-text-flipped').hide();
+                                $hex.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+                                setTimeout(function() {
+                                    $hex.removeClass('flipping flipped flip-back');
+                                }.bind(this), animTime/2);
+                            }.bind(this), animTime/2);
+                        }
+                    }
+                });
+            }
 			
 		});// END $(container).find('.hex').each(function()
 		
-		$container.find('img, span, link, p').not('.inner-title > span').detach();// Hide hex builder tags
+		$container.find('img, span, link, p').not('.inner-title > span, .inner-text-flipped > span').detach();// Hide hex builder tags
 		
 		$invisible.hide();// Remove invisible hexagons
 		
@@ -266,8 +300,8 @@ $.fn.hexagons = function(callback, options) {
 		function scaleFonts(hexWidth) {
 			// Recalculate text height if it exceeds the boundaries of the hexagon
 			var maxTitleWidth = hexWidth * 0.92; // Max width of .inner-title text relative to hexWidth
-			var $elementsToUpdate = $container.find('.inner-title > span').filter(function() {
-			  return this.offsetWidth > maxTitleWidth;
+			var $elementsToUpdate = $container.find('.inner-title > span, .inner-text-flipped > span').filter(function() {
+			  	return this.offsetWidth > maxTitleWidth;
 			});
 			$elementsToUpdate.each(function() {
 			  var $parent = $(this).parent();
