@@ -49,12 +49,12 @@
 
 			// SVG defining the rounding of hex corners
 			const svgFilter = `
-		<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
-			<filter id="rounded-edges"><feGaussianBlur in="SourceGraphic" stdDeviation="${settings.radius}" result="blur" />
-				<feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="rounded-edges" />
-				<feComposite in="SourceGraphic" in2="rounded-edges" operator="atop"/>
-			</filter>
-	  	</svg>`;
+			<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+				<filter id="rounded-edges"><feGaussianBlur in="SourceGraphic" stdDeviation="${settings.radius}" result="blur" />
+					<feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="rounded-edges" />
+					<feComposite in="SourceGraphic" in2="rounded-edges" operator="atop"/>
+				</filter>
+			</svg>`;
 			$container.append(svgFilter);
 
 			// Hex Links
@@ -97,22 +97,23 @@
 					var color = colorThief.getColor(img_obj); // Get the dominant color of image
 
 					// Attach bg image
-					$hex.find('.hex_inner').attr('style', 'background-image: url("' + bg_img_src + '");');// Attach bg image
+					$hex.find('.hex_inner').attr('style', `background-image: url("${bg_img_src}")`);// Attach bg image
 
-					// When hovering, show dominant color of image
-					$hex.mouseenter(function () {
-						$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: rgb(' + color + ')');
-					});
-					$hex.mouseleave(function () {
-						$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
-					});
 
+					if (!$hex.hasClass('flip')) {// .flip is special class handled later
+						$hex.mouseenter(function () {// When hovering, show dominant color of image
+							$hex.find('.inner-span').attr('style', `transition: background-color 0.3s ease;  background-color: rgb(${color})`);
+						});
+						$hex.mouseleave(function () {// Remove background color
+							$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
+						});
+					}
 				}
 
 				// For hexagons with an image when hovering
 				if (hvr_img_src !== undefined) {// if hover image is defined
 					$hex.mouseenter(function () {
-						$hex.find('.inner-span').attr('style', 'background-image: url("' + hvr_img_src + '")');
+						$hex.find('.inner-span').attr('style', `background-image: url("${hvr_img_src}")`);
 					})
 					$hex.mouseleave(function () {
 						$hex.find('.inner-span').attr('style', 'background-image: none');
@@ -146,10 +147,10 @@
 				// For hexagons with flipped text
 				const animTime = 500;// This must be same as CSS .flip and .flip-back time
 				if ($hex.hasClass('flip')) {
-					$hex.find('.inner-text-flipped').attr('id', `fliptext-${hexId}`)
-					.wrapInner('<div style="padding-top:.5rem;"></div>')
-					.prepend('<div class="hex-wrap-after"></div>')
-					.prepend('<div class="hex-wrap-before"></div>')
+					$hex.find('.inner-text-flipped').attr('id', `fliptext-${hexId}`)// Add an ID
+						.wrapInner('<p></p>')// This is the inner text content
+						.prepend('<div class="hex-wrap-after"></div>')// shape-outside on the left
+						.prepend('<div class="hex-wrap-before"></div>')// shape-outside on the right
 
 					$hex.find('.hex_inner').on({
 						mouseenter: function () {
@@ -157,8 +158,9 @@
 								$hex.addClass('flipping');
 								setTimeout(function () {
 									$hex.find('.inner-title').hide();
-									$hex.find('.inner-text-flipped').css('display','table-cell');
+									$hex.find('.inner-text-flipped').css('display', 'table-cell');
 									$hex.css('filter', 'url(#rounded-edges)  drop-shadow(5px 5px 10px black)');
+									$hex.find('.inner-span').attr('style', `background-color: rgb(${color})`);
 									setTimeout(function () {
 										$hex.addClass('flipped');
 									}.bind(this), animTime / 2);
@@ -172,6 +174,7 @@
 									$hex.find('.inner-title').show();
 									$hex.find('.inner-text-flipped').hide();
 									$hex.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+									$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 									setTimeout(function () {
 										$hex.removeClass('flipping flipped flip-back');
 									}.bind(this), animTime / 2);
@@ -183,7 +186,7 @@
 
 			});// END $(container).find('.hex').each(function()
 
-			$container.find('img, span, link, p').not('.inner-title > span, .inner-text-flipped > span').detach();// Hide hex builder tags
+			$container.find('img, span, link, p').not('.inner-title > span, .inner-text-flipped > p').detach();// Hide hex builder tags
 
 			$invisible.hide();// Remove invisible hexagons
 
@@ -288,9 +291,9 @@
 
 			$container.find('.hex').width(hexWidth).height(hexHeight);
 			$container.find('.hex_inner').width(hexWidth).height(hexHeight);
-			$container.find('.hex-wrap-before, .hex-wrap-after')
-			.width((1 / 2 * hexHeight) / Math.tan(60 * Math.PI / 180))
-			.height(hexHeight);
+			$container.find('.hex-wrap-before, .hex-wrap-after')// Sets the width and height of the shape-outside for text wrapping
+				.width((1 / 2 * hexHeight) / Math.tan(60 * Math.PI / 180))// This calculates the width of a hex triangle
+				.height(hexHeight);
 
 			textHeight = hexHeight * .15;// Initial pixel height of text as percentage of hex height
 			if (prevTextHeight !== textHeight) {
@@ -307,7 +310,6 @@
 			function scaleFonts(hexWidth) {
 				// Recalculate text height if it exceeds the boundaries of the hexagon
 				var maxTitleWidth = hexWidth * 0.92; // Max width of .inner-title text relative to hexWidth
-				// var $elementsToUpdate = $container.find('.inner-title > span, .inner-text-flipped > span').filter(function () {
 				var $elementsToUpdate = $container.find('.inner-title > span').filter(function () {
 					return this.offsetWidth > maxTitleWidth;
 				});

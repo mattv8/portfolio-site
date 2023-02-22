@@ -53,13 +53,16 @@
 .hex .hex_link {
 	cursor: pointer;
 	text-decoration: none;
-	color: white;
+	background-color: transparent;
+    border: none;
+    overflow: hidden;
+    outline: none;
+	padding: 0px;
 }
 
 .hex .hex_button {
 	cursor: pointer;
 	text-decoration: none;
-	color: transparent;
 	background-color: transparent;
     border: none;
     overflow: hidden;
@@ -72,6 +75,7 @@
 .inner-text-flipped {
 	font-family: 'Bungee', cursive;
 	text-shadow: 2px 2px 5px black;
+	font-size: 1rem;
 	text-align: center;
 	color: white;
 	line-height: 1.5;
