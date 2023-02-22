@@ -75,12 +75,21 @@
 	text-align: center;
 	color: white;
 	line-height: 1.5;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%) scaleX(-1) !important;
-	width: 100%;
+	transform: scaleX(-1) !important;
+	vertical-align: middle;
 	display: none;
+}
+
+.hex-wrap-before{
+    float:left;
+    -webkit-shape-outside: polygon(0% 0%, 100% 0, 0 50%, 100% 100%, 0 100%);
+    shape-outside: polygon(0% 0%, 100% 0, 0 50%, 100% 100%, 0 100%);
+}
+
+.hex-wrap-after{
+    float:right;
+    -webkit-shape-outside: polygon(100% 0, 0 0, 100% 50%, 0 99%, 100% 100%);
+    shape-outside: polygon(100% 0, 0 0, 100% 50%, 0 99%, 100% 100%);
 }
 
 .flipping {
