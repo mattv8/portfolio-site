@@ -147,10 +147,27 @@
 				// For hexagons with flipped text
 				const animTime = 500;// This must be same as CSS .flip and .flip-back time
 				if ($hex.hasClass('flip')) {
+
+					// Wrapped inner text
 					$hex.find('.inner-text-flipped').attr('id', `fliptext-${hexId}`)// Add an ID
+						.not('.no-wrap')
 						.wrapInner('<p></p>')// This is the inner text content
 						.prepend('<div class="hex-wrap-after"></div>')// shape-outside on the left
 						.prepend('<div class="hex-wrap-before"></div>')// shape-outside on the right
+						.css({
+							'transform': 'scaleX(-1)',
+						});
+
+					// Non-wrapped inner text
+					$hex.find('.inner-text-flipped.no-wrap').attr('id', `fliptext-${hexId}`)// Add an ID
+						.wrapInner('<p></p>')// This is the inner text content
+						.css({
+							'position': 'absolute',
+							'top': '50%',
+							'left': '50%',
+							'width': '100%',
+							'transform': 'translate(-50%, -50%) scaleX(-1)',
+						});
 
 					$hex.find('.hex_inner').on({
 						mouseenter: function () {

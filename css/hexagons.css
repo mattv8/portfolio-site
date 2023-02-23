@@ -79,8 +79,6 @@
 	text-align: center;
 	color: white;
 	line-height: 1.5;
-	transform: scaleX(-1) !important;
-	vertical-align: middle;
 	display: none;
 }
 

@@ -27,7 +27,7 @@
 {foreach from=$servers item=server key=key}
 	<div class="hex rounded flip button {$server.status}" onclick="this.remove()">
 		<span>{$key}</span>
-		<p class="inner-text-flipped">
+		<p class="inner-text-flipped no-wrap">
 			Type: {($server.type)?$server.type:'qemu'}<br>
 			Name: {$server.name}<br>
 			Status: {$server.status}<br>
