@@ -226,7 +226,7 @@
 			if (currentWidth <= settings.breakpoint) {// If window is smaller than breakpoint
 				hexWidth = ($container.width() + settings.margin * 2) / 2;// Dynamic hex width
 				if (currentWidth < settings.breakpoint && prevWidth >= settings.breakpoint) {// Window is AT lower breakpoint
-					logo.el.detach();// Detach logo element(s)
+					$container.prepend($(logo.el));// Replace logo element(s)
 					invisible.el.detach();// Detach invisible element(s)
 				}
 			} else {// Else window is larger than breakpoint
