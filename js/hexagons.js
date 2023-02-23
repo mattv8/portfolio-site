@@ -225,9 +225,9 @@
 			let hexWidth;// Initialize
 			if (currentWidth <= settings.breakpoint) {// If window is smaller than breakpoint
 				hexWidth = ($container.width() + settings.margin * 2) / 2;// Dynamic hex width
-				if (currentWidth < settings.breakpoint && prevWidth >= settings.breakpoint) {// Window is AT lower breakpoint
-					$container.prepend($(logo.el));// Replace logo element(s)
+				if (currentWidth < settings.breakpoint && (prevWidth >= settings.breakpoint || !prevWidth)) {// Window is AT lower breakpoint
 					invisible.el.detach();// Detach invisible element(s)
+					$container.prepend($(logo.el))// Replace logo element(s)
 				}
 			} else {// Else window is larger than breakpoint
 				hexWidth = settings.hexWidth;// Static hex width
@@ -243,7 +243,7 @@
 			var row = 0;// start at row 0
 			var col = 0;// start at col 0
 			var offset = 1;// 1 is down
-			var left = left = (currentWidth <= settings.breakpoint) ? settings.margin : 0;// Add left margin if <= breakpoint
+			var left = (currentWidth <= settings.breakpoint) ? settings.margin : 0;// Add left margin if <= breakpoint
 			var top = 0;// pos top
 
 			spawnPoint.left = spawnPoint.top -= hexWidth / 2 + settings.margin;// Compensate for bounding box of hexagon element
@@ -252,10 +252,14 @@
 
 				const $hex = $(this);
 
-				// console.log("Col: "+col, "Row: "+row);
+				console.log(`Col: ${col}, "Row: ${row} Top: ${top} Left: ${left} Offset: ${offset}`);
 
-				top = (row * (hexHeight + settings.margin)) + (offset * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
-				offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
+				if (currentWidth <= settings.breakpoint) {
+					top = (row * (hexHeight + settings.margin*2)) + (col * (hexHeight / 2 + (settings.margin)));// determines top margin of hexagons
+				} else {
+					top = (row * (hexHeight + settings.margin)) + (offset * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
+					offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
+				}
 
 				var topLevelClass = $hex.attr('class').split(' ')[1];
 				elem[i] = { class: topLevelClass, corner: { left: left, top: top }, selector: $hex };
