@@ -313,8 +313,8 @@
 				.width((1 / 2 * hexHeight) / Math.tan(60 * Math.PI / 180))// This calculates the width of a hex triangle
 				.height(hexHeight);
 
+			// Center flip text vertically in the div by adding calculated padding
 			if (!reorder) {
-				// Center flip text vertically in the div by adding calculated padding
 				$container.find('.inner-text-flipped > p').each(function () {
 					var pLineHeight = parseInt(window.getComputedStyle(this).lineHeight);// Get the computed line-height
 					var padding = (hexHeight - this.offsetHeight - pLineHeight) / 2;
