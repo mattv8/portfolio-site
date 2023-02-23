@@ -79,7 +79,7 @@
 	text-align: center;
 	color: white;
 	line-height: 1.5;
-	display: none;
+	visibility: hidden;
 }
 
 .hex-wrap-before {

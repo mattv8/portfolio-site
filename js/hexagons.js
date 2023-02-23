@@ -175,7 +175,7 @@
 								$hex.addClass('flipping');
 								setTimeout(function () {
 									$hex.find('.inner-title').hide();
-									$hex.find('.inner-text-flipped').css('display', 'table-cell');
+									$hex.find('.inner-text-flipped').css('visibility', 'visible');
 									$hex.css('filter', 'url(#rounded-edges)  drop-shadow(5px 5px 10px black)');
 									$hex.find('.inner-span').attr('style', `background-color: rgb(${color})`);
 									setTimeout(function () {
@@ -189,7 +189,7 @@
 								$hex.addClass('flip-back');
 								setTimeout(function () {
 									$hex.find('.inner-title').show();
-									$hex.find('.inner-text-flipped').hide();
+									$hex.find('.inner-text-flipped').css('visibility', 'hidden');
 									$hex.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
 									$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 									setTimeout(function () {
@@ -306,11 +306,22 @@
 		async function updateScales(hexWidth, hexHeight, reorder) {
 			let textHeight;// initialize hex scale factor
 
+			// Set container heights and widths
 			$container.find('.hex').width(hexWidth).height(hexHeight);
 			$container.find('.hex_inner').width(hexWidth).height(hexHeight);
 			$container.find('.hex-wrap-before, .hex-wrap-after')// Sets the width and height of the shape-outside for text wrapping
 				.width((1 / 2 * hexHeight) / Math.tan(60 * Math.PI / 180))// This calculates the width of a hex triangle
 				.height(hexHeight);
+
+			if (!reorder) {
+				// Center flip text vertically in the div by adding calculated padding
+				$container.find('.inner-text-flipped > p').each(function () {
+					var pLineHeight = parseInt(window.getComputedStyle(this).lineHeight);// Get the computed line-height
+					var padding = (hexHeight - this.offsetHeight - pLineHeight) / 2;
+					$(this).attr('style', `padding: ${padding}px 0px;`);
+				});
+			}
+
 
 			textHeight = hexHeight * .15;// Initial pixel height of text as percentage of hex height
 			if (prevTextHeight !== textHeight) {

@@ -2,6 +2,10 @@ body {
 	background: black;
 }
 
+p {
+    margin: 0;
+}
+
 #bgvideo {
     position: fixed;
     bottom: 0px;
