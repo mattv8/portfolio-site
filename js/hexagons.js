@@ -252,10 +252,10 @@
 
 				const $hex = $(this);
 
-				console.log(`Col: ${col}, "Row: ${row} Top: ${top} Left: ${left} Offset: ${offset}`);
+				// console.log(`Col: ${col}, "Row: ${row} Top: ${top} Left: ${left} Offset: ${offset}`);
 
 				if (currentWidth <= settings.breakpoint) {
-					top = (row * (hexHeight + settings.margin*2)) + (col * (hexHeight / 2 + (settings.margin)));// determines top margin of hexagons
+					top = (row * (hexHeight + settings.margin * 2)) + (col * (hexHeight / 2 + (settings.margin)));// determines top margin of hexagons
 				} else {
 					top = (row * (hexHeight + settings.margin)) + (offset * (hexHeight / 2 + (settings.margin / 2)));// determines top margin of hexagons
 					offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
