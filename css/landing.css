@@ -1,7 +1,7 @@
 /* Style of the landing page div */
 .landing {
-	width: 646px; /*fixed div size till break point */
-	height: 670px; /*fixed div size till break point */
+	width: 770px; /*fixed div size till break point */
+	height: 800px; /*fixed div size till break point */
 	text-align: center;
 	margin: 0;
 	position: absolute;
@@ -13,7 +13,7 @@
 
 /* RESPONSIVE */
 @media (max-width: 1000px) { /* <- 3-2  hexagons per row */
-	
+
     .landing {
 		width: 100%;
 		height: 100%;
@@ -22,5 +22,5 @@
 		transform: translate(0%, 0%);
 		position: relative;
 	}
-	
+
 }

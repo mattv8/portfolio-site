@@ -10,7 +10,7 @@
 
 		// Defaults. Can be overridden by options input.
 		var settings = $.extend({
-			hexWidth: 250,
+			hexWidth: 300,
 			margin: 10,
 			breakpoint: 1000,
 			rows: 3,
@@ -316,12 +316,12 @@
 			// Center flip text vertically in the div by adding calculated padding
 			if (!reorder) {
 				$container.find('.inner-text-flipped > p').each(function () {
-					var pLineHeight = parseInt(window.getComputedStyle(this).lineHeight);// Get the computed line-height
-					var padding = (hexHeight - this.offsetHeight - pLineHeight) / 2;
+					// var pLineHeight = parseInt(window.getComputedStyle(this).lineHeight);// Get the computed line-height
+					// var padding = (hexHeight - this.offsetHeight - pLineHeight) / 2;
+					var padding = (hexHeight - this.offsetHeight) / 2;
 					$(this).attr('style', `padding: ${padding}px 0px;`);
 				});
 			}
-
 
 			textHeight = hexHeight * .15;// Initial pixel height of text as percentage of hex height
 			if (prevTextHeight !== textHeight) {
