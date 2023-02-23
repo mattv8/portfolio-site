@@ -2,9 +2,9 @@
 #==============================================================================
 # Configuration
 #==============================================================================
-require_once($_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/conf/config.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/lib/functions.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/conf/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/functions.php');
 
 #==============================================================================
 # PVE API cURL Commands
@@ -59,11 +59,11 @@ $queryApi = $client->createQueryApi();
 #
 #   Availability Calculations
 #
-$HAdays = 60;// days to calculate availability
-$samp = 10;// Samples every 10 seconds
+$HAdays = 60; // days to calculate availability
+$samp = 10; // Samples every 10 seconds
 
 $q1 = 'from(bucket: "proxmox")
-|> range(start: -'.$HAdays.'d)
+|> range(start: -' . $HAdays . 'd)
 |> filter(fn: (r) => r["_measurement"] == "system")
 |> filter(fn: (r) => r["_field"] == "status")
 |> filter(fn: (r) => r["_value"] == "running")
@@ -71,7 +71,7 @@ $q1 = 'from(bucket: "proxmox")
 ';
 
 $q2 = 'from(bucket: "proxmox")
-|> range(start: -'.$HAdays.'d)
+|> range(start: -' . $HAdays . 'd)
 |> filter(fn: (r) => r["_measurement"] == "system")
 |> filter(fn: (r) => r["_field"] == "status")
 |> filter(fn: (r) => r["_value"] == "stopped")
@@ -94,9 +94,9 @@ foreach ($r_stopped->each() as $record) {
     $servers[$host]['stopped_count'] = $count;
 }
 foreach ($servers as $host => $record) {
-    $delta = $HAdays*60*24*(60/$samp) - ($record['running_count'] + $record['stopped_count']);// Represents InfluxDB or node downtime
+    $delta = $HAdays * 60 * 24 * (60 / $samp) - ($record['running_count'] + $record['stopped_count']); // Represents InfluxDB or node downtime
     $availability = $record['running_count'] / ($record['running_count'] + $record['stopped_count'] + $delta);
-    $servers[$host]['availability'] = number_format($availability,6);
+    $servers[$host]['availability'] = number_format($availability, 6);
     // echo "Host: $host Avail: $availability <br>";
 }
 
@@ -115,10 +115,9 @@ $queryFlux2 = 'from(bucket: "proxmox")
 $results = $queryApi->queryStream($queryFlux2);
 foreach ($results->each() as $record) {
     $servers[$record['host']][$record->getField()] = $record->getValue();
-    if($record->getField() == 'uptime'){
+    if ($record->getField() == 'uptime') {
         $servers[$record['host']]['uptimeHR'] = secondsToTime($record->getValue());
     }
     // echo "Value: " . $record->getValue()." Field: ".$record->getField()." Host: ".$record['host']."<br>";
 }
-$smarty->assign('servers',$servers);
-
+$smarty->assign('servers', $servers);

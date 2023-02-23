@@ -1,13 +1,9 @@
 {* Footer Script *}
 <script type="text/javascript">
-
-  // Back/Forward button functionality
-  $(window).on('popstate hashchange', function(event) {
     var page = event.originalEvent.state;
+  $(window).on('popstate hashchange', function(event) { // Back/Forward button functionality
     goToPage(page, 'page-content');
   });
-
-
 </script>
 
 {* Load Page-specific Modals *}

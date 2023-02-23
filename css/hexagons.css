@@ -9,10 +9,10 @@
 	display: block;
 	pointer-events: all;
 	background-position: center top;
-  	-webkit-background-size: cover;
-  	-moz-background-size: cover;
-  	-o-background-size: cover;
-  	background-size: cover;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 	-webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 	clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
@@ -21,9 +21,9 @@
 	display: block;
 	background-position: inherit;
 	-webkit-background-size: cover;
-  	-moz-background-size: cover;
-  	-o-background-size: cover;
-  	background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 	height: 100%;
 	width: 100%;
 	line-height: 1;
@@ -54,9 +54,9 @@
 	cursor: pointer;
 	text-decoration: none;
 	background-color: transparent;
-    border: none;
-    overflow: hidden;
-    outline: none;
+	border: none;
+	overflow: hidden;
+	outline: none;
 	padding: 0px;
 }
 
@@ -64,9 +64,9 @@
 	cursor: pointer;
 	text-decoration: none;
 	background-color: transparent;
-    border: none;
-    overflow: hidden;
-    outline: none;
+	border: none;
+	overflow: hidden;
+	outline: none;
 	padding: 0px;
 }
 
@@ -82,33 +82,46 @@
 	display: none;
 }
 
-.hex-wrap-before{
-    float:left;
-    -webkit-shape-outside: polygon(0% 0%, 100% 0, 0 50%, 100% 100%, 0 100%);
-    shape-outside: polygon(0% 0%, 100% 0, 0 50%, 100% 100%, 0 100%);
+.hex-wrap-before {
+	float: left;
+	-webkit-shape-outside: polygon(0% 0%, 100% 0, 0 50%, 100% 100%, 0 100%);
+	shape-outside: polygon(0% 0%, 100% 0, 0 50%, 100% 100%, 0 100%);
 }
 
-.hex-wrap-after{
-    float:right;
-    -webkit-shape-outside: polygon(100% 0, 0 0, 100% 50%, 0 99%, 100% 100%);
-    shape-outside: polygon(100% 0, 0 0, 100% 50%, 0 99%, 100% 100%);
+.hex-wrap-after {
+	float: right;
+	-webkit-shape-outside: polygon(100% 0, 0 0, 100% 50%, 0 99%, 100% 100%);
+	shape-outside: polygon(100% 0, 0 0, 100% 50%, 0 99%, 100% 100%);
 }
 
 .flipping {
-    animation: flipped 500ms forwards;
+	animation: flipped 500ms forwards;
 	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
-    animation-fill-mode: forwards;
+	animation-fill-mode: forwards;
 }
+
 .flip-back {
-    animation: flip-back 500ms forwards;
+	animation: flip-back 500ms forwards;
 	animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
-    animation-fill-mode: forwards;
+	animation-fill-mode: forwards;
 }
+
 @keyframes flipped {
-    from {transform: rotateY(0deg);}
-    to {transform: rotateY(180deg);}
+	from {
+		transform: rotateY(0deg);
+	}
+
+	to {
+		transform: rotateY(180deg);
+	}
 }
+
 @keyframes flip-back {
-    from {transform: rotateY(180deg);}
-    to {transform: rotateY(0deg);}
+	from {
+		transform: rotateY(180deg);
+	}
+
+	to {
+		transform: rotateY(0deg);
+	}
 }
