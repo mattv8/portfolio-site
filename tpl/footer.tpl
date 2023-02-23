@@ -1,7 +1,7 @@
 {* Footer Script *}
 <script type="text/javascript">
-    var page = event.originalEvent.state;
   $(window).on('popstate hashchange', function(event) { // Back/Forward button functionality
+    var page = (event.originalEvent.state === GLOBAL.config.default_page) ? null : event.originalEvent.state;
     goToPage(page, 'page-content');
   });
 </script>

@@ -65,9 +65,9 @@ function goToPage(page, replaceSelector) {
           document.body.style.transition = 'opacity 500ms';
           document.body.style.opacity = 1;
         }
-        var popstate = (page === GLOBAL.config.default_page) ? null : `/?page=${page}`;
       }, 500);
 
+      var popstate = (page === GLOBAL.config.default_page) ? '/' : `/?page=${page}`;
       history.pushState(page, null, popstate);// add the page to the browser's history
     },
   });
