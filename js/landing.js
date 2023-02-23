@@ -68,12 +68,14 @@ function expand(selector, center, start, animationDistance, timing) {
 		newTop = start.top + direction * slope * animationDistance / Math.sqrt(1 + slope * slope);
 	}
 
-	// jQuery's animate method to animate the element to the new position
-	$(selector).animate({
-		left: newLeft,
-		top: newTop
-	}, {
-		duration: timing * 1000,
-		easing: "swing"
-	});
+	if ($(window).width() > 1000) {
+		// jQuery's animate method to animate the element to the new position
+		$(selector).animate({
+			left: newLeft,
+			top: newTop
+		}, {
+			duration: timing * 1000,
+			easing: "swing"
+		});
+	}
 }
