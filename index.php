@@ -42,15 +42,16 @@ $smarty->assign('js_config',$js_config);// Javascript Config Object
 $smarty->assign('site_title',$site_title);
 $smarty->assign('default_page',$default_page);
 
+session_start(); // start the session
 
 #==============================================================================
 # Route to page
 #==============================================================================
 $page = $default_page;
-if (isset($_GET["page"]) and $_GET["page"]) { 
+if (isset($_GET["page"]) and $_GET["page"]) {
     $page = $_GET["page"];
-    if ( file_exists($page.".php") ) { require_once($page.".php"); }
 }
+if ( file_exists($page.".php") ) { require_once($page.".php"); }
 $smarty->assign('page',$page);
 
 # Display

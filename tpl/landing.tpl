@@ -26,40 +26,40 @@
 {*Hexagons*}
 <div class="hexagons landing">
     <div class="hex rounded flip link">
-        <img class="bg" src="assets/images/landing/1.jpg" /><span>Programming</span>
+        <img class="bg" src="{$image.programming}" /><span>Programming</span>
         <link href="https://git.visnovsky.us/Matt" />
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
-        <img class="bg" src="assets/images/landing/2.jpg" /><span>Engineering</span>
+        <img class="bg" src="{$image.engineering}" /><span>Engineering</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('server','page-content')">
-        <img class="bg" src="assets/images/landing/3.jpg" /><span>Server</span>
+        <img class="bg" src="{$image.server}" /><span>Server</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
-        <img class="bg" src="assets/images/landing/4.jpg" /><span>DevOps</span>
+        <img class="bg" src="{$image.devops}" /><span>DevOps</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
     </div>
     <div class="hex logo"> <img class="bg" src="assets/images/landing/logo.png" /></div>
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
-        <img class="bg" src="assets/images/landing/5.jpg" /><span>Livestreaming</span>
+        <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
-        <img class="bg" src="assets/images/landing/6.jpg" /><span>Bio</span>
+        <img class="bg" src="{$image.bio}" /><span>Bio</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
