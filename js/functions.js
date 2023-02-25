@@ -2,13 +2,13 @@
     Javascript Functions
 */
 
-function goToPage(page, replaceSelector) {
+let pageLoaded = false;
+var rotations = 0;
+
+function goToPage(page, replaceSelector, _this) {
 
   // Redirect to root if page is null
   if (!page) { page = GLOBAL.config.default_page; }
-
-  // Get logo selector
-  const logo = $('.logo');
 
   // Else route to specified page asynchronously
   $.ajax({
@@ -16,10 +16,12 @@ function goToPage(page, replaceSelector) {
     type: 'GET',
     data: { page: page },
     beforeSend: function () {// Start loading animation
-      if (logo.length > 0) { rotate(logo, 500); }
+      pageLoaded = false;
+      rotations = 0;// Reset rotations
+      if (_this) { rotate(_this, .5, 2); }
     },
     complete: function () {// Stop loading animation
-
+      pageLoaded = true;// Stop the rotate function with flag
     },
     success: function (response) {
       let selector;
@@ -86,16 +88,34 @@ function fade(element) {
 
 
 // Continuously Rotate Function
-var step = 0;
-function rotate(selector, time) {
-  if (selector) {
-    const element = selector.get(0);
-    element.style.transition = 'transform 0.75s cubic-bezier(.61,.01,.41,.99)';
-    element.style.setProperty('transform-style', 'preserve-3d');
-    element.style.setProperty('perspective', '1000px');
-    element.style.transform = `rotateY(${step}deg)`;
-    step += 180;
-    setTimeout(rotate, time, selector, (step) ? time : step);
+function rotate(selector, time, decayTime) {
+  let element;
+  if (typeof selector === 'string') {
+    element = document.querySelector(selector);
+  } else if (typeof selector === 'object' && selector.nodeType === 1) {
+    element = selector;
+  } else {
+    element = selector.get(0);
+  }
+
+  // Static styles
+  element.style.setProperty('transform-style', 'preserve-3d');
+  element.style.setProperty('perspective', '1000px');
+
+  if (element && !pageLoaded) {
+    
+    // Linearly decrease the rotation speed with decayTime
+    const slope = time / (decayTime * 1000); // slope of the line connecting (0, time) and (decayTime, 0)
+    const newTime = Math.max(time - slope * rotations, 0); // new time = time - slope * current rotations
+
+    // Dynamic styles
+    element.style.transition = `transform ${time}s cubic-bezier(.59,.22,.36,.81)`;
+    element.style.transform = `rotateY(${rotations}deg)`;
+    rotations += 180;
+
+    // Recurse, with new time
+    console.log(newTime);
+    setTimeout(rotate, newTime * 1000, selector, time, decayTime);
   }
 }
 

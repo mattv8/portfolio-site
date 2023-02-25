@@ -32,33 +32,33 @@
             Experience my code in action, click here to explore some of my programming projects.
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
+    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.engineering}" /><span>Engineering</span>
         <p class="inner-text-flipped">
             Discover my engineering expertise, click here to explore my innovative projects.
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('server','page-content')">
+    <div class="hex rounded flip button" onclick="goToPage('server','page-content',this)">
         <img class="bg" src="{$image.server}" /><span>Server</span>
         <p class="inner-text-flipped">
             Take a peek inside my datacenter. Click here for a real-time view of what's cooking in my server room!
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
+    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.devops}" /><span>DevOps</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.
         </p>
     </div>
     <div class="hex logo"> <img class="bg" src="assets/images/landing/logo.png" /></div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
+    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
         <p class="inner-text-flipped">
             Click here to view a portfolio of some of my previous livestreaming productions.
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
+    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.bio}" /><span>Bio</span>
         <p class="inner-text-flipped">
             Get to know the person behind the code - click here to read a little about yours truly.
