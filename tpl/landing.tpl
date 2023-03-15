@@ -44,8 +44,8 @@
             Take a peek inside my datacenter. Click here for a real-time view of what's cooking in my server room!
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
-        <img class="bg" src="{$image.devops}" /><span>DevOps</span>
+    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
+        <img class="bg" src="{$image.film}" /><span>Film</span>
         <p class="inner-text-flipped">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.
         </p>

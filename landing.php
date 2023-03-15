@@ -9,7 +9,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/functions.php');
 #==============================================================================
 # Image 'Smart Random' Algorithm
 #==============================================================================
-$images = ['programming', 'engineering', 'server', 'devops', 'livestreaming', 'bio'];
+$images = ['programming', 'engineering', 'server', 'film', 'livestreaming', 'bio'];
 
 if (!isset($_SESSION['previous_image'])) {
     $_SESSION['previous_image'] = array_fill_keys($images, ''); // Initialize the previous image array in the session
