@@ -17,3 +17,20 @@ $(document).ready(function () {
     $('.hexagons').fadeIn(10); // Fade in when loaded
 
 });
+
+
+function openServerDetails(hex, serverName){
+    console.log(hex,$(hex).find('.hex_inner'))
+    var time = .5;
+
+    $(hex).parent()
+        .toggleClass('centered')
+        .css('transition', `all ${time}s ease-in-out`);
+    $(hex).find('.hex_inner')
+        .toggleClass('squared')
+        .css('transition', `all ${time}s ease-in-out`)
+        .off('mouseenter mouseleave')
+
+    console.log(serverName);
+
+}
