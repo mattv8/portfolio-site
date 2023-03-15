@@ -87,11 +87,13 @@ foreach ($r_running->each() as $record) {
     $host = $record->values['host'];
     $count = $record->getValue();
     $servers[$host]['running_count'] = $count;
+    // echo "(Running) Host: $host Count: $count <br>";
 }
 foreach ($r_stopped->each() as $record) {
     $host = $record->values['host'];
     $count = $record->getValue();
     $servers[$host]['stopped_count'] = $count;
+    // echo "(Stopped) Host: $host Count: $count <br>";
 }
 foreach ($servers as $host => $record) {
     $delta = $HAdays * 60 * 24 * (60 / $samp) - ($record['running_count'] + $record['stopped_count']); // Represents InfluxDB or node downtime
@@ -120,4 +122,7 @@ foreach ($results->each() as $record) {
     }
     // echo "Value: " . $record->getValue()." Field: ".$record->getField()." Host: ".$record['host']."<br>";
 }
+// echo "<pre>";
+// print_r($servers);
+// echo "</pre>";
 $smarty->assign('servers', $servers);

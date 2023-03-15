@@ -25,18 +25,20 @@
 
 <div class="hexagons server">
 	{foreach from=$servers item=server key=key}
-		<div class="hex rounded flip button {$server.status}" onclick="this.remove()">
-			<span>{$key}</span>
-			<p class="inner-text-flipped no-wrap">
-				Type: {($server.type)?$server.type:'qemu'}<br>
-				Name: {$server.name}<br>
-				Status: {$server.status}<br>
-				Availability: {$server.availability*100}%<br>
-				Uptime: {$server.uptimeHR}<br>
-				Disk Use: {({$server.disk / $server.maxdisk}*100)|round:2}%<br>
-				Mem Use: {({$server.mem / $server.maxmem}*100)|round:2}%<br>
-			</p>
-		</div>
-		{* <div class="hex invisible"> </div> <!-- invisible --> *}
+		{if isset($server.status)}
+			<div class="hex rounded flip button {$server.status}" onclick="openServerDetails(this, '{$server.name}')">
+				<span>{$key}</span>
+				<p class="inner-text-flipped no-wrap">
+					Type: {($server.type)?$server.type:'qemu'}<br>
+					Name: {$server.name}<br>
+					Status: {$server.status}<br>
+					Availability: {$server.availability*100}%<br>
+					Uptime: {$server.uptimeHR}<br>
+					Disk Use: {({$server.disk / $server.maxdisk}*100)|round:2}%<br>
+					Mem Use: {({$server.mem / $server.maxmem}*100)|round:2}%<br>
+				</p>
+			</div>
+			{* <div class="hex invisible"> </div> <!-- invisible --> *}
+		{/if}
 	{/foreach}
 </div>
