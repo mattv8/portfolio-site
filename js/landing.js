@@ -13,6 +13,8 @@ $(document).ready(function () {
 					expand(e.selector, center, e.corner, 0, 1);
 				});
 			});
+		}, {
+			hexWidth: 275,
 		});
 		$('.hexagons').fadeIn(10); // Fade in when loaded
 	});
