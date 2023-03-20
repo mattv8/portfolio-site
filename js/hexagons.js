@@ -171,32 +171,10 @@
 
 					$hex.find('.hex_inner').on({
 						mouseenter: function () {
-							if (!$hex.hasClass('flipped')) {
-								$hex.addClass('flipping');
-								setTimeout(function () {
-									$hex.find('.inner-title').hide();
-									$hex.find('.inner-text-flipped').css('visibility', 'visible');
-									$hex.css('filter', 'url(#rounded-edges)  drop-shadow(5px 5px 10px black)');
-									$hex.find('.inner-span').attr('style', `background-color: rgb(${color})`);
-									setTimeout(function () {
-										$hex.addClass('flipped');
-									}.bind(this), animTime / 2);
-								}.bind(this), animTime / 2);
-							}
+							flipForward($hex,animTime,color);
 						},
 						mouseleave: function () {
-							if ($hex.hasClass('flipped')) {
-								$hex.addClass('flip-back');
-								setTimeout(function () {
-									$hex.find('.inner-title').show();
-									$hex.find('.inner-text-flipped').css('visibility', 'hidden');
-									$hex.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
-									$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
-									setTimeout(function () {
-										$hex.removeClass('flipping flipped flip-back');
-									}.bind(this), animTime / 2);
-								}.bind(this), animTime / 2);
-							}
+							flipBack($hex,animTime);
 						}
 					});
 				}

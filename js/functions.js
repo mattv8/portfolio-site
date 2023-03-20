@@ -103,7 +103,7 @@ function rotate(selector, time, decayTime) {
   element.style.setProperty('perspective', '1000px');
 
   if (element && !pageLoaded) {
-    
+
     // Linearly decrease the rotation speed with decayTime
     const slope = time / (decayTime * 1000); // slope of the line connecting (0, time) and (decayTime, 0)
     const newTime = Math.max(time - slope * rotations, 0); // new time = time - slope * current rotations
@@ -167,5 +167,37 @@ function loadVideo(videoId) {
         fade(vid);
       }
     }, 100);
+  }
+}
+
+
+function flipBack(elem,animTime) {
+  if (elem.hasClass('flipped')) {
+    elem.addClass('flip-back');
+    setTimeout(function () {
+      elem.find('.inner-title').show();
+      elem.find('.inner-text-flipped').css('visibility', 'hidden');
+      elem.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+      elem.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
+      setTimeout(function () {
+        elem.removeClass('flipping flipped flip-back');
+      }.bind(this), animTime / 2);
+    }.bind(this), animTime / 2);
+  }
+}
+
+
+function flipForward(elem,animTime,color) {
+  if (!elem.hasClass('flipped')) {
+    elem.addClass('flipping');
+    setTimeout(function () {
+      elem.find('.inner-title').hide();
+      elem.find('.inner-text-flipped').css('visibility', 'visible');
+      elem.css('filter', 'url(#rounded-edges)  drop-shadow(5px 5px 10px black)');
+      elem.find('.inner-span').attr('style', `background-color: rgb(${color})`);
+      setTimeout(function () {
+        elem.addClass('flipped');
+      }.bind(this), animTime / 2);
+    }.bind(this), animTime / 2);
   }
 }
