@@ -2,33 +2,60 @@
 #==============================================================================
 # Configuration
 #==============================================================================
-require_once($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/conf/config.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/functions.php');
+require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/conf/config.php');
+require_once(__DIR__ . '/lib/functions.php');
 
 #==============================================================================
 # Image 'Smart Random' Algorithm
 #==============================================================================
-$images = ['programming', 'engineering', 'server', 'film', 'livestreaming', 'bio'];
+$categories = ['programming', 'engineering', 'server', 'film', 'livestreaming', 'bio'];
 
 if (!isset($_SESSION['previous_image'])) {
-    $_SESSION['previous_image'] = array_fill_keys($images, ''); // Initialize the previous image array in the session
+    $_SESSION['previous_image'] = array_fill_keys($categories, ''); // Initialize the previous image array in the session
 }
 
-$_image = array();
-foreach ($images as $image) { // Iterate over each image
-    $files = glob($_SERVER['DOCUMENT_ROOT'] . '/assets/images/landing/' . $image . '_*.jpg'); // Get list of matching files
-    $count = count($files);
+if (isset($_GET['previousImage']) and $_GET['previousImage']) {
 
-    if ($count > 0) { // If there are files in the list
+    $error = '';
+    $previousImage = $_GET['previousImage'];
+    $regex = '/^([a-zA-Z0-9_-]+)(?=_)/';
+    if (preg_match($regex, $previousImage, $matches)) {
+
+        $category = $matches[0];
+        $files = glob(__DIR__ . '/assets/images/landing/' . $category . '_*.jpg'); // Get list of matching files
+        $count = count($files);
+
         do {
             $random_file_index = array_rand($files); // select a random file index
-            $selected_file = str_replace($_SERVER['DOCUMENT_ROOT'] . '/', '', $files[$random_file_index]); // get the selected file path
-        } while ($selected_file == $_SESSION['previous_image'][$image] && $count > 1); // repeat until the selected file is different from the previous one
+            $selected_file = str_replace(__DIR__ . '/', '', $files[$random_file_index]); // get the selected file path
+        } while ($selected_file == 'assets/images/landing/' . $previousImage && $count > 1); // repeat until the selected file is different from the previous one
 
-        $_image[$image] = $selected_file; // Assign the selected file path to the $_image array
-        $_SESSION['previous_image'][$image] = $selected_file; // Save previous image variable in the session
+        $_SESSION['previous_image'][$category] = $selected_file; // Save previous image variable in the session
+
+    } else {
+        $error =  "ERROR: regex $regex did not match string $previousImage.";
     }
-}
 
-$smarty->assign('image', $_image);
+    echo json_encode(array('success' => ($error) ? false : true, 'newImage' => $selected_file, 'msg' => $error));
+
+} else {
+
+    $image = array();
+    foreach ($categories as $category) { // Iterate over each category
+        $files = glob(__DIR__ . '/assets/images/landing/' . $category . '_*.jpg'); // Get list of matching files
+        $count = count($files);
+
+        if ($count > 0) { // If there are files in the list
+            do {
+                $random_file_index = array_rand($files); // select a random file index
+                $selected_file = str_replace(__DIR__ . '/', '', $files[$random_file_index]); // get the selected file path
+            } while ($selected_file == $_SESSION['previous_image'][$category] && $count > 1); // repeat until the selected file is different from the previous one
+
+            $image[$category] = $selected_file; // Assign the selected file path to the $image array
+            $_SESSION['previous_image'][$category] = $selected_file; // Save previous image variable in the session
+        }
+    }
+
+    $smarty->assign('image', $image);
+}

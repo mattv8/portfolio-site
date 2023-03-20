@@ -81,3 +81,37 @@ function expand(selector, center, start, animationDistance, timing) {
 		});
 	}
 }
+
+
+function shuffleImages(selector) {
+	const animTime = 500;// This must be same as CSS .flip and .flip-back time
+	$('.hexagons.landing').find('.hex').not('.hex.logo, .hex.invisible').each(function () {
+		const $hex = $(this);
+		const $hex_inner = $hex.find('.hex_inner');
+		const previousImage = $hex_inner.css('background-image').match(/[^/]+(?="\)$)/)[0];
+		flipBack($hex, animTime);
+		$.ajax({
+			url: 'landing.php',
+			type: 'GET',
+			data: { previousImage: previousImage },
+			dataType: 'json',
+			success: function (callback) {
+				if (callback.success) {
+					const img = new Image();
+					img.onload = function () {
+						$hex_inner.css({
+							'background-image': `url('${callback.newImage}')`,
+							'transition': `background-image ${animTime}ms ease-in-out`,
+						});
+					};
+					img.src = callback.newImage;
+				} else {
+					console.log(callback.msg);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				console.log(textStatus + ': ' + errorThrown);
+			}
+		});
+	})
+}

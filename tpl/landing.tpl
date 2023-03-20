@@ -50,7 +50,9 @@
             Film has always been a passion of mine. Click here to view my film portfolio.
         </p>
     </div>
-    <div class="hex logo"> <img class="bg" src="assets/images/landing/logo.png" /></div>
+    <div class="hex logo button" onclick="shuffleImages(this)">
+        <img class="bg" src="assets/images/landing/logo.png" />
+    </div>
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
         <p class="inner-text-flipped">
