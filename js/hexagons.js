@@ -16,6 +16,7 @@
 			rows: 3,
 			cols: 3,
 			radius: 5,
+			outlineThickness: 2,
 		}, options);
 
 		// Cached Selectors
@@ -48,14 +49,15 @@
 			$container.find('.inner-span').append('<div class="inner-text"></div>');
 
 			// SVG defining the rounding of hex corners
-			const svgFilter = `
+			const roundedSVG = `
 			<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
 				<filter id="rounded-edges"><feGaussianBlur in="SourceGraphic" stdDeviation="${settings.radius}" result="blur" />
 					<feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="rounded-edges" />
 					<feComposite in="SourceGraphic" in2="rounded-edges" operator="atop"/>
 				</filter>
-			</svg>`;
-			$container.append(svgFilter);
+			</svg>
+			`;
+			$container.append(roundedSVG);
 
 			// Hex Links
 			$container.find('.hex.link').each(function () {
@@ -80,13 +82,6 @@
 				var bg_img_src = $hex.find('.bg').attr('src');//Get uri's of class='bg' images
 				var hvr_img_src = $hex.find('.hvr').attr('src');//Get uri's of class='hvr' images
 
-				// Hex CSS Modifiers
-				if ($hex.hasClass('rounded')) {
-					$hex.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
-				} else {
-					$hex.css('filter', 'drop-shadow(-5px 5px 10px black)');
-				}
-
 				// For hexagons with links or solid color hover backgrounds
 				if (bg_img_src !== undefined) { //if image is defined
 
@@ -99,6 +94,21 @@
 					// Attach bg image
 					$hex.find('.hex_inner').attr('style', `background-image: url("${bg_img_src}")`);// Attach bg image
 
+					// SVG defining the outline of hexagons
+					const outlineSVG = `
+					<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+					<filter id="outline-${hexId}">
+						<feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="${settings.outlineThickness}"></feMorphology>
+						<feFlood flood-color="rgb(${color})" flood-opacity="1" result="ALPHA"></feFlood>
+						<feComposite in="ALPHA" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
+						<feMerge>
+							<feMergeNode in="OUTLINE" />
+							<feMergeNode in="SourceGraphic" />
+						</feMerge>
+					</filter>
+					</svg>
+					`;
+					$container.append(outlineSVG);
 
 					if (!$hex.hasClass('flip')) {// .flip is special class handled later
 						$hex.mouseenter(function () {// When hovering, show dominant color of image
@@ -108,6 +118,13 @@
 							$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 						});
 					}
+				}
+
+				// Hex CSS Modifiers
+				if ($hex.hasClass('rounded')) {
+					$hex.css('filter', `url(#rounded-edges) url(#outline-${hexId}) drop-shadow(-5px 5px 10px black)`);
+				} else {
+					$hex.css('filter', 'drop-shadow(-5px 5px 10px black)');
 				}
 
 				// For hexagons with an image when hovering
@@ -171,10 +188,10 @@
 
 					$hex.find('.hex_inner').on({
 						mouseenter: function () {
-							flipForward($hex, animTime, color);
+							flipForward($hex, animTime, color, hexId);
 						},
 						mouseleave: function () {
-							flipBack($hex, animTime);
+							flipBack($hex, animTime, hexId);
 						}
 					});
 				}
@@ -367,13 +384,13 @@
 }(jQuery));
 
 
-function flipBack(elem, animTime) {
+function flipBack(elem, animTime, hexId) {
 	if (elem.hasClass('flipped')) {
 		elem.addClass('flip-back');
 		setTimeout(function () {
 			elem.find('.inner-title').show();
 			elem.find('.inner-text-flipped').css('visibility', 'hidden');
-			elem.css('filter', 'url(#rounded-edges) drop-shadow(-5px 5px 10px black)');
+			elem.css('filter', `url(#rounded-edges) url(#outline-${hexId}) drop-shadow(-5px 5px 10px black)`);
 			elem.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 			setTimeout(function () {
 				elem.removeClass('flipping flipped flip-back');
@@ -383,13 +400,13 @@ function flipBack(elem, animTime) {
 }
 
 
-function flipForward(elem, animTime, color) {
+function flipForward(elem, animTime, color, hexId) {
 	if (!elem.hasClass('flipped')) {
 		elem.addClass('flipping');
 		setTimeout(function () {
 			elem.find('.inner-title').hide();
 			elem.find('.inner-text-flipped').css('visibility', 'visible');
-			elem.css('filter', 'url(#rounded-edges)  drop-shadow(5px 5px 10px black)');
+			elem.css('filter', `url(#rounded-edges) url(#outline-${hexId}) drop-shadow(-5px 5px 10px black)`);
 			elem.find('.inner-span').attr('style', `background-color: rgb(${color})`);
 			setTimeout(function () {
 				elem.addClass('flipped');
