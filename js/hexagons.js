@@ -171,10 +171,10 @@
 
 					$hex.find('.hex_inner').on({
 						mouseenter: function () {
-							flipForward($hex,animTime,color);
+							flipForward($hex, animTime, color);
 						},
 						mouseleave: function () {
-							flipBack($hex,animTime);
+							flipBack($hex, animTime);
 						}
 					});
 				}
@@ -350,7 +350,6 @@
 				top: position.top + height / 2
 			}
 		}
-
 
 		/*
 		 * RETURNS
