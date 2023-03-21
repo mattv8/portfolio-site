@@ -84,34 +84,55 @@ function expand(selector, center, start, animationDistance, timing) {
 
 
 function shuffleImages(selector) {
-	const animTime = 500;// This must be same as CSS .flip and .flip-back time
-	$('.hexagons.landing').find('.hex').not('.hex.logo, .hex.invisible').each(function () {
-		const $hex = $(this);
-		const $hex_inner = $hex.find('.hex_inner');
-		const previousImage = $hex_inner.css('background-image').match(/[^/]+(?="\)$)/)[0];
-		flipBack($hex, animTime);
-		$.ajax({
-			url: 'landing.php',
-			type: 'GET',
-			data: { previousImage: previousImage },
-			dataType: 'json',
-			success: function (callback) {
-				if (callback.success) {
-					const img = new Image();
-					img.onload = function () {
-						$hex_inner.css({
-							'background-image': `url('${callback.newImage}')`,
-							'transition': `background-image ${animTime}ms ease-in-out`,
-						});
+	const animTime = 500;
+
+	// Cache all hexagons that need to be flipped
+	const $hexagons = $('.hexagons.landing').find('.hex').not('.hex.logo, .hex.invisible');
+
+	// Limit concurrency to 3 because browsers usually support 6-10 concurrent connections per domain.
+	const maxConcurrency = 3;
+	let counter = 0;
+
+	async function processNextBatch() {
+		for (let i = 0; i < maxConcurrency && counter < $hexagons.length; i++, counter++) {
+			const $hex = $hexagons.eq(counter);// Pick up where we left off (same as $($hexagons[counter]) )
+			const $hexInner = $hex.find('.hex_inner');
+			const previousImage = $hexInner.css('background-image').match(/[^/]+(?="\)$)/)[0];
+			flipBack($hex, animTime);
+			const { success, newImage, msg } = await $.ajax({
+				url: 'landing.php',
+				type: 'GET',
+				data: { previousImage },
+				dataType: 'json',
+			});
+			if (success) {
+				// initialize colorThief outside onload function
+				const colorThief = new ColorThief();
+				// use arrow function to simplify code
+				const img = new Promise(resolve => {
+					const img = new Image(360, 360);
+					img.onload = () => {
+						resolve(img);
 					};
-					img.src = callback.newImage;
-				} else {
-					console.log(callback.msg);
-				}
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-				console.log(textStatus + ': ' + errorThrown);
+					img.src = newImage;
+				});
+				// Put all operations dependent on the promise inside anonymouse async function to wait for promise resolution
+				(async () => {
+					const image = await img;// Utilize destructuring to simplify code
+					const color = colorThief.getColor(image);
+					$hexInner.css({
+						'background-image': `url('${newImage}')`,
+						transition: `background-image ${animTime}ms ease-in-out`,
+					});
+					$hexInner.on('mouseenter', () => flipForward($hex, animTime, color));
+					$hexInner.on('mouseleave', () => flipBack($hex, animTime));
+				})();
+			} else {
+				console.log(msg);
 			}
-		});
-	})
+		}
+		if (counter < $hexagons.length) await processNextBatch();// Recursive call
+	};
+
+	processNextBatch();
 }
