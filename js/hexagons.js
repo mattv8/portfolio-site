@@ -16,6 +16,7 @@
 			rows: 3,
 			cols: 3,
 			radius: 5,
+			outlineColor: 'black',
 			outlineThickness: 2,
 		}, options);
 
@@ -59,6 +60,22 @@
 			`;
 			$container.append(roundedSVG);
 
+			// SVG defining the outline of hexagons
+			const outlineSVG = `
+			<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+			<filter id="outline">
+				<feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="${settings.outlineThickness}"></feMorphology>
+				<feFlood flood-color="${settings.outlineColor}" flood-opacity="1" result="ALPHA"></feFlood>
+				<feComposite in="ALPHA" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
+				<feMerge>
+					<feMergeNode in="OUTLINE" />
+					<feMergeNode in="SourceGraphic" />
+				</feMerge>
+			</filter>
+			</svg>
+			`;
+			$container.append(outlineSVG);
+
 			// Hex Links
 			$container.find('.hex.link').each(function () {
 				var link = $(this).find("link").attr("href"); // Find its associated anchor
@@ -94,22 +111,6 @@
 					// Attach bg image
 					$hex.find('.hex_inner').attr('style', `background-image: url("${bg_img_src}")`);// Attach bg image
 
-					// SVG defining the outline of hexagons
-					const outlineSVG = `
-					<svg style="visibility: hidden;" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
-					<filter id="outline-${hexId}">
-						<feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="${settings.outlineThickness}"></feMorphology>
-						<feFlood flood-color="rgb(${color})" flood-opacity="1" result="ALPHA"></feFlood>
-						<feComposite in="ALPHA" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
-						<feMerge>
-							<feMergeNode in="OUTLINE" />
-							<feMergeNode in="SourceGraphic" />
-						</feMerge>
-					</filter>
-					</svg>
-					`;
-					$container.append(outlineSVG);
-
 					if (!$hex.hasClass('flip')) {// .flip is special class handled later
 						$hex.mouseenter(function () {// When hovering, show dominant color of image
 							$hex.find('.inner-span').attr('style', `transition: background-color 0.3s ease;  background-color: rgb(${color})`);
@@ -118,13 +119,6 @@
 							$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 						});
 					}
-				}
-
-				// Hex CSS Modifiers
-				if ($hex.hasClass('rounded')) {
-					$hex.css('filter', `url(#rounded-edges) url(#outline-${hexId}) drop-shadow(-5px 5px 10px black)`);
-				} else {
-					$hex.css('filter', 'drop-shadow(-5px 5px 10px black)');
 				}
 
 				// For hexagons with an image when hovering
@@ -188,13 +182,16 @@
 
 					$hex.find('.hex_inner').on({
 						mouseenter: function () {
-							flipForward($hex, animTime, color, hexId);
+							flipForward($hex, animTime, color);
 						},
 						mouseleave: function () {
-							flipBack($hex, animTime, hexId);
+							flipBack($hex, animTime);
 						}
 					});
 				}
+
+				// Miscellaneous CSS modifiers
+				applyCSSModifiers($hex);
 
 			});// END $(container).find('.hex').each(function()
 
@@ -384,13 +381,13 @@
 }(jQuery));
 
 
-function flipBack(elem, animTime, hexId) {
+function flipBack(elem, animTime) {
 	if (elem.hasClass('flipped')) {
 		elem.addClass('flip-back');
 		setTimeout(function () {
 			elem.find('.inner-title').show();
 			elem.find('.inner-text-flipped').css('visibility', 'hidden');
-			elem.css('filter', `url(#rounded-edges) url(#outline-${hexId}) drop-shadow(-5px 5px 10px black)`);
+			applyCSSModifiers(elem);
 			elem.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 			setTimeout(function () {
 				elem.removeClass('flipping flipped flip-back');
@@ -400,17 +397,38 @@ function flipBack(elem, animTime, hexId) {
 }
 
 
-function flipForward(elem, animTime, color, hexId) {
+function flipForward(elem, animTime, color) {
 	if (!elem.hasClass('flipped')) {
 		elem.addClass('flipping');
 		setTimeout(function () {
 			elem.find('.inner-title').hide();
 			elem.find('.inner-text-flipped').css('visibility', 'visible');
-			elem.css('filter', `url(#rounded-edges) url(#outline-${hexId}) drop-shadow(-5px 5px 10px black)`);
+			applyCSSModifiers(elem);
 			elem.find('.inner-span').attr('style', `background-color: rgb(${color})`);
 			setTimeout(function () {
 				elem.addClass('flipped');
 			}.bind(this), animTime / 2);
 		}.bind(this), animTime / 2);
+	}
+}
+
+/**
+ *	Additional CSS modifiers
+ * @param {element} hex
+ */
+function applyCSSModifiers(hex) {
+	switch (true) {
+		case hex.hasClass('outlined', 'rounded'):
+			hex.css('filter', `url(#rounded-edges) url(#outline) drop-shadow(-5px 5px 10px black)`);
+			break;
+		case hex.hasClass('rounded'):
+			hex.css('filter', `url(#rounded-edges) drop-shadow(-5px 5px 10px black)`);
+			break;
+		case hex.hasClass('outlined'):
+			hex.css('filter', `url(#outline) drop-shadow(-5px 5px 10px black)`);
+			break;
+		default:
+			hex.css('filter', 'drop-shadow(-5px 5px 10px black)');
+			break;
 	}
 }
