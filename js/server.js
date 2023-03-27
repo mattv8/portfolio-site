@@ -19,8 +19,8 @@ $(document).ready(function () {
 });
 
 
-function openServerDetails(hex, serverName){
-    console.log(hex,$(hex).find('.hex_inner'))
+function openServerDetails(hex, serverName) {
+    console.log(hex, $(hex).find('.hex_inner'))
     var time = .5;
 
     $(hex).parent()
