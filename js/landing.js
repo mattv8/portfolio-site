@@ -15,7 +15,6 @@ $(document).ready(function () {
 
 			var center = elems[_.findKey(elems, { class: 'logo' })].corner;// Save centerpoint
 			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
-			// animating.forEach( function(e) { orbit(e.selector, center, e.corner, .10); });
 			animating.forEach(function (e) {
 				$('.hexagons').hover(function () {
 					expand(e.selector, center, e.corner, 25, 1);
