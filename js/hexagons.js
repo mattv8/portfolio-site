@@ -254,7 +254,7 @@
 				}
 
 				var topLevelClass = $hex.attr('class').split(' ')[1];
-				elem[i] = { class: topLevelClass, corner: { left: left, top: top }, selector: $hex };
+				elem[i] = { class: topLevelClass, corner: { left: left, top: top }, selector: $hex, row: row, col: col };
 
 				// Set positional values
 				if (animate && !reorder) {// animate if specified

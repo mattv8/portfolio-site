@@ -3,6 +3,16 @@ $(document).ready(function () {
 	// Wait for images to load then execute scripts
 	$('.hexagons').waitForImages(function () {
 		$('.hexagons').hexagons(function (elems) {// Set up hexagons
+
+			// Programmatically set container div height and width
+			// var hexWidth = elems.pop().selector.outerWidth(true);
+			// var hexHeight = elems.pop().selector.outerHeight(true);
+			// var rows = _.maxBy(elems, 'row').row + 1;
+			// var cols = _.maxBy(elems, 'col').col + 1;
+			// var divWidth = (hexWidth / 2 + hexWidth / 4 + 10) * cols + hexWidth / 4 - 10;
+			// var divHeight = (hexHeight + 10) * rows - 10;
+			// $('.landing').css({ 'width': divWidth, 'height': divHeight });
+
 			var center = elems[_.findKey(elems, { class: 'logo' })].corner;// Save centerpoint
 			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
 			// animating.forEach( function(e) { orbit(e.selector, center, e.corner, .10); });
@@ -13,6 +23,7 @@ $(document).ready(function () {
 					expand(e.selector, center, e.corner, 0, 1);
 				});
 			});
+
 		}, {
 			hexWidth: 275,
 		});
