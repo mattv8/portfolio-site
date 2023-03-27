@@ -1,0 +1,122 @@
+#film {
+    width: 80%;
+    margin: 5%;
+    padding: 5%;
+    border-radius: 25px;
+    background-color: rgba(230, 230, 230, 0.897);
+}
+
+#film::before {
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -o-filter: blur(10px);
+    -ms-filter: blur(10px);
+    filter: blur(10px) saturate(20%);
+}
+
+#film::after {
+    padding-bottom: 3rem;
+}
+
+#divider {
+    border: 1.5px solid black;
+    margin: 10pt 0pt;
+}
+
+h1 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18pt;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+h2 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 12pt;
+    margin-top: 20pt;
+    margin-bottom: 8pt;
+}
+
+h3 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    text-decoration: none;
+    font-size: 11pt;
+}
+
+p {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: italic;
+    font-weight: normal;
+    text-decoration: none;
+    font-size: 10.5pt;
+    margin: 4pt 20pt;
+}
+
+table,
+tbody {
+    vertical-align: top;
+    overflow: visible;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+ul {
+    margin-block-start: 1pt;
+    margin-block-end: 2pt;
+}
+
+.a {
+    color: #00F;
+    font-family: Calibri, sans-serif;
+    font-style: italic;
+    font-weight: normal;
+    text-decoration: underline;
+    font-size: 10.5pt;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.text-right {
+    float: right;
+    padding-right: 30pt;
+}
+
+.small {
+    font-size: 8.5pt;
+}
+
+.bullet-point {
+    margin: 0pt 0pt;
+}
+
+.small {
+    font-size: 9pt;
+    padding-left: 30pt;
+}
+
+.project-description {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.project-description:after {
+    content: " ......................................................................................................................................................";
+}

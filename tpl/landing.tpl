@@ -44,7 +44,7 @@
             Click here for a real-time view of my datacenter.
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content')">
+    <div class="hex rounded flip button" onclick="goToPage('film','page-content')">
         <img class="bg" src="{$image.film}" /><span>Film</span>
         <p class="inner-text-flipped">
             Film has always been a passion of mine. Click here to view my film portfolio.
