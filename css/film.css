@@ -172,7 +172,7 @@ tbody {
     vertical-align: top;
     overflow: visible;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    /* white-space: nowrap; */
 }
 
 ul {
@@ -246,6 +246,34 @@ button:hover {
         content: attr(data-label);
         text-transform: uppercase;
         font-weight: bold;
+    }
+
+    h1,
+    h2 {
+        font-size: 3.5vw;
+        margin: 0px 5px;
+    }
+
+    p {
+        margin: 4pt 0pt;
+    }
+
+    .project-description {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+    }
+
+    .project-description:after {
+        content: " ";
+    }
+
+    .left {
+        padding: 1vw 2vw 1vw 0;
+    }
+
+    .modal-content {
+        width: 90%;
     }
 
 }
