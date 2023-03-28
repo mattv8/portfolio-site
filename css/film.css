@@ -1,3 +1,4 @@
+/* Divs with ID's */
 #film {
     width: 60%;
     margin: 5% 15%;
@@ -14,15 +15,37 @@
     filter: blur(10px) saturate(20%);
 }
 
-#film::after {
-    padding-bottom: 3rem;
-}
-
 #divider {
     border: 1.5px solid black;
     margin: 10pt 0pt;
 }
 
+/* Containers */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left {
+    flex: 1;
+}
+
+.center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.right {
+    flex: 1;
+    text-align: right;
+}
+
+/* Headings */
 h1 {
     color: black;
     font-family: Calibri, sans-serif;
@@ -39,15 +62,25 @@ h2 {
     font-family: Calibri, sans-serif;
     font-style: normal;
     font-weight: bold;
+    font-size: 13pt;
+    margin: 0pt;
+}
+
+h3 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: normal;
+    font-weight: bold;
     text-decoration: underline;
     font-size: 12pt;
     margin-top: 20pt;
     margin-bottom: 8pt;
 }
 
-h3 {
+h4 {
     color: black;
     font-family: Calibri, sans-serif;
+    font-weight: normal;
     text-decoration: none;
     font-size: 11pt;
 }
@@ -62,28 +95,7 @@ p {
     margin: 4pt 20pt;
 }
 
-table,
-tbody {
-    vertical-align: top;
-    overflow: visible;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-ul {
-    margin-block-start: 1pt;
-    margin-block-end: 2pt;
-}
-
-.a {
-    color: #00F;
-    font-family: Calibri, sans-serif;
-    font-style: italic;
-    font-weight: normal;
-    text-decoration: underline;
-    font-size: 10.5pt;
-}
-
+/* Font Modifiers */
 .bold {
     font-weight: bold;
 }
@@ -110,6 +122,30 @@ ul {
     padding-left: 30pt;
 }
 
+/* Tables & Lists */
+table,
+tbody {
+    vertical-align: top;
+    overflow: visible;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+ul {
+    margin-block-start: 1pt;
+    margin-block-end: 2pt;
+}
+
+.a {
+    color: #00F;
+    font-family: Calibri, sans-serif;
+    font-style: italic;
+    font-weight: normal;
+    text-decoration: underline;
+    font-size: 10.5pt;
+}
+
+/* Special Classes */
 .project-description {
     width: 100%;
     white-space: nowrap;
@@ -119,4 +155,38 @@ ul {
 
 .project-description:after {
     content: " ............................................................................................................................................................................................................................ ";
+}
+
+/* RESPONSIVE */
+@media only screen and (max-width: 1000px) {
+
+    #film {
+        width: 90%;
+        margin: 3% 3%;
+        padding: 2%;
+        border-radius: 25px;
+        background-color: rgba(230, 230, 230, 0.897);
+    }
+
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block;
+    }
+
+    td {
+        position: relative;
+    }
+
+    td:before {
+        position: absolute;
+        left: 6px;
+        content: attr(data-label);
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
 }
