@@ -45,6 +45,50 @@
     text-align: right;
 }
 
+/* Style for the modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: transparent;
+}
+
+/* Style for the modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 10px;
+    width: 60%;
+    height: 50%;
+}
+
+/* Style for the close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Style for the blurred content */
+.body-blur {
+    filter: blur(5px);
+}
+
 /* Headings */
 h1 {
     color: black;
@@ -155,6 +199,21 @@ ul {
 
 .project-description:after {
     content: " ............................................................................................................................................................................................................................ ";
+}
+
+button {
+    background-color: rgb(89 0 255 / 50%);
+    border: none;
+    border-radius: 5px;
+    padding: 2pt 4pt;
+    cursor: pointer;
+    color: black;
+    transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+}
+
+button:hover {
+    background-color: rgb(67, 0, 192);
+    color: white;
 }
 
 /* RESPONSIVE */
