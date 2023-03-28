@@ -51,7 +51,7 @@
         </p>
     </div>
     <div class="hex logo button" title="Shuffle images!!"onclick="shuffleImages(this)">
-        <img class="bg" src="assets/images/landing/logo.png" />
+        <img class="bg" src="assets/images/all/vis_logo_light.png" />
     </div>
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
