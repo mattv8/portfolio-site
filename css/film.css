@@ -272,8 +272,16 @@ button:hover {
         padding: 1vw 2vw 1vw 0;
     }
 
+    .text-right {
+        padding-right: 4px;
+    }
+
     .modal-content {
         width: 90%;
+    }
+
+    .small {
+        padding: 0;
     }
 
 }

@@ -16,7 +16,7 @@
         <div class="center">
             <h1>Film Resume — Matthew P. Visnovsky</h1>
             <h2><a href="mailto:matt%40visnovsky.us?subject=Film%20Resume" target="_blank">matt⟬at⟭visnovsky.us</a>
-             | <a href="https://visnovsky.us">https://visnovsky.us</a></h2>
+                | <a href="https://visnovsky.us">https://visnovsky.us</a></h2>
             <h2><a href="https://www.linkedin.com/in/mattvisnovsky">https://www.linkedin.com/in/mattvisnovsky</a></h2>
         </div>
         <div class="right"></div>
