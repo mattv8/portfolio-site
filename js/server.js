@@ -22,7 +22,6 @@ function openServerDetails(hex, serverName) {
     const animTime = 500;// Animation time in milliseconds
     const $hexParent = $(hex).parent();// Cache selectors
     const $hexInner = $(hex).find('.hex_inner');
-    const $container = $('.hexagons');
 
     // Modified flipForward and flibBack functions to add "third flip" when clicked
     if ($hexInner.hasClass('squared')) {// Hex is in square mode
