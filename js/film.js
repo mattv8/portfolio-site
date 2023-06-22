@@ -5,7 +5,7 @@ var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 // Define a global variable to hold the YouTube player object
-var player;
+let player;
 
 function openVideoModal(videoId) {
     var modal = document.getElementById("video-modal");
