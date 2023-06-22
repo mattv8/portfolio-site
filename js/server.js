@@ -36,8 +36,8 @@ function openServerDetails(hex, serverName) {
 
         $hexParent.css({
             position: 'fixed', // Change to fixed for absolute centering
-            width: '100%',
-            height: '100%',
+            width: '60%',
+            height: '150%',
             left: 0, // Set the left position to the center
             top: 0, // Set the top position to the center
             'z-index': 1,
