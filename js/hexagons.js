@@ -190,6 +190,38 @@
 					});
 				}
 
+				// For solid color hexagons, apply class `color-{color}` where color is a string
+				if ($hex.is('[class*="color-"]')) {
+					var colorClass = $hex.attr('class').match(/color-([^\\s]+)/); // Parse the color value from the class name
+					if (colorClass !== null) {
+						var color = colorClass[1]; // Extract the color value from the regex match
+						var $hexInner = $hex.find('.hex_inner');
+						$hexInner.css('background-color', color);
+					}
+				}
+
+				// For scaled hexagons, apply class `scale-{scale_factor}` where scale_factor is in percent
+				if ($hex.is('[class*="scale-"]')) {
+					var scaleClass = $hex.attr('class').match(/scale-(\d+)/);// Parse the scale value from the class name
+					let scale = 1;
+					if (scaleClass !== null) {
+						scale = parseFloat(scaleClass[1]) / 10;
+					}
+					var $hexInner = $hex.find('.hex_inner');
+					$hexInner.css('transform', `scale(${scale})`);
+				}
+
+				// For hexagons with extra margin: apply class `margin-{margin_in_px}`
+				if ($hex.is('[class*="margin-"]')) {
+					var marginClass = $hex.attr('class').match(/margin-(\d+)/);// Parse the scale value from the class name
+					let margin = 0;
+					if (marginClass !== null) {
+						margin = parseFloat(marginClass[1]);
+					}
+					var $hexInner = $hex.find('.hex_inner');
+					$hex.css('margin', `-${margin}px 0px`);
+				}
+
 				// Miscellaneous CSS modifiers
 				applyCSSModifiers($hex);
 
