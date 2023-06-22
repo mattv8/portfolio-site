@@ -13,7 +13,7 @@ $(document).ready(function () {
 			// var divHeight = (hexHeight + 10) * rows - 10;
 			// $('.landing').css({ 'width': divWidth, 'height': divHeight });
 
-			var center = elems[_.findKey(elems, { class: 'logo' })].corner;// Save centerpoint
+			var center = (elems.find(elem => elem.classes.includes('logo')) || {}).corner;// Save centerpoint of 'logo' class
 			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
 			animating.forEach(function (e) {
 				$('.hexagons').hover(function () {

@@ -285,8 +285,8 @@
 					offset ^= 1;// determines up/down in-line alignment of hexagons, alternating for every other column (using bitwise XOR "^" operator)
 				}
 
-				var topLevelClass = $hex.attr('class').split(' ')[1];
-				elem[i] = { class: topLevelClass, corner: { left: left, top: top }, selector: $hex, row: row, col: col };
+				var classes = $hex.attr('class').split(' ');
+				elem[i] = { classes: classes, corner: { left: left, top: top }, selector: $hex, row: row, col: col };
 
 				// Set positional values
 				if (animate && !reorder) {// animate if specified
