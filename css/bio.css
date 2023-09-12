@@ -1,0 +1,101 @@
+/* Style for the blurred content */
+.body-blur {
+    filter: blur(5px);
+}
+
+/* Divs with ID's */
+#bio {
+    width: 60%;
+    margin: 5% 15%;
+    padding: 5%;
+    border-radius: 25px;
+    background-color: rgba(230, 230, 230, 0.897);
+}
+
+#bio::before {
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -o-filter: blur(10px);
+    -ms-filter: blur(10px);
+    filter: blur(10px) saturate(20%);
+}
+
+/* Containers */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left {
+    flex: 1;
+}
+
+.center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.right {
+    flex: 1;
+    text-align: right;
+}
+
+#divider {
+    border: 1.5px solid black;
+    margin: 10pt 0pt;
+}
+
+/* Headings */
+h1 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18pt;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+h2 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 13pt;
+    margin: 0pt;
+}
+
+h3 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 12pt;
+    margin-top: 20pt;
+    margin-bottom: 8pt;
+}
+
+h4 {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-size: 11pt;
+}
+
+p {
+    color: black;
+    font-family: Calibri, sans-serif;
+    font-style: italic;
+    font-weight: normal;
+    text-decoration: none;
+    font-size: 10.5pt;
+    margin: 4pt 20pt;
+}
