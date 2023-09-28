@@ -180,14 +180,13 @@ ul {
     margin-block-end: 2pt;
 }
 
-.a {
+a {
     cursor: url('/assets/images/cursors/point.svg'), auto;
     color: #00F;
     font-family: Calibri, sans-serif;
-    font-style: italic;
     font-weight: normal;
     text-decoration: underline;
-    font-size: 10.5pt;
+    font-size: 12pt;
 }
 
 /* Special Classes */
