@@ -1,9 +1,9 @@
 {*Page specific CSS*}
-<link rel="stylesheet" type="text/css" href="css/bio.css" />
+<link rel="stylesheet" type="text/css" href="css/resume.css" />
 
 {*Page specific JS*}
 
-<div id="bio">
+<div id="resume">
     <div class="container">
         <div class="left">
             <img style="height: 80px;" src="assets/images/all/vis_logo_hex.png">

@@ -60,8 +60,8 @@
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
-    <div class="hex rounded flip button" onclick="goToPage('bio','page-content',this)">
-        <img class="bg" src="{$image.bio}" /><span>Bio</span>
+    <div class="hex rounded flip button" onclick="goToPage('resume','page-content',this)">
+        <img class="bg" src="{$image.resume}" /><span>Résumé</span>
         <p class="inner-text-flipped">
             Get to know the person behind the code.
         </p>

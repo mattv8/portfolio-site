@@ -9,7 +9,7 @@ require_once(__DIR__ . '/lib/functions.php');
 #==============================================================================
 # Image 'Smart Random' Algorithm
 #==============================================================================
-$categories = ['programming', 'engineering', 'server', 'film', 'livestreaming', 'bio'];
+$categories = ['programming', 'engineering', 'server', 'film', 'livestreaming', 'resume'];
 
 if (!isset($_SESSION['previous_image'])) {
     $_SESSION['previous_image'] = array_fill_keys($categories, ''); // Initialize the previous image array in the session

@@ -4,7 +4,7 @@
 }
 
 /* Divs with ID's */
-#bio {
+#resume {
     width: 60%;
     margin: 5% 15%;
     padding: 5%;
@@ -12,7 +12,7 @@
     background-color: rgba(230, 230, 230, 0.897);
 }
 
-#bio::before {
+#resume::before {
     -webkit-filter: blur(10px);
     -moz-filter: blur(10px);
     -o-filter: blur(10px);
