@@ -51,7 +51,7 @@
 }
 
 .hex .hex_link {
-	cursor: pointer;
+	cursor: url('/assets/images/cursors/point.svg'), auto;
 	text-decoration: none;
 	background-color: transparent;
 	border: none;
@@ -61,7 +61,7 @@
 }
 
 .hex .hex_button {
-	cursor: pointer;
+	cursor: url('/assets/images/cursors/point.svg'), auto;
 	text-decoration: none;
 	background-color: transparent;
 	border: none;
