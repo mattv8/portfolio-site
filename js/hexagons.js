@@ -116,7 +116,7 @@
 							$hex.find('.inner-span').attr('style', `transition: background-color 0.3s ease;  background-color: rgb(${color})`);
 						});
 						$hex.mouseleave(function () {// Remove background color
-							$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
+							$hex.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color: unset');
 						});
 					}
 				}
@@ -419,8 +419,8 @@ function flipBack(elem, animTime) {
 		setTimeout(function () {
 			elem.find('.inner-title').show();
 			elem.find('.inner-text-flipped').css('visibility', 'hidden');
+			elem.find('.inner-span').attr('style', 'background-color: unset');
 			applyCSSModifiers(elem);
-			elem.find('.inner-span').attr('style', 'transition: background-color 0.3s ease;  background-color:none');
 			setTimeout(function () {
 				elem.removeClass('flipping flipped flip-back');
 			}.bind(this), animTime / 2);
@@ -435,8 +435,8 @@ function flipForward(elem, animTime, color) {
 		setTimeout(function () {
 			elem.find('.inner-title').hide();
 			elem.find('.inner-text-flipped').css('visibility', 'visible');
+			elem.find('.inner-span').attr('style', `background-color: rgb(${color});`);
 			applyCSSModifiers(elem);
-			elem.find('.inner-span').attr('style', `background-color: rgb(${color})`);
 			setTimeout(function () {
 				elem.addClass('flipped');
 			}.bind(this), animTime / 2);
