@@ -1,3 +1,9 @@
+/////////////
+//Global variables
+var animationPaused = false;// Global flag to control expand animations
+var original = {};// Store original values
+var center;
+
 $(document).ready(function () {
 
 	// Wait for images to load then execute scripts
@@ -13,14 +19,11 @@ $(document).ready(function () {
 			// var divHeight = (hexHeight + 10) * rows - 10;
 			// $('.landing').css({ 'width': divWidth, 'height': divHeight });
 
-			var center = (elems.find(elem => elem.classes.includes('logo')) || {}).corner;// Save centerpoint of 'logo' class
+			center = (elems.find(elem => elem.classes.includes('logo')) || {}).corner;// Save centerpoint of 'logo' class
 			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
 			animating.forEach(function (e) {
-				$('.hexagons').hover(function () {
-					expand(e.selector, center, e.corner, 25, 1);
-				}, function () {
-					expand(e.selector, center, e.corner, 0, 1);
-				});
+				$('.hexagons').on('mouseenter', () => expand(e.selector, center, e.corner, 25, 1));
+				$('.hexagons').on('mouseleave', () => expand(e.selector, center, e.corner, 0, 1));
 			});
 
 		}, {
@@ -33,7 +36,7 @@ $(document).ready(function () {
 
 
 // This function calculates the slope of the line between the center and start points and uses it to determine the direction of the animation.
-function expand(selector, center, start, animationDistance, timing) {
+function expand(selector, center, start, animationDistance, timing, pauseable = false) {
 
 	$(selector).stop(true, false);// Stop previous animations if expand() is called again
 
@@ -59,7 +62,7 @@ function expand(selector, center, start, animationDistance, timing) {
 		newTop = start.top + direction * slope * animationDistance / Math.sqrt(1 + slope * slope);
 	}
 
-	if ($(window).width() > 1000) {
+	if ($(window).width() > 1000 && !animationPaused) {
 		// jQuery's animate method to animate the element to the new position
 		$(selector).animate({
 			left: newLeft,
@@ -124,4 +127,69 @@ function shuffleImages(selector) {
 	};
 
 	processNextBatch();
+}
+
+function openDetails(hex) {
+	const animTime = 500; // Animation time in milliseconds
+	const $hexParent = $(hex).parent();
+	const $hexInner = $(hex).find('.hex_inner');
+
+	if ($hexInner.hasClass('squared')) {
+		animationPaused = false;
+
+		// Reapply original values
+		$hexParent.css({
+			position: 'absolute',
+			width: original.width,
+			height: original.height,
+			left: original.left,
+			top: original.top,
+			opacity: '100%',
+			'z-index': 'auto',
+			transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
+		});
+
+		$hexInner.removeClass('squared');
+
+		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]))
+			.on('mouseleave', () => flipBack($hexParent, animTime));
+	} else {
+
+		// Update original values
+		original = {
+			height: $hexParent.css('height'),
+			width: $hexParent.css('width'),
+			left: $hexParent.css('left'),
+			top: $hexParent.css('top'),
+		};
+
+		setTimeout(function () {
+			original.color = $hexInner.find('.inner-span').css('background-color');
+		}, animTime / 2);
+
+		expand($hexParent, center, original, 0, 1); // Stop animation, return div to center
+
+		$hexInner.addClass('squared').css({
+			width: '100%',
+			height: '100%',
+			transition: `all ${animTime}ms ease-in-out`,
+		}).off('mouseenter mouseleave');
+
+		$hexParent.css({
+			position: 'absolute',
+			width: '100%',
+			height: '30vh',
+			left: '0px',
+			opacity: '90%',
+			'z-index': 1,
+			transition: `width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
+		});
+
+		$(hex).css({
+			width: '100%',
+			height: '100%',
+		});
+
+		animationPaused = true;
+	}
 }

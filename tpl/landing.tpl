@@ -25,9 +25,8 @@
 
 {*Hexagons*}
 <div class="hexagons landing">
-    <div class="hex rounded flip link">
+    <div class="hex rounded flip button" onclick="openDetails(this)">
         <img class="bg" src="{$image.programming}" /><span>Programming</span>
-        <link href="https://git.visnovsky.us/Matt" />
         <p class="inner-text-flipped">
             Click here to explore some of my open-source programming projects.
         </p>
