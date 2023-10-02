@@ -38,13 +38,13 @@
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('server','page-content',this)">
-        <img class="bg" src="{$image.server}" /><span>Server</span>
+        <img class="bg" src="{$image.server}" /><span>Datacenter</span>
         <p class="inner-text-flipped">
             Click here for a real-time view of my datacenter.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('film','page-content')">
-        <img class="bg" src="{$image.film}" /><span>Film</span>
+        <img class="bg" src="{$image.film}" /><span>Film Portfolio</span>
         <p class="inner-text-flipped">
         Film has always been a passion of mine. Visit my film resume by clicking here.
         </p>
