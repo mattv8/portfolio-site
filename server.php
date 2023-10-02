@@ -59,7 +59,7 @@ $queryApi = $client->createQueryApi();
 #
 #   Availability Calculations
 #
-$HAdays = 60; // days to calculate availability
+$HAdays = 30; // days to calculate availability
 $samp = 10; // Samples every 10 seconds
 
 $q1 = 'from(bucket: "proxmox")
