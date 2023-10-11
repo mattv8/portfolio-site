@@ -67,3 +67,57 @@
     </div>
     <div class="hex invisible"></div>{* Invisible *}
 </div>
+
+{*Programming Hex Inner HTML*}
+<style>
+    .row {
+        display: flex;
+        height: 70%;
+        transform: scaleX(-1);
+    }
+
+    .column {
+        flex: 1;
+        padding: 20%;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        /* Center the text */
+        position: relative;
+        /* Create a stacking context */
+    }
+
+    /* Style the links as buttons */
+    .button-link {
+        cursor: url('/assets/images/cursors/link.svg'), auto;
+        text-decoration: none;
+        background-color: #0066ff;
+        color: #fff;
+        padding: 20px;
+        margin: 20px 30px;
+        border-radius: 5px;
+        transition: background-color 0.5s ease;
+    }
+
+    .button-link:hover {
+        background-color: rgb(0, 3, 189)
+    }
+
+    /* Style the images inside the buttons */
+    .button-link img {
+        filter: drop-shadow(2px 2px 5px black);
+        width: 100%;
+        height: 80%;
+    }
+</style>
+
+<div class="row" id="programming-links" style="display:none;">
+    <a class="column button-link" href="https://github.com/mattv8" target="_blank">
+        <img src="assets/images/landing/programming-logos/github.svg" alt="GitHub">
+        <p class="inner-text" style="font-size:20px;">GitHub</p>
+    </a>
+    <a class="column button-link" href="https://git.visnovsky.us/Matt" target="_blank" style="margin-left:0px;">
+        <img src="assets/images/landing/programming-logos/gitlab.svg" alt="GitLab">
+        <p class="inner-text" style="font-size:20px;">GitLab</p>
+    </a>
+</div>
