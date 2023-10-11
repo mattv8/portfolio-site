@@ -51,7 +51,7 @@
 }
 
 .hex .hex_link {
-	cursor: url('/assets/images/cursors/point.svg'), auto;
+	cursor: url('/assets/images/cursors/link.svg'), auto;
 	text-decoration: none;
 	background-color: transparent;
 	border: none;
