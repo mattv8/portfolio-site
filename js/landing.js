@@ -3,6 +3,7 @@
 var animationPaused = false;// Global flag to control expand animations
 var original = {};// Store original values
 var center;
+var breakpoint = 1000;// When to switch to mobile
 
 $(document).ready(function () {
 
@@ -139,6 +140,9 @@ function openDetails(hex) {
 		after: $(hex).find('.hex-wrap-after'),
 	}
 
+	var currentWidth = $(window).width();// Get width of window
+	var hexWidth = (currentWidth <= breakpoint) ? '100%' : '80%';// Dynamic hex width
+
 	// Pull static logo HTML from the DOM
 	const $programmingLinks = $("#programming-links");
 
@@ -192,17 +196,17 @@ function openDetails(hex) {
 		$programmingLinks.show();
 
 		$hexInner.addClass('squared').css({
-			width: '80%',
-			height: '250px',
+			width: hexWidth,
+			height: 'auto',
 			transition: `all ${animTime}ms ease-in-out`,
 		}).off('mouseenter mouseleave');
 
 		$hexParent.css({
 			position: 'absolute',
-			width: '80%',
+			width: hexWidth,
 			left: '0px',
 			'z-index': 1,
-			transition: `width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
+			transition: `all ${animTime}ms ease-in-out`,
 		});
 
 		$hexWrappers.before.add($hexWrappers.after).css('display', 'none');

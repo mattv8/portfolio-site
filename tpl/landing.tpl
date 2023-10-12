@@ -94,7 +94,7 @@
         background-color: #0066ff;
         color: #fff;
         padding: 20px;
-        margin: 20px 30px;
+        margin: 0px 30px 20px 30px;
         border-radius: 5px;
         transition: background-color 0.5s ease;
     }
