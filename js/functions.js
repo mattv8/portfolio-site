@@ -7,13 +7,13 @@ var rotations = 0;
 
 function goToPage(page, replaceSelector, _this) {
 
-	const $hexParent = $(_this).parent();
+  const $hexParent = $(_this).parent();// Capture parent element
 
   // Redirect to root if page is null
   if (!page) { page = GLOBAL.config.default_page; }
 
   // Else route to specified page asynchronously
-  if ($hexParent.hasClass('flipped')) {
+  if (!$hexParent.length || ($hexParent.hasClass('hex') && $hexParent.hasClass('flipped'))) {// If it's a hexagon && flipped
     $.ajax({
       url: 'index.php',
       type: 'GET',
