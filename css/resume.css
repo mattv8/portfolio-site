@@ -99,3 +99,26 @@ p {
     font-size: 10.5pt;
     margin: 4pt 20pt;
 }
+
+/* RESPONSIVE */
+@media only screen and (max-width: 1000px) {
+
+    #resume {
+        width: 90%;
+        margin: 3% 3%;
+        padding: 2%;
+        border-radius: 25px;
+        background-color: rgba(230, 230, 230, 0.897);
+    }
+
+    h1,
+    h2 {
+        font-size: 3.5vw;
+        margin: 0px 5px;
+    }
+
+    p {
+        margin: 4pt 0pt;
+    }
+
+}
