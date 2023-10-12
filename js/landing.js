@@ -141,16 +141,19 @@ function openDetails(hex) {
 	}
 
 	var currentWidth = $(window).width();// Get width of window
-	var hexWidth = (currentWidth <= breakpoint) ? '100%' : '80%';// Dynamic hex width
+	var mobile = {// Dynamic hex width
+		height: (currentWidth <= breakpoint) ? '50vh' : '20vh',// vh = % of viewport height
+		width: (currentWidth <= breakpoint) ? '100%' : '80%',
+	}
 
 	// Pull static logo HTML from the DOM
 	const $programmingLinks = $("#programming-links");
 
-	if ($hexInner.hasClass('squared')) {
+	if ($hexInner.hasClass('squared')) {// Transition back to hex state
 		animationPaused = false;
 		$programmingLinks.hide();
 
-		// Reapply original values
+		// Reapply original CSS
 		$hexParent.css({
 			position: 'absolute',
 			width: original.width.parent,
@@ -158,6 +161,7 @@ function openDetails(hex) {
 			left: original.left,
 			top: original.top,
 			'z-index': 'auto',
+			translate: '0%',
 			transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
 		});
 		$hexInner.css({
@@ -169,9 +173,9 @@ function openDetails(hex) {
 		$hexInner.removeClass('squared').css({ height: original.height });
 		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
 		$hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
-	} else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {
+	} else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
 
-		// Update original values
+		// Update original CSS values
 		original = {
 			height: {
 				inner: $hexInner.css('height'),
@@ -196,15 +200,16 @@ function openDetails(hex) {
 		$programmingLinks.show();
 
 		$hexInner.addClass('squared').css({
-			width: hexWidth,
-			height: 'auto',
+			width: '100%',// Do not change this number!
+			height: mobile.height,
 			transition: `all ${animTime}ms ease-in-out`,
 		}).off('mouseenter mouseleave');
 
 		$hexParent.css({
+			width: mobile.width,
 			position: 'absolute',
-			width: hexWidth,
-			left: '0px',
+			left: '50%',
+			translate: '-50%',
 			'z-index': 1,
 			transition: `all ${animTime}ms ease-in-out`,
 		});
