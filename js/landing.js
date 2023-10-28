@@ -147,11 +147,11 @@ function openDetails(hex) {
 	}
 
 	// Pull static logo HTML from the DOM
-	const $programmingLinks = $("#programming-links");
+	const $innerDiv = $("#programming-links");
 
 	if ($hexInner.hasClass('squared')) {// Transition back to hex state
 		animationPaused = false;
-		$programmingLinks.hide();
+		$innerDiv.hide();
 
 		// Reapply original CSS
 		$hexParent.css({
@@ -195,9 +195,9 @@ function openDetails(hex) {
 
 		// Append Github and GitLab logos
 		if (!$hexInner.find('#programming-links').length) {
-			$hexInner.find('.inner-span').append($programmingLinks);
+			$hexInner.find('.inner-span').append($innerDiv);
 		}
-		$programmingLinks.show();
+		$innerDiv.show();
 
 		$hexInner.addClass('squared').css({
 			width: '100%',// Do not change this number!
