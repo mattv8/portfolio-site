@@ -1,3 +1,9 @@
+/////////////
+//Global variables
+var original = {};// Store original values
+var breakpoint = 1000;// When to switch to mobile
+
+
 // Wait for images to load then execute scripts
 $(document).ready(function () {
 
@@ -17,80 +23,100 @@ $(document).ready(function () {
 
 });
 
-let $clone;
-function openServerDetails(hex, serverName) {
-    const animTime = 500;// Animation time in milliseconds
-    const $hexParent = $(hex).parent();// Cache selectors
+function openDetails(hex, serverName) {
+    const animTime = 500; // Animation time in milliseconds
+    const $hexParent = $(hex).parent();
     const $hexInner = $(hex).find('.hex_inner');
-    console.log(hex);
-    // Modified flipForward and flibBack functions to add "third flip" when clicked
-    if ($hexInner.hasClass('squared')) {// Hex is in square mode
+    const $innerText = $(hex).find('p');
+    const $hexWrappers = {
+        before: $(hex).find('.hex-wrap-before'),
+        after: $(hex).find('.hex-wrap-after'),
+    }
 
-        const originalClasses = {// Clone the node and store the original classes
-            hexParent: $clone.attr('style'),
-            hexInner: $clone.find('.hex_inner').attr('style')
-        };
-        console.log(originalClasses);
+    var currentWidth = $(window).width();// Get width of window
+    var mobile = {// Dynamic hex width
+        height: (currentWidth <= breakpoint) ? '80vh' : '50vh',// vh = % of viewport height
+        width: (currentWidth <= breakpoint) ? '100%' : '80%',
+    }
 
-        $hexParent.replaceWith($clone);
-        $clone.find('.hex_inner').on('mouseenter', function () {
-            flipForward($clone, animTime, null);
-        }).on('mouseleave', function () {
-            flipBack($clone, animTime);
+    // Pull static logo HTML from the DOM
+    const $innerDiv = $("#server-details");
+
+    if ($hexInner.hasClass('squared')) {// Transition back to hex state
+        $innerDiv.hide();
+
+        // Reapply original CSS
+        $hexParent.css({
+            position: 'absolute',
+            width: original.width.parent,
+            height: original.height.parent,
+            left: original.left,
+            top: original.top,
+            'z-index': 'auto',
+            translate: '0%',
+            transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
         });
-    } else {// Else needs to be squared
-        $clone = $hexParent.clone()// Clone the node
-        const originalClasses = {// Clone the node and store the original classes
-            hexParent: $hexParent.attr('class'),
-            hexInner: $hexInner.attr('class')
+        $hexInner.css({
+            height: original.height.inner,
+            width: original.width.inner,
+        })
+        $hexInner.css({ backgroundColor: original.color })
+        $hexWrappers.before.add($hexWrappers.after).css('display', 'block');
+        $innerText.css({ padding: original.padding });
+        $hexInner.removeClass('squared').css({ height: original.height });
+        $hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
+        $hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
+    } else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
+
+        // Update original CSS values
+        original = {
+            height: {
+                inner: $hexInner.css('height'),
+                parent: $hexParent.css('height')
+            },
+            width: {
+                inner: $hexInner.css('width'),
+                parent: $hexParent.css('width')
+            },
+            left: $hexParent.css('left'),
+            top: $hexParent.css('top'),
+            padding: $innerText.css('padding'),
+            color: $hexInner.css('background-color'),
         };
+
+        // Append Github and GitLab logos
+        if (!$hexInner.find('#server-details').length) {
+            $hexInner.find('.inner-span').append($innerDiv);
+        }
+        $innerDiv.show();
+
+        $hexInner.addClass('squared').css({
+            width: '100%', // Do not change this number!
+            height: mobile.height,
+            transition: `all ${animTime}ms ease-in-out`,
+            backgroundColor: 'white',
+        }).off('mouseenter mouseleave');
+
+        $hexInner.find('.inner-span').css({
+            backgroundColor: 'white',
+            transition: `all ${animTime}ms ease-in-out`,
+        });
 
         $hexParent.css({
-            position: 'fixed', // Change to fixed for absolute centering
-            width: '100%',
-            height: '65vh',
-            left: 0, // Set the left position to the center
-            top: 0, // Set the top position to the center
-            opacity: '90%',
+            width: mobile.width,
+            position: 'absolute',
+            left: '50%',
+            translate: '-50%',
             'z-index': 1,
             transition: `all ${animTime}ms ease-in-out`,
-        })
-
-        $(hex).css({
-            width: '100%',
-            height: '100%',
         });
 
-        $hexInner.toggleClass('squared')
-            .css({
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'white',
-                transition: `all ${animTime}ms ease-in-out`,
-            })
-            .off('mouseenter mouseleave')
+        $hexWrappers.before.add($hexWrappers.after).css('display', 'none');
 
-        if ($hexParent.hasClass('flipped')) {// Flip Back
-
-            $hexParent.addClass('flip-back')
-            setTimeout(function () {
-                $hexParent.find('.inner-text-flipped').css('visibility', 'hidden');
-                setTimeout(function () {
-                    $hexParent.removeClass('flipping flipped flip-back');
-                }.bind(this), animTime / 2);
-            }.bind(this), animTime / 2);
-
-        } else {// Flip Forward
-
-            $hexParent.addClass('flipping');
-            setTimeout(function () {
-                $hexParent.find('.inner-title').hide();
-                $hexParent.find('.inner-text-flipped').css('visibility', 'hidden');
-                setTimeout(function () {
-                    $hexParent.addClass('flipped');
-                }.bind(this), animTime / 2);
-            }.bind(this), animTime / 2);
-        }
+        $innerText.css({
+            padding: '10px',
+            transition: `padding ${animTime}ms ease-in-out`,
+        })
 
     }
 
