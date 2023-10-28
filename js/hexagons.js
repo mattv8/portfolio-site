@@ -88,6 +88,7 @@
 				if (button) {
 					$(this).removeAttr('onclick');// Remove the extra onclick action
 					$(this).find('.hex_inner').wrap('<button onclick="' + button + '" class="hex_button"></button>'); // wrap the <a></a>
+					$(this).find('button.hex_button').css({ 'width': '100%' })
 				}
 			})
 
