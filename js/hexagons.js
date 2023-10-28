@@ -425,7 +425,7 @@ function flipBack(elem, animTime) {
 		setTimeout(function () {
 			elem.find('.inner-title').show();
 			elem.find('.inner-text-flipped').css('visibility', 'hidden');
-			elem.find('.inner-span').css({'background-color': 'unset'});
+			elem.find('.inner-span').css({ 'background-color': 'unset' });
 			applyCSSModifiers(elem);
 			setTimeout(function () {
 				elem.removeClass('flipping flipped flip-back');
@@ -441,7 +441,7 @@ function flipForward(elem, animTime, color) {
 		setTimeout(function () {
 			elem.find('.inner-title').hide();
 			elem.find('.inner-text-flipped').css('visibility', 'visible');
-			elem.find('.inner-span').css({'background-color': `rgb(${color})`});
+			elem.find('.inner-span').css({ 'background-color': `rgb(${color})` });
 			applyCSSModifiers(elem);
 			setTimeout(function () {
 				elem.addClass('flipped');
