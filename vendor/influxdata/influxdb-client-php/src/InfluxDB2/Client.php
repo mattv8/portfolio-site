@@ -15,7 +15,7 @@ class Client
     /**
      * Client version updated by: 'make release VERSION=1.5.0'
      */
-    const VERSION = '3.2.0';
+    const VERSION = '3.4.0';
 
     public $options;
     public $closed = false;
