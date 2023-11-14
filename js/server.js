@@ -9,7 +9,7 @@ var selectedDates = {
     end: moment().startOf('week').clone().add(7, 'days')
 };
 
-let influxCanvas;
+var influxCanvas;
 
 // Wait for images to load then execute scripts
 $(document).ready(function () {
@@ -73,6 +73,8 @@ function openDetails(hex, serverName) {
         $hexInner.removeClass('squared').css({ height: original.height });
         $hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
         $hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
+        flipBack($hexParent, animTime);// Flip back to details
+        
     } else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
 
         // Update original CSS values
@@ -93,7 +95,6 @@ function openDetails(hex, serverName) {
         $hexFlipText.css({ display: 'none' });
         var influx = initializeChart(serverName);
         $hexInner.find('.inner-span').append(influx);
-        var canvases = $(influx).find('canvas');
 
         $hexInner.addClass('squared').css({
             width: '100%', // Do not change this number!
