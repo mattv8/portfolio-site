@@ -32,6 +32,7 @@ $(document).ready(function () {
 
 function openDetails(hex, serverName) {
     const animTime = 500; // Animation time in milliseconds
+    const $container = $('.hexagons');
     const $hexParent = $(hex).parent();
     const $hexInner = $(hex).find('.hex_inner');
     const $hexFlipText = $(hex).find('.inner-text-flipped');
@@ -41,9 +42,10 @@ function openDetails(hex, serverName) {
     }
 
     var currentWidth = $(window).width();// Get width of window
-    var mobile = {// Dynamic hex width
-        height: (currentWidth <= breakpoint) ? '90vh' : `83vh`,// vh = % of viewport height
-        width: (currentWidth <= breakpoint) ? '100%' : '50vw',
+    var container = {// Dynamic hex width
+        height: (currentWidth <= breakpoint) ? $(window).height() * .98 : $container.height(),
+        width: (currentWidth <= breakpoint) ? $container.width() : $container.width() * .8,
+        top: (currentWidth <= breakpoint) ? `${window.scrollY}px` : '0',
     }
 
     if ($hexInner.hasClass('squared')) {// Transition back to hex state
@@ -74,7 +76,7 @@ function openDetails(hex, serverName) {
         $hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
         $hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
         flipBack($hexParent, animTime);// Flip back to details
-        
+
     } else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
 
         // Update original CSS values
@@ -93,12 +95,12 @@ function openDetails(hex, serverName) {
         };
 
         $hexFlipText.css({ display: 'none' });
-        var influx = initializeChart(serverName);
+        var influx = initializeChart(serverName, container);
         $hexInner.find('.inner-span').append(influx);
 
         $hexInner.addClass('squared').css({
             width: '100%', // Do not change this number!
-            height: mobile.height,
+            height: container.height,
             transition: `all ${animTime}ms ease-in-out`,
             backgroundColor: 'white',
         }).off('mouseenter mouseleave');
@@ -109,8 +111,9 @@ function openDetails(hex, serverName) {
         });
 
         $hexParent.css({
-            width: mobile.width,
+            width: container.width,
             position: 'absolute',
+            top: container.top,
             left: '50%',
             translate: '-50%',
             'z-index': 1,
@@ -123,7 +126,8 @@ function openDetails(hex, serverName) {
 
 }
 
-function initializeChart(serverName) {
+function initializeChart(serverName, container) {
+
     // Create the outer div element
     let containerDiv = document.createElement('div');
     containerDiv.style.transform = 'scaleX(-1)';
@@ -143,9 +147,9 @@ function initializeChart(serverName) {
         callback = JSON.parse(callback);
         var data = callback.data;
 
-        const keysToInclude = ["cpu", "mempercent", "diskpercent"];
+        const keys = ["cpu", "mempercent", "diskpercent"];
 
-        const filteredKeys = Object.keys(data).filter(key => keysToInclude.includes(key));// Filter out keys not in the keysToInclude array
+        const filteredKeys = Object.keys(data).filter(key => keys.includes(key));// Filter out keys not in the keys array
 
         filteredKeys.forEach(function (key, index) {
 
@@ -153,6 +157,9 @@ function initializeChart(serverName) {
             let canvas = document.createElement('canvas');
             canvas.id = 'dash-chart-' + key;
             canvas.style.padding = '20px';
+
+            const _aspectRatio = container.width / container.height;
+            console.log(_aspectRatio);
 
             // Append the canvas to the container div
             containerDiv.appendChild(canvas);
@@ -181,7 +188,8 @@ function initializeChart(serverName) {
                 },
                 options: {
                     responsive: true,
-                    aspectRatio: window.devicePixelRatio < 1.55 ? 3 : 16 / 9,
+                    // aspectRatio: window.devicePixelRatio < 1.55 ? 3 : 16 / 9,
+                    aspectRatio: _aspectRatio * keys.length,
                     plugins: {
                         title: {
                             display: true,
