@@ -140,6 +140,7 @@ function initializeChart(serverName, container) {
         serverName: serverName,
         startDate: selectedDates.start.format('YYYY-MM-DD'),
         endDate: selectedDates.end.format('YYYY-MM-DD'),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
 
     $.get("server.php?" + $.param(req), function (callback) {

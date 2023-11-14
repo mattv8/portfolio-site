@@ -138,6 +138,7 @@ if (isset($_GET["request"]) and $_GET["request"]) {
 if ($request === 'getChartData') {
 
     $host = $_GET["serverName"];
+    $timezone = isset($_GET["timezone"]) ? $_GET["timezone"] : 'America/Denver';
     $duration = 1;
 
     $q1 = 'from(bucket: "proxmox")
@@ -153,7 +154,7 @@ if ($request === 'getChartData') {
     $server = array();
     $today = new DateTime();
     $utcTimeZone = new DateTimeZone('UTC');
-    $mstTimeZone = new DateTimeZone('America/Denver'); // Adjust to your specific MST time zone
+    $mstTimeZone = new DateTimeZone($timezone); // Adjust to your specific MST time zone
 
     foreach ($results->each() as $record) {
         $timestamp = $record['_time'];
