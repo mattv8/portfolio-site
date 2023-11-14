@@ -158,9 +158,6 @@ function initializeChart(serverName, container) {
             canvas.id = 'dash-chart-' + key;
             canvas.style.padding = '20px';
 
-            const _aspectRatio = container.width / container.height;
-            console.log(_aspectRatio);
-
             // Append the canvas to the container div
             containerDiv.appendChild(canvas);
 
@@ -189,7 +186,7 @@ function initializeChart(serverName, container) {
                 options: {
                     responsive: true,
                     // aspectRatio: window.devicePixelRatio < 1.55 ? 3 : 16 / 9,
-                    aspectRatio: _aspectRatio * keys.length,
+                    aspectRatio: (container.width / container.height) * keys.length,
                     plugins: {
                         title: {
                             display: true,
