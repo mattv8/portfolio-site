@@ -173,3 +173,43 @@ function loadVideo(videoId) {
     }, 100);
   }
 }
+
+
+function getRandomColor(index) {
+  // Generate a random hue based on the index
+  const hue = (index * 137.508) % 360;
+
+  // Convert the HSV color to RGB
+  const rgb = hsvToRgb(hue, 0.8, 0.8);
+
+  // Convert RGB values to a CSS color string
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.8)`;
+}
+
+function hsvToRgb(h, s, v) {
+  let c = v * s;
+  let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  let m = v - c;
+
+  let rgb;
+
+  if (h < 60) {
+    rgb = [c, x, 0];
+  } else if (h < 120) {
+    rgb = [x, c, 0];
+  } else if (h < 180) {
+    rgb = [0, c, x];
+  } else if (h < 240) {
+    rgb = [0, x, c];
+  } else if (h < 300) {
+    rgb = [x, 0, c];
+  } else {
+    rgb = [c, 0, x];
+  }
+
+  return [
+    Math.round((rgb[0] + m) * 255),
+    Math.round((rgb[1] + m) * 255),
+    Math.round((rgb[2] + m) * 255)
+  ];
+}

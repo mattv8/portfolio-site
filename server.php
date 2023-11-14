@@ -6,6 +6,24 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/conf/config.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/functions.php');
 
+
+#==============================================================================
+# Influx Config
+#==============================================================================
+
+// Load the InfluxDB library
+use InfluxDB2\Client;
+use InfluxDB2\Model\WritePrecision;
+
+$client = new Client([
+    "url" => $influx_creds['influxURL'],
+    "token" => $influx_creds['influxToken'],
+    "bucket" => "proxmox",
+    "org" => "GalaxyClass",
+    "precision" => WritePrecision::NS,
+]);
+$queryApi = $client->createQueryApi();
+
 #==============================================================================
 # PVE API cURL Commands
 #==============================================================================
@@ -39,90 +57,137 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/lib/functions.php');
 // $smarty->assign('servers',$nodes);
 
 
-#==============================================================================
-# Influx Queries
-#==============================================================================
+# Store GET request as variable to control which PHP is executed in this script.
+if (isset($_GET["request"]) and $_GET["request"]) {
+    $request = $_GET["request"];
+} else {
 
-// Load the InfluxDB library
-use InfluxDB2\Client;
-use InfluxDB2\Model\WritePrecision;
+    #
+    #   Availability Calculations
+    #
+    $HAdays = 30; // days to calculate availability
+    $samp = 10; // Samples every 10 seconds
 
-$client = new Client([
-    "url" => $influx_creds['influxURL'],
-    "token" => $influx_creds['influxToken'],
-    "bucket" => "proxmox",
-    "org" => "GalaxyClass",
-    "precision" => WritePrecision::NS,
-]);
-$queryApi = $client->createQueryApi();
+    $q1 = 'from(bucket: "proxmox")
+        |> range(start: -' . $HAdays . 'd)
+        |> filter(fn: (r) => r["_measurement"] == "system")
+        |> filter(fn: (r) => r["_field"] == "status")
+        |> filter(fn: (r) => r["_value"] == "running")
+        |> count()
+        ';
 
-#
-#   Availability Calculations
-#
-$HAdays = 30; // days to calculate availability
-$samp = 10; // Samples every 10 seconds
+    $q2 = 'from(bucket: "proxmox")
+        |> range(start: -' . $HAdays . 'd)
+        |> filter(fn: (r) => r["_measurement"] == "system")
+        |> filter(fn: (r) => r["_field"] == "status")
+        |> filter(fn: (r) => r["_value"] == "stopped")
+        |> count()
+        ';
 
-$q1 = 'from(bucket: "proxmox")
-|> range(start: -' . $HAdays . 'd)
-|> filter(fn: (r) => r["_measurement"] == "system")
-|> filter(fn: (r) => r["_field"] == "status")
-|> filter(fn: (r) => r["_value"] == "running")
-|> count()
-';
+    // Execute the queries
+    $r_running = $queryApi->queryStream($q1);
+    $r_stopped = $queryApi->queryStream($q2);
 
-$q2 = 'from(bucket: "proxmox")
-|> range(start: -' . $HAdays . 'd)
-|> filter(fn: (r) => r["_measurement"] == "system")
-|> filter(fn: (r) => r["_field"] == "status")
-|> filter(fn: (r) => r["_value"] == "stopped")
-|> count()
-';
-
-// Execute the queries
-$r_running = $queryApi->queryStream($q1);
-$r_stopped = $queryApi->queryStream($q2);
-
-$servers = array();
-foreach ($r_running->each() as $record) {
-    $host = $record->values['host'];
-    $count = $record->getValue();
-    $servers[$host]['running_count'] = $count;
-    // echo "(Running) Host: $host Count: $count <br>";
-}
-foreach ($r_stopped->each() as $record) {
-    $host = $record->values['host'];
-    $count = $record->getValue();
-    $servers[$host]['stopped_count'] = $count;
-    // echo "(Stopped) Host: $host Count: $count <br>";
-}
-foreach ($servers as $host => $record) {
-    $delta = $HAdays * 60 * 24 * (60 / $samp) - ($record['running_count'] + $record['stopped_count']); // Represents InfluxDB or node downtime
-    $availability = $record['running_count'] / ($record['running_count'] + $record['stopped_count'] + $delta);
-    $servers[$host]['availability'] = number_format($availability, 6);
-    // echo "Host: $host Avail: $availability <br>";
-}
-
-#
-#   System Information
-#
-$queryFlux2 = 'from(bucket: "proxmox")
-|> range(start: -1m)
-|> filter(fn: (r) => r["host"] != "Janeway" and r["host"] != "Sisko" and r["host"] != "Picard")
-|> filter(fn: (r) => r["host"] != "ceph" and r["host"] != "cephfs" and r["host"] != "shared-nfs")
-|> filter(fn: (r) => r["_measurement"] == "system")
-|> last()
-';
-
-// Execute the query
-$results = $queryApi->queryStream($queryFlux2);
-foreach ($results->each() as $record) {
-    $servers[$record['host']][$record->getField()] = $record->getValue();
-    if ($record->getField() == 'uptime') {
-        $servers[$record['host']]['uptimeHR'] = secondsToTime($record->getValue());
+    $servers = array();
+    foreach ($r_running->each() as $record) {
+        $host = $record->values['host'];
+        $count = $record->getValue();
+        $servers[$host]['running_count'] = $count;
+        // echo "(Running) Host: $host Count: $count <br>";
     }
-    // echo "Value: " . $record->getValue()." Field: ".$record->getField()." Host: ".$record['host']."<br>";
+    foreach ($r_stopped->each() as $record) {
+        $host = $record->values['host'];
+        $count = $record->getValue();
+        $servers[$host]['stopped_count'] = $count;
+        // echo "(Stopped) Host: $host Count: $count <br>";
+    }
+    foreach ($servers as $host => $record) {
+        $delta = $HAdays * 60 * 24 * (60 / $samp) - ($record['running_count'] + $record['stopped_count']); // Represents InfluxDB or node downtime
+        $availability = $record['running_count'] / ($record['running_count'] + $record['stopped_count'] + $delta);
+        $servers[$host]['availability'] = number_format($availability, 6);
+        // echo "Host: $host Avail: $availability <br>";
+    }
+
+    #
+    #   System Information
+    #
+    $queryFlux2 = 'from(bucket: "proxmox")
+        |> range(start: -1m)
+        |> filter(fn: (r) => r["host"] != "Janeway" and r["host"] != "Sisko" and r["host"] != "Picard")
+        |> filter(fn: (r) => r["host"] != "ceph" and r["host"] != "cephfs" and r["host"] != "shared-nfs")
+        |> filter(fn: (r) => r["_measurement"] == "system")
+        |> last()
+        ';
+
+    // Execute the query
+    $results = $queryApi->queryStream($queryFlux2);
+    foreach ($results->each() as $record) {
+        $servers[$record['host']][$record->getField()] = $record->getValue();
+        if ($record->getField() == 'uptime') {
+            $servers[$record['host']]['uptimeHR'] = secondsToTime($record->getValue());
+        }
+        // echo "Value: " . $record->getValue()." Field: ".$record->getField()." Host: ".$record['host']."<br>";
+    }
+    // echo "<pre>";
+    // print_r($servers);
+    // echo "</pre>";
+    $smarty->assign('servers', $servers);
 }
-// echo "<pre>";
-// print_r($servers);
-// echo "</pre>";
-$smarty->assign('servers', $servers);
+
+# Handle AJAX requests to query for chart data
+if ($request === 'getChartData') {
+
+    $host = $_GET["serverName"];
+    $duration = 1;
+
+    $q1 = 'from(bucket: "proxmox")
+        |> range(start: - ' . $duration . 'h)
+        |> filter(fn: (r) => r["host"] == "' . $host . '")
+        |> filter(fn: (r) => r["_measurement"] == "system")
+        |> sample(n: ' . $duration . ', pos: -1)
+        ';
+
+    // Execute the queries
+    $results = $queryApi->queryStream($q1);
+
+    $server = array();
+    $today = new DateTime();
+    $utcTimeZone = new DateTimeZone('UTC');
+    $mstTimeZone = new DateTimeZone('America/Denver'); // Adjust to your specific MST time zone
+
+    foreach ($results->each() as $record) {
+        $timestamp = $record['_time'];
+        $dateTime = new DateTime($timestamp, $utcTimeZone);
+        $dateTime->setTimezone($mstTimeZone); // Convert to MST
+
+        // Check if the date is today
+        $isToday = $dateTime->format('Y-m-d') === $today->format('Y-m-d');
+
+        // Format the date based on whether it's today or not
+        $formattedDate = $isToday
+            ? $dateTime->format('h:i:s A') // Format to AM/PM
+            : $dateTime->format('Y-m-d h:i:s A'); // Show full date and time in AM/PM
+
+        $server[$record->getField()][$formattedDate] = $record->getValue();
+    }
+
+    // Math for human-readable outputs
+    $server['diskpercent'] = array_combine(
+        array_keys($server['disk']),
+        array_map(function($disk, $maxDisk) {
+            return $disk / $maxDisk;
+        }, $server['disk'], $server['maxdisk'])
+    );
+
+    $server['mempercent'] = array_combine(
+        array_keys($server['mem']),
+        array_map(function($disk, $maxDisk) {
+            return $disk / $maxDisk;
+        }, $server['mem'], $server['maxmem'])
+    );
+
+    // echo "<pre>";
+    // print_r($server);
+
+    echo json_encode(['data' => $server]);
+}
