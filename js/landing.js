@@ -142,7 +142,7 @@ function openDetails(hex) {
 
 	var currentWidth = $(window).width();// Get width of window
 	var mobile = {// Dynamic hex width
-		height: (currentWidth <= breakpoint) ? '38vh' : '25vh',// vh = % of viewport height
+		height: (currentWidth <= breakpoint) ? '30vh' : '25vh',// vh = % of viewport height
 		width: (currentWidth <= breakpoint) ? '100%' : '80%',
 	}
 
