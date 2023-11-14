@@ -129,3 +129,12 @@
 		transform: rotateY(0deg);
 	}
 }
+
+/* RESPONSIVE */
+@media (max-width: 1000px) { /* <- 3-2  hexagons per row */
+
+	.inner-text-flipped {
+		font-size: 1em;
+	}
+
+}
