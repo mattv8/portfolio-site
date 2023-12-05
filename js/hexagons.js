@@ -29,11 +29,9 @@
 
 			await buildHtml();// Build the initial DOM
 			let elems = await reorder(true, false);// Arrange the hexagons, save cornerpoints
-			updateContainerHeight($container, elems, settings.margin);// Set the height of the container
 
 			$(window).resize(function () {
 				debouncedReorder(true, true);// Debounced reorder() function when window resizes
-				updateContainerHeight($container, elems, settings.margin);// Set the height of the container
 			});
 
 			const result = {
@@ -338,6 +336,7 @@
 			});
 
 			await updateScales(hexWidth, hexHeight, reorder);// Update hex width/height
+			updateContainerHeight($container, elem);// Set the height of the container
 
 			return elem;
 
@@ -496,7 +495,7 @@ function calculateHexHeight(hexWidth) {
 }
 
 
-function updateContainerHeight(container, elems, margin) {
+function updateContainerHeight(container, elems) {
 
 	const visibleElems = elems.filter(elem => !elem.classes.includes('invisible'));// Filter out invisible elements
 	const lowestElem = _.maxBy(visibleElems, elem => elem.corner.top);// Find the column with the lowest hexagon elem
