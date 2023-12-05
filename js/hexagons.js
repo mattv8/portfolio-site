@@ -28,11 +28,19 @@
 		async function initialize() {
 
 			await buildHtml();// Build the initial DOM
-			let elems = reorder(true, false);// Arrange the hexagons, save cornerpoints
+			let elems = await reorder(true, false);// Arrange the hexagons, save cornerpoints
 			$(window).resize(function () {
 				debouncedReorder(true, true);// Debounced reorder() function when window resizes
 			});
-			return elems;
+
+			const result = {
+				elems: elems,
+				spawnPoint: spawnPoint,
+				settings: settings,
+				containerHeight: $container.calculatedHeight,
+			};
+
+			return result;
 
 		}// END initialize(container)
 
@@ -290,7 +298,15 @@
 				}
 
 				var classes = $hex.attr('class').split(' ');
-				elem[i] = { classes: classes, corner: { left: left, top: top }, selector: $hex, row: row, col: col };
+				elem[i] = {
+					classes: classes,
+					corner: { left: left, top: top },
+					width: hexWidth,
+					height: calculateHexHeight(hexWidth),
+					selector: $hex,
+					row: row,
+					col: col
+				};
 
 				// Set positional values
 				if (animate && !reorder) {// animate if specified
@@ -405,10 +421,11 @@
 		 * RETURNS
 		*/
 		return {
-			each: this.each(function () {
-				initialize(this).then(function (points) {
-					if (callback) { callback(points); };
-				});
+			each: this.each(async function () {
+				const result = await initialize(this);
+				if (callback) {
+					callback(result.elems, result.spawnPoint, result.settings);
+				}
 			}),
 		};
 

@@ -9,7 +9,7 @@ $(document).ready(function () {
 
 	// Wait for images to load then execute scripts
 	$('.hexagons').waitForImages(function () {
-		$('.hexagons').hexagons(function (elems) {// Set up hexagons
+		$('.hexagons').hexagons(function (elems, spawnPoint, settings) {// Set up hexagons
 
 			center = (elems.find(elem => elem.classes.includes('logo')) || {}).corner;// Save centerpoint of 'logo' class
 			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
