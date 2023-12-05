@@ -1,7 +1,6 @@
 /* Style of the landing page div */
 .landing {
 	width: 708px; /*fixed div size till break point */
-	height: 736px; /*fixed div size till break point */
 	text-align: center;
 	margin: 0;
 	position: absolute;
