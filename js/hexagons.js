@@ -13,8 +13,6 @@
 			hexWidth: 300,
 			margin: 10,
 			breakpoint: 1000,
-			rows: 3,
-			cols: 3,
 			radius: 5,
 			outlineColor: 'black',
 			outlineThickness: 2,

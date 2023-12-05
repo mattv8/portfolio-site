@@ -11,22 +11,12 @@ $(document).ready(function () {
 	$('.hexagons').waitForImages(function () {
 		$('.hexagons').hexagons(function (elems) {// Set up hexagons
 
-			// Programmatically set container div height and width
-			// var hexWidth = elems.pop().selector.outerWidth(true);
-			// var hexHeight = elems.pop().selector.outerHeight(true);
-			// var rows = _.maxBy(elems, 'row').row + 1;
-			// var cols = _.maxBy(elems, 'col').col + 1;
-			// var divWidth = (hexWidth / 2 + hexWidth / 4 + 10) * cols + hexWidth / 4 - 10;
-			// var divHeight = (hexHeight + 10) * rows - 10;
-			// $('.landing').css({ 'width': divWidth, 'height': divHeight });
-
 			center = (elems.find(elem => elem.classes.includes('logo')) || {}).corner;// Save centerpoint of 'logo' class
 			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
 			animating.forEach(function (e) {
 				$('.hexagons').on('mouseenter', () => expand(e.selector, center, e.corner, 25, 1));
 				$('.hexagons').on('mouseleave', () => expand(e.selector, center, e.corner, 0, 1));
 			});
-
 		}, {
 			hexWidth: 275,
 		});
