@@ -127,6 +127,7 @@ function openDetails(hex, serverName) {
 
 }
 
+var titleHeight = 0;
 function initializeChart(serverName, container) {
 
     // Create the outer div element
@@ -134,6 +135,16 @@ function initializeChart(serverName, container) {
     containerDiv.style.transform = 'scaleX(-1)';
     // containerDiv.className = 'column';
     containerDiv.id = 'server-details';
+
+    let titleDiv = document.createElement('h1');
+    titleDiv.innerHTML = `${serverName}`;
+    $(titleDiv).css({ padding: '20px 0px 0px 0px', margin: '0px' });
+    containerDiv.appendChild(titleDiv);
+
+    requestAnimationFrame(() => {
+        titleHeight = $(titleDiv).outerHeight(true);
+    });
+
 
     // Modify the AJAX request parameters
     let req = {
@@ -187,8 +198,7 @@ function initializeChart(serverName, container) {
                 },
                 options: {
                     responsive: true,
-                    // aspectRatio: window.devicePixelRatio < 1.55 ? 3 : 16 / 9,
-                    aspectRatio: (container.width / container.height) * keys.length,
+                    aspectRatio: (container.width / (container.height - titleHeight)) * keys.length,
                     plugins: {
                         title: {
                             display: true,
