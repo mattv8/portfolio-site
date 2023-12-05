@@ -266,7 +266,7 @@
 			}
 			prevWidth = currentWidth;
 
-			var hexHeight = (Math.sqrt(3) * hexWidth) / 2;
+			var hexHeight = calculateHexHeight(hexWidth);
 
 			var row = 0;// start at row 0
 			var col = 0;// start at col 0
@@ -467,4 +467,7 @@ function applyCSSModifiers(hex) {
 			hex.css('filter', 'drop-shadow(-5px 5px 10px black)');
 			break;
 	}
+function calculateHexHeight(hexWidth) {
+	return Math.sqrt(3) * (hexWidth / 2);
+}
 }
