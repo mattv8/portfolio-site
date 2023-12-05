@@ -499,17 +499,10 @@ function calculateHexHeight(hexWidth) {
 function updateContainerHeight(container, elems, margin) {
 
 	const visibleElems = elems.filter(elem => !elem.classes.includes('invisible'));// Filter out invisible elements
-
-	const columns = _.groupBy(visibleElems, 'col');// Group visible elements by column
 	const lowestElem = _.maxBy(visibleElems, elem => elem.corner.top);// Find the column with the lowest hexagon elem
-	const tallestColumn = columns[lowestElem.col] || []// Retrieve the column with lowest hexagon elem
 
-	if (tallestColumn.length > 0) {
-		const halfHeight = tallestColumn[0].col % 2 === 0 ? tallestColumn[0].height / 2 + margin : 0;// Additional half-height if tallestColumn is even
-		const nRows = _.maxBy(tallestColumn, 'row').row + 1;// Calculate the number of rows
-		const totalHeight = _.reduce(tallestColumn, (sum, hex) => sum + hex.height, 0);// Calculate the total height of the tallestColumn
-		const containerHeight = totalHeight + margin * (nRows - 1) + halfHeight;// Calculate the container height including half of the first hexagon and margins
+	if (lowestElem) {
+		const containerHeight = lowestElem.corner.top + lowestElem.height;
 		container.css('height', containerHeight);// Set the height of the container
-
 	}
 }
