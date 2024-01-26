@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRNG Histogram</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js" integrity="sha512-UK8MjH09aePxFAd8OwI5P4oP462OBBNGVh3OtnuHjybd0T3ArUbAseIuHpS1XfinmMXcCZG5barC+7SNPjuQtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        p {
+            margin: 5px 0px;
+
+        }
+
+        canvas {
+            margin-top: 0px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <label for="seedInput">Seed start value:</label>
+    <input type="text" id="seedInput" value="42">
+    <button onclick="regenerateChart()">Regenerate Chart</button>
+
+    <p>Seed range tested: <span id="seedStart"></span> to <span id="seedsTested"></span></p>
+    <p>Chi-Square Test Statistic: <span id="chiSquareStat"></span></p>
+    <p>Degrees of Freedom: <span id="degreesOfFreedom"></span></p>
+    <p>p-value: <span id="pValue"></span></p>
+
+    <canvas id="histogram"></canvas>
+
+    <script>
+
+        /**
+         * This generates a pseudo-random number based on a seed, which holds the result constant. Adapted from
+         * the 32-bit "Mulberry" algorithm originally written in 2017 by Tommy Ettinger (tommy.ettinger@gmail.com).
+         * For more info see https://gist.github.com/tommyettinger/46a874533244883189143505d203312c
+         * @param {number|string} seed - The seed for the random number generator. Can be a number or a string.
+         * @returns {Function} A function that, when called, generates a pseudo-random 8-bit value.
+         * Example 1:
+         *   const generateRandomValue = seededPRNG(seed);
+         *   const randomValue = generateRandomValue(); // Call the generated function to obtain a random value.
+         *
+         * Example 2 one-liner:
+         *   const randomValue = seededPRNG(seed)(); // Shortcut to directly call the generated function to obtain a random value.
+         */
+        function seededPRNG(seed) {
+
+            // Check if the seed is a string and convert it to a numeric value if it's not
+            if (typeof seed === 'string') {
+                seed = parseFloat(seed);
+                if (isNaN(seed)) {
+                    throw new Error('Invalid seed: Please provide a numeric value.');
+                }
+            }
+
+            // Initialize the internal state with the normalized seed multiplied by a constant,
+            // providing an initial value with some characteristics of pseudo-randomness.
+            let t = Math.floor(seed * 0x12BFFFFFED4) + 0x6D2B79F5;
+
+            // Return a function that generates the next 8-bit pseudo-random value
+            return () => (
+                t = Math.imul(t ^ t >>> 15, t | 1),// XOR the current state with a right shift by 15 bits to add additional entropy
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61),// Perform an integer multiplication to add additional entropy
+                (t ^ t >>> 14) & 0xFF// XOR the current state with a right shift by 14 bits to add additional, then bitwise AND with 0xFF to ensure an 8-bit value
+            );
+
+        }
+
+
+        let myChart;
+        let numTests = 10000;
+
+        function regenerateChart() {
+
+            // Run the PRNG for a range of ${numTests}
+            const seedStart = parseFloat(document.getElementById('seedInput').value);
+            const seedValues = Array.from({ length: numTests }, (_, i) => seedStart + i);
+            const data = seedValues.map(seed => {
+                const prng = seededPRNG(seed);
+                return prng();
+            });
+
+            // Calculate Chi-Square inputs
+            const expectedFrequencies = Array.from({ length: 256 }, () => data.length / 256);
+            const observedFrequencies = Array.from({ length: 256 }, (_, i) => data.filter(value => value === i).length);
+            const degreesOfFreedom = observedFrequencies.length - 1;
+
+            // Do the Chi-Square test
+            let chiSquareStat = 0;
+            for (let i = 0; i < observedFrequencies.length; i++) {
+                chiSquareStat += Math.pow(observedFrequencies[i] - expectedFrequencies[i], 2) / expectedFrequencies[i];
+            }
+
+            // Calculate the P-value
+            const pValue = 1 - jStat.chisquare.cdf(chiSquareStat, degreesOfFreedom);
+
+            // Destroy existing chart if it exists
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // Create the chartJS canvas
+            const ctx = document.getElementById('histogram').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({ length: 255 }, (_, i) => i),
+                    datasets: [{
+                        label: 'PRNG Distribution',
+                        data: Array.from({ length: 255 }, (_, i) => data.filter(value => value === i).length),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Update HTML
+            document.getElementById('seedStart').textContent = seedStart;
+            document.getElementById('seedsTested').textContent = seedStart + numTests;
+            document.getElementById('chiSquareStat').textContent = chiSquareStat.toFixed(4);
+            document.getElementById('degreesOfFreedom').textContent = degreesOfFreedom;
+            document.getElementById('pValue').textContent = pValue.toFixed(4);
+        }
+
+        // Initial chart generation
+        regenerateChart();
+    </script>
+</body>
+
+</html>
