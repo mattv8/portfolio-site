@@ -36,19 +36,38 @@
         canvas {
             margin-top: 0px;
         }
+
+        .divider {
+            margin: 20px 0;
+            border-top: 1px solid #ccc;
+        }
     </style>
 
 </head>
 
 <body>
+
     <label for="seedInput">Seed start value:</label>
     <input type="text" id="seedInput" value="42">
     <button onclick="regenerateChart()">Regenerate Chart</button>
 
     <p>Seed range tested: <span id="seedStart"></span> to <span id="seedsTested"></span></p>
-    <p>Chi-Square Test Statistic: <span id="chiSquareStat"></span></p>
-    <p>Degrees of Freedom: <span id="degreesOfFreedom"></span></p>
-    <p>p-value: <span id="pValue"></span></p>
+    <div class="divider"></div>
+
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h3>seededPRNG</h3>
+            <p>Chi-Square Test Statistic: <span id="chiSquareStat1"></span></p>
+            <p>p-value: <span id="pValue1"></span></p>
+            <p>Execution Time: <span id="executionTime1"></span> seconds</p>
+        </div>
+        <div>
+            <h3>splitmix32</h3>
+            <p>Chi-Square Test Statistic: <span id="chiSquareStat2"></span></p>
+            <p>p-value: <span id="pValue2"></span></p>
+            <p>Execution Time: <span id="executionTime2"></span> seconds</p>
+        </div>
+    </div>
 
     <canvas id="histogram"></canvas>
 
@@ -69,13 +88,7 @@
          */
         function seededPRNG(seed) {
 
-            // Check if the seed is a string and convert it to a numeric value if it's not
-            if (typeof seed === 'string') {
-                seed = parseFloat(seed);
-                if (isNaN(seed)) {
-                    throw new Error('Invalid seed: Please provide a numeric value.');
-                }
-            }
+            seed = validateInput(seed);// Validate the input
 
             // Initialize the internal state with the normalized seed multiplied by a constant,
             // providing an initial value with some characteristics of pseudo-randomness.
@@ -85,55 +98,142 @@
             return () => (
                 t = Math.imul(t ^ t >>> 15, t | 1),// XOR the current state with a right shift by 15 bits to add additional entropy
                 t ^= t + Math.imul(t ^ t >>> 7, t | 61),// Perform an integer multiplication to add additional entropy
-                (t ^ t >>> 14) & 0xFF// XOR the current state with a right shift by 14 bits to add additional, then bitwise AND with 0xFF to ensure an 8-bit value
+                (t ^ t >>> 14)// XOR the current state with a right shift by 14 bits to add additional, then bitwise AND with 0xFF to ensure an 8-bit value
             );
+        }
 
+        function splitmix32(s) {
+            s = validateInput(s);// Validate the input
+            return (t) => (
+                s = s + 0x9e3779b9 | 0,
+                t = Math.imul(s ^ s >>> 16, 0x21f0aaad),
+                t = Math.imul(t ^ t >>> 15, 0x735a2d97),
+                (t = t ^ t >>> 15)
+            );
         }
 
 
-        let myChart;
-        let numTests = 10000;
 
-        function regenerateChart() {
 
-            // Run the PRNG for a range of ${numTests}
-            const seedStart = parseFloat(document.getElementById('seedInput').value);
-            const seedValues = Array.from({ length: numTests }, (_, i) => seedStart + i);
-            const data = seedValues.map(seed => {
-                const prng = seededPRNG(seed);
-                return prng();
-            });
-
-            // Calculate Chi-Square inputs
-            const expectedFrequencies = Array.from({ length: 256 }, () => data.length / 256);
-            const observedFrequencies = Array.from({ length: 256 }, (_, i) => data.filter(value => value === i).length);
-            const degreesOfFreedom = observedFrequencies.length - 1;
-
-            // Do the Chi-Square test
-            let chiSquareStat = 0;
-            for (let i = 0; i < observedFrequencies.length; i++) {
-                chiSquareStat += Math.pow(observedFrequencies[i] - expectedFrequencies[i], 2) / expectedFrequencies[i];
+        function validateInput(seed) {
+            // Check if the seed is undefined or null
+            if (seed === undefined || seed === null) {
+                throw new Error('Seed is undefined or null.');
             }
 
-            // Calculate the P-value
-            const pValue = 1 - jStat.chisquare.cdf(chiSquareStat, degreesOfFreedom);
+            // Convert the input to a numeric value if it's not already
+            if (typeof seed === 'string') {
+                // Remove leading and trailing whitespace
+                seed = seed.trim();
 
-            // Destroy existing chart if it exists
+                // Handle hexadecimal input (e.g., '0x' or '0X' prefix)
+                if (/^0[xX]/.test(seed)) {
+                    seed = parseInt(seed, 16);
+                } else {
+                    // Attempt to parse the string as a floating point number
+                    const parsedSeed = parseFloat(seed);
+
+                    // Check if parsing was successful and the result is not NaN
+                    if (!isNaN(parsedSeed)) {
+                        seed = parsedSeed;
+                    } else {
+                        throw new Error('Invalid seed: Please provide a numeric value.');
+                    }
+                }
+            } else if (typeof seed !== 'number') {
+                // If the input is not a string or number, throw an error
+                throw new Error('Invalid seed: Please provide a numeric value.');
+            }
+
+            // Check if the resulting seed is NaN
+            if (isNaN(seed)) {
+                throw new Error('Invalid seed: Please provide a numeric value.');
+            }
+
+            // Return the validated seed
+            return seed;
+        }
+
+
+
+        // Function to regenerate the chart and calculate execution times
+        function regenerateChart() {
+            const seedStart = parseFloat(document.getElementById('seedInput').value);
+            const seedValues = Array.from({ length: numTests }, (_, i) => seedStart + i);
+
+            let startTime, endTime;
+
+            // Generate random numbers using seededPRNG and calculate execution time
+            startTime = performance.now();
+            const dataPRNG = seedValues.map(seed => {
+                const prng = seededPRNG(seed);
+                return prng() & 0xFF;
+            });
+            endTime = performance.now();
+            const executionTimePRNG = (endTime - startTime) / 1000; // Convert milliseconds to seconds
+
+            // Generate random numbers using splitmix32 and calculate execution time
+            startTime = performance.now();
+            const dataSplitMix = seedValues.map(seed => {
+                const prng = splitmix32(seed);
+                return prng() & 0xFF;
+            });
+            endTime = performance.now();
+            const executionTimeSplitMix = (endTime - startTime) / 1000; // Convert milliseconds to seconds
+
+            const data = [dataPRNG, dataSplitMix];
+
+            const chiSquareStats = [];
+            const pValues = [];
+
+            data.forEach(dataSet => {
+                const expectedFrequencies = Array.from({ length: 256 }, () => dataSet.length / 256);
+                const observedFrequencies = Array.from({ length: 256 }, (_, i) => dataSet.filter(value => value === i).length);
+                const degreesOfFreedom = observedFrequencies.length - 1;
+
+                let chiSquareStat = 0;
+                for (let i = 0; i < observedFrequencies.length; i++) {
+                    chiSquareStat += Math.pow(observedFrequencies[i] - expectedFrequencies[i], 2) / expectedFrequencies[i];
+                }
+
+                const pValue = 1 - jStat.chisquare.cdf(chiSquareStat, degreesOfFreedom);
+
+                chiSquareStats.push(chiSquareStat.toFixed(4));
+                pValues.push(pValue.toFixed(4));
+            });
+
+            document.getElementById('chiSquareStat1').textContent = chiSquareStats[0];
+            document.getElementById('pValue1').textContent = pValues[0];
+            document.getElementById('executionTime1').textContent = executionTimePRNG.toFixed(4);
+
+            document.getElementById('chiSquareStat2').textContent = chiSquareStats[1];
+            document.getElementById('pValue2').textContent = pValues[1];
+            document.getElementById('executionTime2').textContent = executionTimeSplitMix.toFixed(4);
+
+            document.getElementById('seedStart').textContent = seedStart;
+            document.getElementById('seedsTested').textContent = seedStart + numTests;
+            
+            const ctx = document.getElementById('histogram').getContext('2d');
+
             if (myChart) {
                 myChart.destroy();
             }
 
-            // Create the chartJS canvas
-            const ctx = document.getElementById('histogram').getContext('2d');
             myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: Array.from({ length: 255 }, (_, i) => i),
                     datasets: [{
-                        label: 'PRNG Distribution',
-                        data: Array.from({ length: 255 }, (_, i) => data.filter(value => value === i).length),
+                        label: 'PRNG Distribution (seededPRNG)',
+                        data: Array.from({ length: 255 }, (_, i) => dataPRNG.filter(value => value === i).length),
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'PRNG Distribution (splitmix32)',
+                        data: Array.from({ length: 255 }, (_, i) => dataSplitMix.filter(value => value === i).length),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1
                     }]
                 },
@@ -150,15 +250,12 @@
                 }
             });
 
-            // Update HTML
-            document.getElementById('seedStart').textContent = seedStart;
-            document.getElementById('seedsTested').textContent = seedStart + numTests;
-            document.getElementById('chiSquareStat').textContent = chiSquareStat.toFixed(4);
-            document.getElementById('degreesOfFreedom').textContent = degreesOfFreedom;
-            document.getElementById('pValue').textContent = pValue.toFixed(4);
         }
 
-        // Initial chart generation
+
+        let myChart;
+        let numTests = 100000;
+
         regenerateChart();
     </script>
 </body>
