@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome Sign Builder</title>
+    <!-- Add Bootstrap 5 CDN link here -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+    <h1 class="text-center">Chrome Sign Builder URL Rotater JSON Builder</h1>
+    <form id="scheduleForm">
+        <div class="row mb-3">
+            <div class="col">
+                <label for="url1" class="form-label">URL 1:</label>
+                <input type="text" class="form-control" id="url1" name="url1" placeholder="Enter URL 1" required>
+            </div>
+            <div class="col-4">
+                <label for="duration1" class="form-label">Duration (minutes) 1:</label>
+                <input type="number" class="form-control" id="duration1" name="duration1" placeholder="Enter duration 1" min="1" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="url2" class="form-label">URL 2:</label>
+                <input type="text" class="form-control" id="url2" name="url2" placeholder="Enter URL 2" required>
+            </div>
+            <div class="col-4">
+                <label for="duration2" class="form-label">Duration (minutes) 2:</label>
+                <input type="number" class="form-control" id="duration2" name="duration2" placeholder="Enter duration 2" min="1" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="startTime" class="form-label">Start Time (HH:MM:SS):</label>
+                <input type="text" class="form-control" id="startTime" name="startTime" placeholder="Enter start time" value="07:00:00" required>
+            </div>
+            <div class="col">
+                <label for="endTime" class="form-label">End Time (HH:MM:SS):</label>
+                <input type="text" class="form-control" id="endTime" name="endTime" placeholder="Enter end time" value="17:00:00" required>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="gmtOffset" class="form-label">GMT Offset (e.g. -0600):</label>
+            <input type="text" class="form-control" id="gmtOffset" name="gmtOffset" placeholder="Enter GMT offset" value="-0600" required>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="generateJSON()">Generate JSON</button>
+        <br>
+        <div class="row">
+            <div class="col">
+                <label for="jsonOutput" class="form-label">JSON Output:</label>
+                <div class="input-group mb-3">
+                    <textarea id="jsonOutput" class="form-control" rows="10" cols="50" readonly></textarea>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">Copy</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        function generateJSON() {
+            const url1 = document.getElementById('url1').value;
+            const duration1 = parseInt(document.getElementById('duration1').value, 10) * 60 * 1000; // Convert to milliseconds
+            const url2 = document.getElementById('url2').value;
+            const duration2 = parseInt(document.getElementById('duration2').value, 10) * 60 * 1000; // Convert to milliseconds
+            const gmtOffset = document.getElementById('gmtOffset').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+
+            const slides = [
+                {
+                    "content": url1,
+                    "duration": duration1,
+                },
+                {
+                    "content": url2,
+                    "duration": duration2,
+                }
+            ];
+
+            const timeframe = {
+                start: startTime,
+                end: endTime,
+            };
+
+            const timezoneOffset = gmtOffset;
+
+            const commonSettings = {
+                "autoReload": 10 * 60 * 1000, // Sets the auto-reload time for the webpage in milliseconds
+                "cachePolicy": "forever", // Sets the cache policy for the webpage.
+                "repetition": "d", // Repeats daily
+                "zoneHeight": "100%", // Scale
+                "zoneWidth": "100%", // Scale
+                "zone": "fs", // Full-screen mode (you can set picture-in-picture with this)
+                "zoneXOffset": "0", // Horizontal offset
+                "zoneYOffset": "0" // Vertical offset
+            };
+
+            const schedule = {
+                "schedule": {
+                    "Value": [
+                        {
+                            "name": "Feb 2024",
+                            "items": []
+                        }
+                    ]
+                }
+            };
+
+            const startTimeParts = timeframe.start.split(':');
+            const endTimeParts = timeframe.end.split(':');
+
+            const startTimeUTC = new Date();
+            startTimeUTC.setUTCHours(Number(startTimeParts[0]), Number(startTimeParts[1]), Number(startTimeParts[2]), 0);
+
+            const endTimeUTC = new Date();
+            endTimeUTC.setUTCHours(Number(endTimeParts[0]), Number(endTimeParts[1]), Number(endTimeParts[2]), 0);
+
+            let currentTime = new Date(startTimeUTC);
+
+            while (currentTime <= endTimeUTC) {
+                slides.forEach((slide, index) => {
+                    const start = new Date(currentTime.getTime() + index * slide.duration).toUTCString() + timezoneOffset;
+                    const item = {
+                        ...commonSettings,
+                        ...slide,
+                        "start": start,
+                        "duration": slide.duration,
+                    };
+                    schedule.schedule.Value[0].items.push(item);
+                });
+                currentTime.setMilliseconds(currentTime.getMilliseconds() + slides.reduce((acc, slide) => acc + slide.duration, 0));
+            }
+
+            const jsonOutput = JSON.stringify(schedule, null, 2);
+            document.getElementById('jsonOutput').value = jsonOutput;
+        }
+
+        function copyToClipboard() {
+            const jsonOutput = document.getElementById('jsonOutput');
+            jsonOutput.select();
+            document.execCommand('copy');
+            alert('JSON copied to clipboard!');
+        }
+    </script>
+
+    <!-- Add Bootstrap 5 JS and Popper.js CDN links here -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
