@@ -12,26 +12,19 @@
 <body class="container mt-5">
     <h1 class="text-center">Chrome Sign Builder URL Rotater JSON Builder</h1>
     <form id="scheduleForm">
-        <div class="row mb-3">
-            <div class="col">
-                <label for="url1" class="form-label">URL 1:</label>
-                <input type="text" class="form-control" id="url1" name="url1" placeholder="Enter URL 1" required>
-            </div>
-            <div class="col-4">
-                <label for="duration1" class="form-label">Duration (minutes) 1:</label>
-                <input type="number" class="form-control" id="duration1" name="duration1" placeholder="Enter duration 1" min="1" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col">
-                <label for="url2" class="form-label">URL 2:</label>
-                <input type="text" class="form-control" id="url2" name="url2" placeholder="Enter URL 2" required>
-            </div>
-            <div class="col-4">
-                <label for="duration2" class="form-label">Duration (minutes) 2:</label>
-                <input type="number" class="form-control" id="duration2" name="duration2" placeholder="Enter duration 2" min="1" required>
+        <div id="urlsContainer">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="url1" class="form-label">URL 1:</label>
+                    <input type="text" class="form-control" name="urls[]" placeholder="Enter URL" required>
+                </div>
+                <div class="col-4">
+                    <label for="duration1" class="form-label">Duration (minutes) 1:</label>
+                    <input type="number" class="form-control" name="durations[]" placeholder="Enter duration" min="1" required>
+                </div>
             </div>
         </div>
+        <button type="button mb-3" class="btn btn-success mb-3" onclick="addUrl()">Add Another URL</button>
         <div class="row mb-3">
             <div class="col">
                 <label for="startTime" class="form-label">Start Time (HH:MM:SS):</label>
@@ -60,25 +53,47 @@
     </form>
 
     <script>
+        let urlCounter = 1;
+
+        function addUrl() {
+            urlCounter++;
+
+            const urlsContainer = document.getElementById('urlsContainer');
+
+            const newRow = document.createElement('div');
+            newRow.classList.add('row', 'mb-3');
+            newRow.innerHTML = `
+                <div class="col">
+                    <label for="url${urlCounter}" class="form-label">URL ${urlCounter}:</label>
+                    <input type="text" class="form-control" name="urls[]" placeholder="Enter URL" required>
+                </div>
+                <div class="col-4">
+                    <label for="duration${urlCounter}" class="form-label">Duration (minutes) ${urlCounter}:</label>
+                    <input type="number" class="form-control" name="durations[]" placeholder="Enter duration" min="1" required>
+                </div>
+            `;
+
+            urlsContainer.appendChild(newRow);
+        }
+
         function generateJSON() {
-            const url1 = document.getElementById('url1').value;
-            const duration1 = parseInt(document.getElementById('duration1').value, 10) * 60 * 1000; // Convert to milliseconds
-            const url2 = document.getElementById('url2').value;
-            const duration2 = parseInt(document.getElementById('duration2').value, 10) * 60 * 1000; // Convert to milliseconds
+            const urls = document.getElementsByName('urls[]');
+            const durations = document.getElementsByName('durations[]');
             const gmtOffset = document.getElementById('gmtOffset').value;
             const startTime = document.getElementById('startTime').value;
             const endTime = document.getElementById('endTime').value;
 
-            const slides = [
-                {
-                    "content": url1,
-                    "duration": duration1,
-                },
-                {
-                    "content": url2,
-                    "duration": duration2,
-                }
-            ];
+            const slides = [];
+
+            for (let i = 0; i < urls.length; i++) {
+                const url = urls[i].value;
+                const duration = parseInt(durations[i].value, 10) * 60 * 1000; // Convert to milliseconds
+
+                slides.push({
+                    "content": url,
+                    "duration": duration,
+                });
+            }
 
             const timeframe = {
                 start: startTime,
