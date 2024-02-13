@@ -36,8 +36,14 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="gmtOffset" class="form-label">GMT Offset (e.g. -0600):</label>
-            <input type="text" class="form-control" id="gmtOffset" name="gmtOffset" placeholder="Enter GMT offset" value="-0600" required>
+            <label for="timezone" class="form-label">Timezone:</label>
+            <select class="form-select" id="timezone" name="timezone" required>
+                <option value="America/New_York">Eastern Time (EST/EDT)</option>
+                <option value="America/Chicago">Central Time (CST/CDT)</option>
+                <option value="America/Denver">Mountain Time (MST/MDT)</option>
+                <option value="America/Los_Angeles">Pacific Time (PST/PDT)</option>
+                <!-- Add more options for other timezones if needed -->
+            </select>
         </div>
         <button type="button" class="btn btn-primary" onclick="generateJSON()">Generate JSON</button>
         <br>
@@ -79,7 +85,7 @@
         function generateJSON() {
             const urls = document.getElementsByName('urls[]');
             const durations = document.getElementsByName('durations[]');
-            const gmtOffset = document.getElementById('gmtOffset').value;
+            const timezone = document.getElementById('timezone').value;
             const startTime = document.getElementById('startTime').value;
             const endTime = document.getElementById('endTime').value;
 
@@ -99,8 +105,6 @@
                 start: startTime,
                 end: endTime,
             };
-
-            const timezoneOffset = gmtOffset;
 
             const commonSettings = {
                 "autoReload": 10 * 60 * 1000, // Sets the auto-reload time for the webpage in milliseconds
@@ -124,24 +128,25 @@
                 }
             };
 
+            const startTimeDenver = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }));
             const startTimeParts = timeframe.start.split(':');
+            startTimeDenver.setHours(Number(startTimeParts[0]), Number(startTimeParts[1]), Number(startTimeParts[2]), 0);
+
+            const endTimeDenver = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }));
             const endTimeParts = timeframe.end.split(':');
+            endTimeDenver.setHours(Number(endTimeParts[0]), Number(endTimeParts[1]), Number(endTimeParts[2]), 0);
 
-            const startTimeUTC = new Date();
-            startTimeUTC.setUTCHours(Number(startTimeParts[0]), Number(startTimeParts[1]), Number(startTimeParts[2]), 0);
+            let currentTime = new Date(startTimeDenver);
 
-            const endTimeUTC = new Date();
-            endTimeUTC.setUTCHours(Number(endTimeParts[0]), Number(endTimeParts[1]), Number(endTimeParts[2]), 0);
-
-            let currentTime = new Date(startTimeUTC);
-
-            while (currentTime <= endTimeUTC) {
+            while (currentTime <= endTimeDenver) {
                 slides.forEach((slide, index) => {
-                    const start = new Date(currentTime.getTime() + index * slide.duration).toUTCString() + timezoneOffset;
+                    const start = new Date(currentTime.getTime() + index * slide.duration);
+                    const startString = start.toDateString() + ' ' + start.toLocaleTimeString('en-US', { timeZone: timezone }).split(' ')[0] + ' ' + start.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ')[2];
+
                     const item = {
                         ...commonSettings,
                         ...slide,
-                        "start": start,
+                        "start": startString,
                         "duration": slide.duration,
                     };
                     schedule.schedule.Value[0].items.push(item);
