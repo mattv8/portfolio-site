@@ -137,7 +137,7 @@
             endTimeDenver.setHours(Number(endTimeParts[0]), Number(endTimeParts[1]), Number(endTimeParts[2]), 0);
 
             let currentTime = new Date(startTimeDenver);
-            while (currentTime <= endTimeDenver) {
+            while (currentTime < endTimeDenver) {
                 slides.forEach((slide, index) => {
                     const start = new Date(currentTime.getTime());
                     const startString = start.toDateString() + ' ' + start.toLocaleTimeString('en-GB', { timeZone: timezone, hour12: false }).split(' ')[0] + ' ' + start.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ')[2];
