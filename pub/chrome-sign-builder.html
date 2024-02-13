@@ -140,7 +140,7 @@
             while (currentTime <= endTimeDenver) {
                 slides.forEach((slide, index) => {
                     const start = new Date(currentTime.getTime());
-                    const startString = start.toDateString() + ' ' + start.toLocaleTimeString('en-US', { timeZone: timezone }).split(' ')[0] + ' ' + start.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ')[2];
+                    const startString = start.toDateString() + ' ' + start.toLocaleTimeString('en-GB', { timeZone: timezone, hour12: false }).split(' ')[0] + ' ' + start.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ')[2];
                     const item = {
                         ...commonSettings,
                         ...slide,
