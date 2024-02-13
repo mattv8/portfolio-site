@@ -137,12 +137,10 @@
             endTimeDenver.setHours(Number(endTimeParts[0]), Number(endTimeParts[1]), Number(endTimeParts[2]), 0);
 
             let currentTime = new Date(startTimeDenver);
-
             while (currentTime <= endTimeDenver) {
                 slides.forEach((slide, index) => {
-                    const start = new Date(currentTime.getTime() + index * slide.duration);
+                    const start = new Date(currentTime.getTime());
                     const startString = start.toDateString() + ' ' + start.toLocaleTimeString('en-US', { timeZone: timezone }).split(' ')[0] + ' ' + start.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ')[2];
-
                     const item = {
                         ...commonSettings,
                         ...slide,
@@ -150,8 +148,8 @@
                         "duration": slide.duration,
                     };
                     schedule.schedule.Value[0].items.push(item);
+                    currentTime.setMilliseconds(currentTime.getMilliseconds() + slide.duration);// Add duration to the current time
                 });
-                currentTime.setMilliseconds(currentTime.getMilliseconds() + slides.reduce((acc, slide) => acc + slide.duration, 0));
             }
 
             const jsonOutput = JSON.stringify(schedule, null, 2);
