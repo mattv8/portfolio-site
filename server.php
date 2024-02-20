@@ -187,14 +187,14 @@ if ($request === 'getChartData') {
     // Math for human-readable outputs
     $server['diskpercent'] = array_combine(
         array_keys($server['disk']),
-        array_map(function($disk, $maxDisk) {
+        array_map(function ($disk, $maxDisk) {
             return $disk / $maxDisk;
         }, $server['disk'], $server['maxdisk'])
     );
 
     $server['mempercent'] = array_combine(
         array_keys($server['mem']),
-        array_map(function($disk, $maxDisk) {
+        array_map(function ($disk, $maxDisk) {
             return $disk / $maxDisk;
         }, $server['mem'], $server['maxmem'])
     );
