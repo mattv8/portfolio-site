@@ -73,6 +73,7 @@ if (isset($_GET["request"]) and $_GET["request"]) {
         |> filter(fn: (r) => r["_measurement"] == "system")
         |> filter(fn: (r) => r["_field"] == "status")
         |> filter(fn: (r) => r["_value"] == "running")
+        |> group(columns: ["host"])
         |> count()
         ';
 
@@ -81,6 +82,7 @@ if (isset($_GET["request"]) and $_GET["request"]) {
         |> filter(fn: (r) => r["_measurement"] == "system")
         |> filter(fn: (r) => r["_field"] == "status")
         |> filter(fn: (r) => r["_value"] == "stopped")
+        |> group(columns: ["host"])
         |> count()
         ';
 
