@@ -104,8 +104,18 @@ if (isset($_GET["request"]) and $_GET["request"]) {
         // echo "(Stopped) Host: $host Count: $count <br>";
     }
     foreach ($servers as $host => $record) {
-        $delta = $HAdays * 60 * 24 * (60 / $samp) - ($record['running_count'] + $record['stopped_count']); // Represents InfluxDB or node downtime
-        $availability = $record['running_count'] / ($record['running_count'] + $record['stopped_count'] + $delta);
+        $total_samples = $HAdays * 60 * 24 * (60 / $samp);
+        $delta = $total_samples - ($record['running_count'] + $record['stopped_count']);
+
+        $delta = max(0, $delta); // Ensure delta is not negative
+
+        // Calculate availability, handle division by zero
+        if (($record['running_count'] + $record['stopped_count'] + $delta) != 0) {
+            $availability = $record['running_count'] / ($record['running_count'] + $record['stopped_count'] + $delta);
+        } else {
+            $availability = 0;
+        }
+
         $servers[$host]['availability'] = number_format($availability, 6);
         // echo "Host: $host Avail: $availability <br>";
     }
