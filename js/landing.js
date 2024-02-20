@@ -126,14 +126,10 @@ function squareHex(hex, id) {
 	const $hexParent = $(hex).parent();
 	const $hexInner = $(hex).find('.hex_inner');
 	const $innerText = $(hex).find('p');
-	const $hexWrappers = {
-		before: $(hex).find('.hex-wrap-before'),
-		after: $(hex).find('.hex-wrap-after'),
-	}
-
-	var currentWidth = $(window).width();// Get width of window
-	var mobile = {// Dynamic hex width
-		height: (currentWidth <= breakpoint) ? '30vh' : '25vh',// vh = % of viewport height
+	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
+	const currentWidth = $(window).width();
+	const mobile = {
+		height: (currentWidth <= breakpoint) ? '30vh' : '25vh',
 		width: (currentWidth <= breakpoint) ? '100%' : '80%',
 	}
 
@@ -155,7 +151,7 @@ function squareHex(hex, id) {
 			height: original.height.inner,
 			width: original.width.inner,
 		})
-		$hexWrappers.before.add($hexWrappers.after).css('display', 'block');
+		$hexWrappers.css('display', 'block');
 		$innerText.css({ padding: original.padding });
 		$hexInner.removeClass('squared').css({ height: original.height });
 		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
@@ -216,7 +212,7 @@ function squareHex(hex, id) {
 				transition: `all ${animTime}ms ease-in-out`,
 			});
 
-			$hexWrappers.before.add($hexWrappers.after).css('display', 'none');
+			$hexWrappers.css('display', 'none');
 
 			$innerText.css({
 				padding: '10px',
