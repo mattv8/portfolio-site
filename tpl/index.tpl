@@ -4,7 +4,7 @@
 
 	{*Vide Background*}
 	<video autoplay muted loop id="bgvideo">
-		<source src="assets/videos/BigTreesHI.mp4" type="video/mp4">
+		<source src="assets/videos/BGVideo_2.mp4" type="video/mp4">
 	</video>
 
 	<div id="page-content">

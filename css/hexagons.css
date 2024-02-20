@@ -29,7 +29,7 @@
 }
 
 .inner-title {
-	font-family: 'Bungee', cursive;
+	font-family: 'Montserrat', sans-serif;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
 	color: white;
@@ -41,7 +41,7 @@
 }
 
 .inner-text {
-	font-family: 'Bungee', cursive;
+	font-family: 'Montserrat', sans-serif;
 	text-shadow: 2px 2px 5px black;
 	text-align: center;
 	padding-top: 5px;
@@ -72,7 +72,7 @@
 /* ****** Flipped Hexagon Text ****** */
 
 .inner-text-flipped {
-	font-family: 'Bungee', cursive;
+	font-family: 'Montserrat', sans-serif;
 	text-shadow: 2px 2px 5px black;
 	font-size: 1rem;
 	text-align: center;

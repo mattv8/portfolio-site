@@ -14,7 +14,9 @@
   <link rel="stylesheet" type="text/css" href="css/all.css" />
 
   {* Fonts *}
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 
   {* Load Javascript Config Object *}
   <script>

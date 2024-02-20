@@ -12,7 +12,7 @@ $smarty_debug = false;
 $smarty_compile_dir = "cache";
 $smarty_cache_dir = "cache/smarty";
 
-$site_title = "Portfolio | Landing";
+$site_title = "Portfolio | Portal";
 $default_page = 'landing';
 
 # If desired, specify an associative array to be JSON encoded and passed to Javascript (loaded in header.tpl)
