@@ -120,7 +120,8 @@ function shuffleImages(selector) {
 	processNextBatch();
 }
 
-function openDetails(hex) {
+function squareHex(hex, id) {
+
 	const animTime = 500; // Animation time in milliseconds
 	const $hexParent = $(hex).parent();
 	const $hexInner = $(hex).find('.hex_inner');
@@ -136,12 +137,8 @@ function openDetails(hex) {
 		width: (currentWidth <= breakpoint) ? '100%' : '80%',
 	}
 
-	// Pull static logo HTML from the DOM
-	const $innerDiv = $("#programming-links");
-
 	if ($hexInner.hasClass('squared')) {// Transition back to hex state
 		animationPaused = false;
-		$innerDiv.hide();
 
 		// Reapply original CSS
 		$hexParent.css({
@@ -163,8 +160,12 @@ function openDetails(hex) {
 		$hexInner.removeClass('squared').css({ height: original.height });
 		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
 		$hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
+		$(`#${id}`).hide();
+
+
 	} else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
 
+		/////////////////
 		// Update original CSS values
 		original = {
 			height: {
@@ -183,34 +184,47 @@ function openDetails(hex) {
 
 		expand($hexParent, center, original, 0, 1); // Stop animation, return div to center
 
-		// Append Github and GitLab logos
-		if (!$hexInner.find('#programming-links').length) {
-			$hexInner.find('.inner-span').append($innerDiv);
-		}
-		$innerDiv.show();
+		/////////////////
+		// Append content
+		let req = {
+			page: 'landing',
+			request: 'getInnerHTML',
+			id: id,
+		};
+		$.get("index.php?" + $.param(req), function (data) {
+			if (!$hexInner.find(`#${id}`).length) {
+				let $html = $(data);// Create a new jQuery object from the HTML string
+				$html.attr('id', id);// Set the id attribute on the jQuery object
+				$hexInner.find('.inner-span').append($html);// Append the modified HTML
+			} else {
+				$hexInner.find(`#${id}`).show();
+			}
+		}).then(function () {
 
-		$hexInner.addClass('squared').css({
-			width: '100%',// Do not change this number!
-			height: mobile.height,
-			transition: `all ${animTime}ms ease-in-out`,
-		}).off('mouseenter mouseleave');
+			$hexInner.addClass('squared').css({
+				width: '100%',// Do not change this number!
+				height: mobile.height,
+				transition: `all ${animTime}ms ease-in-out`,
+			}).off('mouseenter mouseleave');
 
-		$hexParent.css({
-			width: mobile.width,
-			position: 'absolute',
-			left: '50%',
-			translate: '-50%',
-			'z-index': 1,
-			transition: `all ${animTime}ms ease-in-out`,
+			$hexParent.css({
+				width: mobile.width,
+				position: 'absolute',
+				left: '50%',
+				translate: '-50%',
+				'z-index': 1,
+				transition: `all ${animTime}ms ease-in-out`,
+			});
+
+			$hexWrappers.before.add($hexWrappers.after).css('display', 'none');
+
+			$innerText.css({
+				padding: '10px',
+				transition: `padding ${animTime}ms ease-in-out`,
+			});
+
+			animationPaused = true;
 		});
 
-		$hexWrappers.before.add($hexWrappers.after).css('display', 'none');
-
-		$innerText.css({
-			padding: '10px',
-			transition: `padding ${animTime}ms ease-in-out`,
-		})
-
-		animationPaused = true;
 	}
 }

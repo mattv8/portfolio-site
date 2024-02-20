@@ -38,7 +38,6 @@ if (isset($_GET['previousImage']) and $_GET['previousImage']) {
     }
 
     echo json_encode(array('success' => ($error) ? false : true, 'newImage' => $selected_file, 'msg' => $error));
-
 } else {
 
     $image = array();
@@ -58,4 +57,16 @@ if (isset($_GET['previousImage']) and $_GET['previousImage']) {
     }
 
     $smarty->assign('image', $image);
+}
+
+# Store GET request as variable to control which PHP is executed in this script.
+if (isset($_GET["request"]) and $_GET["request"]) {
+    $request = $_GET["request"];
+}
+
+
+if ($request === 'getInnerHTML') {
+    $params = getParams($_GET); // Save GET parameters to assoc array
+    $smarty->assign('params', $params); // Assign to Smarty
+    $smarty->display("tpl/{$params['id']}.tpl"); // Send the page HTML
 }

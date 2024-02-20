@@ -25,7 +25,7 @@
 
 {*Hexagons*}
 <div class="hexagons landing">
-    <div class="hex rounded flip button" onclick="openDetails(this)">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'programming')">
         <img class="bg" src="{$image.programming}" /><span>Programming</span>
         <p class="inner-text-flipped">
             Click here to explore some of my open-source programming projects.
@@ -66,16 +66,4 @@
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
-</div>
-
-{*Programming Hex Inner HTML*}
-<div class="row" id="programming-links" style="display:none;">
-    <a class="column button-link" href="https://github.com/mattv8" target="_blank">
-        <img src="assets/images/landing/programming-logos/github.svg" alt="GitHub">
-        <p class="inner-text" style="font-size:20px;">GitHub</p>
-    </a>
-    <a class="column button-link" href="https://git.visnovsky.us/Matt" target="_blank" style="margin-left:0px;">
-        <img src="assets/images/landing/programming-logos/gitlab.svg" alt="GitLab">
-        <p class="inner-text" style="font-size:20px;">GitLab</p>
-    </a>
 </div>

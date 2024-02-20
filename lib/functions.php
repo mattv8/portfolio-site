@@ -97,3 +97,13 @@ function secondsToTime($seconds)
     $dtT = new \DateTime("@$seconds");
     return $dtF->diff($dtT)->format('%ad %hh %im');
 }
+
+# Simple function to store and return GET params to an associative array
+function getParams($GET)
+{
+    $params = array();
+    foreach ($GET as $key => $value) {
+        $params[$key] = $value;
+    }
+    return $params;
+}

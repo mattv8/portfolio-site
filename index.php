@@ -48,6 +48,7 @@ session_start(); // start the session
 # Route to page
 #==============================================================================
 $page = $default_page;
+
 if (isset($_GET["page"]) and $_GET["page"]) {
     $page = $_GET["page"];
 }
@@ -56,5 +57,6 @@ if (file_exists($page . ".php")) {
 }
 $smarty->assign('page', $page);
 
-# Display
-$smarty->display('index.tpl');
+if (!isset($_GET["request"])) {
+    $smarty->display('index.tpl');
+}
