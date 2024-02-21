@@ -120,17 +120,17 @@ function shuffleImages(selector) {
 	processNextBatch();
 }
 
-function squareHex(hex, id) {
+function squareHex(hex, id, height, width) {
 
 	const animTime = 500; // Animation time in milliseconds
 	const $hexParent = $(hex).parent();
 	const $hexInner = $(hex).find('.hex_inner');
-	const $innerText = $(hex).find('p');
+	const $innerText = $(hex).find('.inner-text-flipped > p');
 	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
 	const currentWidth = $(window).width();
 	const mobile = {
-		height: (currentWidth <= breakpoint) ? '30vh' : '25vh',
-		width: (currentWidth <= breakpoint) ? '100%' : '80%',
+		height: (currentWidth <= breakpoint) ? '30vh' : `${height}vh`,
+		width: (currentWidth <= breakpoint) ? '100%' : `${width}%`,
 	}
 
 	if ($hexInner.hasClass('squared')) {// Transition back to hex state
@@ -156,7 +156,7 @@ function squareHex(hex, id) {
 		$hexInner.removeClass('squared').css({ height: original.height });
 		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
 		$hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
-		$(`#${id}`).hide();
+		$(`#${id}_inner`).hide();
 
 
 	} else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
@@ -180,47 +180,51 @@ function squareHex(hex, id) {
 
 		expand($hexParent, center, original, 0, 1); // Stop animation, return div to center
 
-		/////////////////
-		// Append content
-		let req = {
-			page: 'landing',
-			request: 'getInnerHTML',
-			id: id,
-		};
-		$.get("index.php?" + $.param(req), function (data) {
-			if (!$hexInner.find(`#${id}`).length) {
-				let $html = $(data);// Create a new jQuery object from the HTML string
-				$html.attr('id', id);// Set the id attribute on the jQuery object
-				$hexInner.find('.inner-span').append($html);// Append the modified HTML
-			} else {
-				$hexInner.find(`#${id}`).show();
-			}
-		}).then(function () {
+		$hexInner.addClass('squared').css({
+			width: '100%',// Do not change this number!
+			height: mobile.height,
+			transition: `all ${animTime}ms ease-in-out`,
+		}).off('mouseenter mouseleave');
 
-			$hexInner.addClass('squared').css({
-				width: '100%',// Do not change this number!
-				height: mobile.height,
-				transition: `all ${animTime}ms ease-in-out`,
-			}).off('mouseenter mouseleave');
-
-			$hexParent.css({
-				width: mobile.width,
-				position: 'absolute',
-				left: '50%',
-				translate: '-50%',
-				'z-index': 1,
-				transition: `all ${animTime}ms ease-in-out`,
-			});
-
-			$hexWrappers.css('display', 'none');
-
-			$innerText.css({
-				padding: '10px',
-				transition: `padding ${animTime}ms ease-in-out`,
-			});
-
-			animationPaused = true;
+		$hexParent.css({
+			width: mobile.width,
+			height: mobile.height,
+			position: 'absolute',
+			left: '50%',
+			translate: '-50%',
+			'z-index': 1,
+			transition: `all ${animTime}ms ease-in-out`,
 		});
+
+		$hexWrappers.css('display', 'none');
+
+		$innerText.css({
+			padding: '10px',
+			transition: `padding ${animTime}ms ease-in-out`,
+		});
+
+		if (!$hexInner.find(`#${id}_inner`).length) {
+
+			let req = {
+				page: 'landing',
+				request: 'getInnerHTML',
+				id: id,
+			};
+			$.get("index.php?" + $.param(req), function (data) {
+				let $html = $(data);// Create a new jQuery object from the HTML string
+				$html.attr('id', `${id}_inner`);// Set the id attribute on the jQuery object
+
+				const containerHeight = $hexParent.finalHeight() - $innerText.finalHeight();
+				$html.css({ height: containerHeight });
+
+				$hexInner.find('.inner-span').append($html);// Append the modified HTML
+			});
+
+		} else {
+			$hexInner.find(`#${id}_inner`).show();
+		}
+
+		animationPaused = true;
 
 	}
 }

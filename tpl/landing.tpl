@@ -25,7 +25,7 @@
 
 {*Hexagons*}
 <div class="hexagons landing">
-    <div class="hex rounded flip button" onclick="squareHex(this, 'programming')">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'programming', '35', '80')">
         <img class="bg" src="{$image.programming}" /><span>Programming</span>
         <p class="inner-text-flipped">
             Click here to explore some of my open-source programming projects.
