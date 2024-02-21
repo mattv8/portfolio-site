@@ -213,3 +213,45 @@ function hsvToRgb(h, s, v) {
     Math.round((rgb[2] + m) * 255)
   ];
 }
+
+/**
+ * Gets the final height or width of a jQuery element after transitions have occurred.
+ * @param {jQuery} $element - The jQuery element whose final dimension is to be determined.
+ * @param {string} dimension - The dimension to measure ('height' or 'width').
+ * @returns {number} The final height or width of the element post-transition.
+ */
+function getFinalDimension($element, dimension) {
+  // Clone the element
+  const $clone = $element.clone().appendTo($element.parent()).css({
+      visibility: 'hidden', // Hide the clone
+      position: 'absolute', // Make sure it doesn't affect layout
+  });
+
+  // Get the final dimension from the clone
+  const finalDimension = $clone[dimension]();
+
+  // Remove the clone
+  $clone.remove();
+
+  // Return the final dimension
+  return finalDimension;
+}
+
+
+/**
+ * Creates a simple jQuery method for getFinalDimension()
+ * Gets the final height of a jQuery element after transitions have occurred.
+ * @returns {number} The final height of the element post-transition.
+ */
+$.fn.finalHeight = function() {
+  return getFinalDimension(this, 'height');
+};
+
+/**
+ * Creates a simple jQuery method for getFinalDimension()
+ * Gets the final width of a jQuery element after transitions have occurred.
+ * @returns {number} The final width of the element post-transition.
+ */
+$.fn.finalWidth = function() {
+  return getFinalDimension(this, 'width');
+};
