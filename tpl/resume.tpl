@@ -5,7 +5,7 @@
 
 <div id="resume" style="padding: 2%;">
     <div class="container" style="text-align: center;">
-        <h1 style="margin-top: 10px; margin-bottom: 5px;">Bio — Matthew P. Visnovsky</h1>
+        <h1 style="margin-top: 10px; margin-bottom: 5px;">Matthew P. Visnovsky</h1>
         <h2 style="margin: 0;">
             <a href="mailto:matt%40visnovsky.us?subject=Film%20Resume" target="_blank">matt⟬at⟭visnovsky.us</a> |
             <a href="https://visnovsky.us">https://visnovsky.us</a>
@@ -15,14 +15,14 @@
 
     <div id="divider" style="border: 1.5px solid black; margin: 10pt 0;"></div>
 
-    <p style="font-family: Calibri, sans-serif; font-style: italic; font-weight: normal; font-size: 10.5pt; margin: 4pt 20pt;">
-        Greetings! I'm Matt Visnovsky, a seasoned “Digital Infrastructure Architect” with a background in engineering, technology, and project management. My journey began as a Product Development Engineer at Ortho Development, where I honed my problem-solving skills and developed a passion for tackling complex challenges. With extensive experience in software development, full-stack engineering, and a newfound love for web development and systems administration, my current role as an IT Manager at Webguy Internet is where these diverse talents converge.
+    <p style="font-family: Calibri, sans-serif; font-size: 12.5pt; margin: 4pt 20pt;">
+        I'm an experienced Digital Infrastructure Architect with a background in engineering, technology, and project management. My journey began as a Product Development Engineer at Ortho Development, where I honed my problem-solving skills and developed a passion for tackling complex challenges. With extensive experience in software development, full-stack engineering, and a keen interest in web development and systems administration, I currently serve as an IT Manager.
         <br><br>
-        At Webguy Internet, I lead a talented team of technicians and interns, balancing two key responsibilities. First, I'm deeply involved in full-stack web development projects, utilizing continuous integration (CI) and continuous deployment (CD) strategies. My meticulous planning and unwavering commitment to crafting robust code ensures my work will withstand the test of time. Second, I oversee the management of our growing portfolio of active IT contracts and deliver top-tier helpdesk support. Beyond this, our team specializes in providing consulting services and crafting resilient network designs, ensuring that our clients' digital infrastructures are both reliable and optimized for peak performance.
+        In my role, I lead a talented team, overseeing full-stack web development projects and managing a diverse portfolio of active IT contracts. I'm deeply involved in implementing cutting-edge strategies like continuous integration (CI) and continuous deployment (CD) to ensure the robustness and longevity of our solutions. Additionally, I provide top-tier helpdesk support and specialize in crafting resilient network designs, optimizing digital infrastructures for peak performance.
         <br><br>
-        Outside of my professional commitments, I actively oversee a self-built "homelab" server while also contributing to open-source projects. This not only highlights my expertise in hardware planning, network optimization, remote administration, network security, and software development but also underscores my commitment to continuous learning and innovation. For more insights into my work and contributions, please visit my website: <a href="https://www.visnovsky.us">https://www.visnovsky.us</a> and explore my GitHub profile.
+        Beyond my professional commitments, I'm passionate about contributing to open-source projects and staying abreast of the latest advancements in hardware planning, network optimization, remote administration, network security, and software development. My dedication to continuous learning and innovation drives me to excel in every endeavor.
         <br><br>
-        Committed to ongoing growth and exploration, I look forward to the opportunity to bring my expertise in Engineering, Linux, software development, project management, Site Reliability, and DevOps to your team, actively contributing to the enhancement of your digital infrastructure. Let's connect and explore how I can help elevate your organization's reliability and performance.
+        I'm excited about the prospect of bringing my expertise in Engineering, Linux, software development, project management, Site Reliability, and DevOps to your team. Let's connect and explore how I can help enhance your organization's reliability and performance.
     </p>
 
     <div id="divider" style="border: 1.5px solid black; margin: 10pt 0;"></div>
