@@ -25,7 +25,7 @@
 
 {*Hexagons*}
 <div class="hexagons landing">
-    <div class="hex rounded flip button" onclick="squareHex(this, 'programming', '35', '80')">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'programming', '275px', '80%')">
         <img class="bg" src="{$image.programming}" /><span>Programming</span>
         <p class="inner-text-flipped">
             Click here to explore some of my open-source programming projects.
@@ -59,7 +59,7 @@
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
-    <div class="hex rounded flip button" onclick="squareHex(this, 'resume', '68', '100')">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'resume', '600px', '100%')">
         <img class="bg" src="{$image.resume}" /><span>Résumé</span>
         <p class="inner-text-flipped">
             Get to know the person behind the code.

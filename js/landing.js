@@ -129,8 +129,8 @@ function squareHex(hex, id, height, width) {
 	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
 	const currentWidth = $(window).width();
 	const mobile = {
-		height: (currentWidth <= breakpoint) ? '95vh' : `${height}vh`,
-		width: (currentWidth <= breakpoint) ? '100%' : `${width}%`,
+		height: (currentWidth <= breakpoint) ? '95vh' : height,
+		width: (currentWidth <= breakpoint) ? '100%' : width,
 		top: (currentWidth <= breakpoint) ? '0px' : '10%',
 	}
 
