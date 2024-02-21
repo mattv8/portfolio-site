@@ -7,6 +7,20 @@ p {
     margin: 0;
 }
 
+
+a {
+    cursor: url('/assets/images/cursors/link.svg'), auto;
+    color: #00F;
+    font-family: Calibri, sans-serif;
+    font-weight: normal;
+    text-decoration: underline;
+    font-size: 12pt;
+}
+
+button {
+    cursor: url('/assets/images/cursors/point.svg'), auto;
+}
+
 #bgvideo {
     position: fixed;
     bottom: 0px;

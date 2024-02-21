@@ -34,7 +34,6 @@
 }
 
 .button-link {
-    cursor: url('/assets/images/cursors/link.svg'), auto;
     text-decoration: none;
     background-color: #0066ff;
     color: #fff;

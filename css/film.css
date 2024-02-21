@@ -180,15 +180,6 @@ ul {
     margin-block-end: 2pt;
 }
 
-a {
-    cursor: url('/assets/images/cursors/point.svg'), auto;
-    color: #00F;
-    font-family: Calibri, sans-serif;
-    font-weight: normal;
-    text-decoration: underline;
-    font-size: 12pt;
-}
-
 /* Special Classes */
 .project-description {
     width: 100%;
@@ -206,10 +197,8 @@ button {
     border: none;
     border-radius: 5px;
     padding: 2pt 4pt;
-    cursor: pointer;
     color: black;
     transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
-    cursor: url('/assets/images/cursors/point.svg'), auto;
 }
 
 button:hover {
