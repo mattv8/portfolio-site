@@ -25,28 +25,28 @@
 
 {*Hexagons*}
 <div class="hexagons landing">
-    <div class="hex rounded flip button" onclick="squareHex(this, 'programming', '275px', '80%')">
-        <img class="bg" src="{$image.programming}" /><span>Programming</span>
+    <div class="hex rounded flip button" onclick="goToPage('server','page-content',this)">
+        <img class="bg" src="{$image.server}" /><span>Datacenter</span>
         <p class="inner-text-flipped">
-            Click here to explore some of my open-source programming projects.
+            Live dashboard of my datacenter.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.engineering}" /><span>Engineering</span>
         <p class="inner-text-flipped">
-            Click here to explore some of the engineering projects I am most proud of.
+            Showcase of engineering projects.
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('server','page-content',this)">
-        <img class="bg" src="{$image.server}" /><span>Datacenter</span>
+    <div class="hex rounded flip button" onclick="squareHex(this, 'programming', '275px', '80%')">
+        <img class="bg" src="{$image.programming}" /><span>Programming</span>
         <p class="inner-text-flipped">
-            Click here for a real-time view of my datacenter.
+            Git Repositories and other open source code.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="goToPage('film','page-content',this)">
         <img class="bg" src="{$image.film}" /><span>Film Portfolio</span>
         <p class="inner-text-flipped">
-            Film has always been a passion of mine. Visit my film resume by clicking here.
+            View my film resume.
         </p>
     </div>
     <div class="hex logo button" title="Shuffle images!!" onclick="shuffleImages(this)">
@@ -55,14 +55,14 @@
     <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
         <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
         <p class="inner-text-flipped">
-            Click here to view a portfolio of some of my previous livestreaming productions.
+            Portfolio of my livestreaming productions.
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
     <div class="hex rounded flip button" onclick="squareHex(this, 'resume', '600px', '100%')">
-        <img class="bg" src="{$image.resume}" /><span>Résumé</span>
+        <img class="bg" src="{$image.resume}" /><span>About Me</span>
         <p class="inner-text-flipped">
-            Get to know the person behind the code.
+            Read a bit about me.
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
