@@ -21,7 +21,6 @@
 .row {
     display: flex;
     flex-grow: 1; /* Distribute available space evenly among rows */
-    transform: scaleX(-1);
 }
 
 .column {

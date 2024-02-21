@@ -255,3 +255,160 @@ $.fn.finalHeight = function() {
 $.fn.finalWidth = function() {
   return getFinalDimension(this, 'width');
 };
+
+
+/**
+ * Highlights text within a given HTML cell element with a specified background color,
+ * considering contrast ratios to determine optimal text color. The bias parameter
+ * influences the decision-making process when choosing between black and white text,
+ * A lower bias (e.g., close to 0) would lean more towards black text, while a higher bias
+ * (e.g., close to 1) would favor white text when the contrast ratios between the
+ * background color and black or white are similar.
+ *
+ * @param {HTMLElement} cell - The HTML cell element to be highlighted.
+ * @param {string} eventColorHex - The background color in hexadecimal format.
+ * @param {string} [highlightMode='cell'] - The mode of highlighting, can be 'cell' or 'text'.
+ * @param {number} [bias=0.5] - A threshold to apply bias for determining text color
+ *                              when contrast ratios are within a similar range.
+ *
+ * @returns {void} - Modifies the provided HTML cell element to apply text highlighting
+ *                  or sets the background color based on the specified mode.
+ */
+function highlightTextWithContrast(cell, eventColorHex, highlightMode = 'cell', opacity = 1, bias = 0.52) {
+
+  if (!(cell instanceof HTMLElement) || typeof eventColorHex !== 'string' || !eventColorHex.match(/^#[0-9A-Fa-f]{6}$/)) {
+      throw new Error('Invalid input: cell must be a DOM element, and eventColorHex must be a valid hex color code.');
+  }
+
+  // Calculate the contrast ratio between the event color and black
+  const contrastWithBlack = getContrastRatio(eventColorHex, '#000000');
+
+  // Calculate the contrast ratio between the event color and white
+  const contrastWithWhite = getContrastRatio(eventColorHex, '#FFFFFF');
+
+  // Apply skew factor when the contrast ratios are within a threshold
+  const textColor = Math.abs(contrastWithBlack - contrastWithWhite) < bias
+      ? 'white' // Bias towards white text color
+      : (contrastWithBlack > contrastWithWhite ? 'black' : 'white'); // Determine the best text color based on maximum contrast
+
+  // Set the background color or text highlight based on the mode
+  if (highlightMode === 'text') {
+      var text = $(cell).text();
+      var highlightDiv = $('<div/>', {
+          class: 'highlighted-text',
+          text: text,
+          css: {
+              backgroundColor: eventColorHex,
+              color: textColor,
+              opacity: opacity,
+          }
+      });
+      $(cell).empty().append(highlightDiv);
+  } else {
+      $(cell).css({
+          'background-color': eventColorHex,
+          color: textColor,
+          opacity: opacity,
+      });
+  }
+}
+
+
+/**
+* Convert a hex color to rgba format.
+*
+* @param {string} hexColor - The input hex color (e.g., "#0011ff").
+* @param {number} alpha - The alpha component (opacity) value between 0 and 1.
+* @returns {string} The color in rgba format (e.g., "rgba(0, 17, 255, 0.5)").
+*/
+function hexToRgba(hexColor, alpha) {
+
+  if (hexColor) {
+      // Parse the hexadecimal color to get the individual RGB components
+      const r = parseInt(hexColor.slice(1, 3), 16);
+      const g = parseInt(hexColor.slice(3, 5), 16);
+      const b = parseInt(hexColor.slice(5, 7), 16);
+
+      // Create the rgba color
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  } else {
+      return null;
+  }
+}
+
+
+/**
+* Calculates the contrast ratio between two colors based on their luminance.
+*
+* @param {string} color1 - The first color in hexadecimal or color name format.
+* @param {string} color2 - The second color in hexadecimal or color name format.
+* @returns {number} - The contrast ratio between the two colors, normalized and adjusted for readability.
+*                    A higher ratio indicates better contrast (0 means no contrast, 1 means identical colors).
+*
+* @example
+* // Example usage:
+* const contrast1 = getContrastRatio('#FFFFFF', 'red'); // Returns contrast ratio
+* const contrast2 = getContrastRatio('blue', '#FFFFFF'); // Returns contrast ratio
+*/
+function getContrastRatio(color1, color2) {
+  const hexColor1 = getColorHex(color1);
+  const hexColor2 = getColorHex(color2);
+
+  const luminance1 = getLuminance(hexColor1);
+  const luminance2 = getLuminance(hexColor2);
+  const brighter = Math.max(luminance1, luminance2);
+  const darker = Math.min(luminance1, luminance2);
+
+  return ((brighter + 0.05) / (darker + 0.05) * 0.05) - 0.05; // Normalized
+}
+
+/**
+* Calculates the relative luminance of a color in the sRGB color space.
+*
+* @param {string} color - The color in hexadecimal or color name format (e.g., '#RRGGBB' or 'red').
+* @returns {number} - The luminance value, a weighted sum of the color channels,
+*                    indicating the brightness of the color (between 0 and 1).
+*
+* @example
+* // Example usage:
+* const luminanceValue = getLuminance('green'); // Returns a luminance value between 0 and 1
+*/
+function getLuminance(color) {
+  const hexColor = getColorHex(color);
+
+  const r = parseInt(hexColor.slice(1, 3), 16) / 255;
+  const g = parseInt(hexColor.slice(3, 5), 16) / 255;
+  const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+  return luminance;
+}
+
+/**
+* Converts a color name to its hex representation if the input is a valid color name.
+* If the input is already a hex color, it returns the input unchanged.
+*
+* @param {string} color - The color in hexadecimal or color name format.
+* @returns {string} - The color in hexadecimal format.
+*/
+function getColorHex(color) {
+  // Check if the input is a valid hex color
+  if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+      return color;
+  }
+
+  // Convert color name to hex
+  const element = document.createElement('div');
+  element.style.color = color;
+  const computedColor = window.getComputedStyle(document.body.appendChild(element)).color;
+  document.body.removeChild(element);
+
+  // Extract hex value from the computed color
+  const hexMatch = computedColor.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  if (hexMatch) {
+      return `#${parseInt(hexMatch[1], 10).toString(16).padStart(2, '0')}${parseInt(hexMatch[2], 10).toString(16).padStart(2, '0')}${parseInt(hexMatch[3], 10).toString(16).padStart(2, '0')}`;
+  }
+
+  // Return a default color if conversion fails
+  return '#000000';
+}

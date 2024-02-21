@@ -59,7 +59,7 @@
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
-    <div class="hex rounded flip button" onclick="goToPage('resume','page-content',this)">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'resume', '68', '100')">
         <img class="bg" src="{$image.resume}" /><span>Résumé</span>
         <p class="inner-text-flipped">
             Get to know the person behind the code.

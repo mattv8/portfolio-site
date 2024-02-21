@@ -1,7 +1,7 @@
 /////////////
 //Global variables
 var animationPaused = false;// Global flag to control expand animations
-var original = {};// Store original values
+var original = [];// Store original values
 var center;
 var breakpoint = 1000;// When to switch to mobile
 
@@ -129,8 +129,9 @@ function squareHex(hex, id, height, width) {
 	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
 	const currentWidth = $(window).width();
 	const mobile = {
-		height: (currentWidth <= breakpoint) ? '30vh' : `${height}vh`,
+		height: (currentWidth <= breakpoint) ? '95vh' : `${height}vh`,
 		width: (currentWidth <= breakpoint) ? '100%' : `${width}%`,
+		top: (currentWidth <= breakpoint) ? '0px' : '10%',
 	}
 
 	if ($hexInner.hasClass('squared')) {// Transition back to hex state
@@ -139,31 +140,31 @@ function squareHex(hex, id, height, width) {
 		// Reapply original CSS
 		$hexParent.css({
 			position: 'absolute',
-			width: original.width.parent,
-			height: original.height.parent,
-			left: original.left,
-			top: original.top,
+			width: original[id].width.parent,
+			height: original[id].height.parent,
+			left: original[id].left,
+			top: original[id].top,
 			'z-index': 'auto',
 			translate: '0%',
 			transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
 		});
 		$hexInner.css({
-			height: original.height.inner,
-			width: original.width.inner,
+			height: original[id].height.inner,
+			width: original[id].width.inner,
 		})
 		$hexWrappers.css('display', 'block');
-		$innerText.css({ padding: original.padding });
-		$hexInner.removeClass('squared').css({ height: original.height });
-		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
+		$innerText.css({ padding: original[id].padding });
+		$hexInner.removeClass('squared').css({
+			height: original[id].height,
+		});
+		$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original[id].color.match(/\(([^)]+)\)/)[1]));
 		$hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
-		$(`#${id}_inner`).hide();
-
+		$(`#${id}_inner`).remove();
 
 	} else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
 
-		/////////////////
 		// Update original CSS values
-		original = {
+		original[id] = {
 			height: {
 				inner: $hexInner.css('height'),
 				parent: $hexParent.css('height')
@@ -178,53 +179,66 @@ function squareHex(hex, id, height, width) {
 			color: $hexInner.find('.inner-span').css('background-color'),
 		};
 
-		expand($hexParent, center, original, 0, 1); // Stop animation, return div to center
-
-		$hexInner.addClass('squared').css({
-			width: '100%',// Do not change this number!
-			height: mobile.height,
-			transition: `all ${animTime}ms ease-in-out`,
-		}).off('mouseenter mouseleave');
-
+		// Set height property first so $hexParent.finalHeight() will be correct
 		$hexParent.css({
-			width: mobile.width,
 			height: mobile.height,
-			position: 'absolute',
-			left: '50%',
-			translate: '-50%',
-			'z-index': 1,
-			transition: `all ${animTime}ms ease-in-out`,
 		});
 
-		$hexWrappers.css('display', 'none');
+		// Do the GET request for inner HTML from the respective template
+		let req = {
+			page: 'landing',// landing.php
+			request: 'getInnerHTML',
+			id: id,
+		};
+		$.get("index.php?" + $.param(req), function (data) {
 
-		$innerText.css({
-			padding: '10px',
-			transition: `padding ${animTime}ms ease-in-out`,
-		});
+			let $html = $(data);// Create a new jQuery object from the HTML string
+			$html.attr('id', `${id}_inner`);// Set the id attribute on the jQuery object
 
-		if (!$hexInner.find(`#${id}_inner`).length) {
-
-			let req = {
-				page: 'landing',
-				request: 'getInnerHTML',
-				id: id,
-			};
-			$.get("index.php?" + $.param(req), function (data) {
-				let $html = $(data);// Create a new jQuery object from the HTML string
-				$html.attr('id', `${id}_inner`);// Set the id attribute on the jQuery object
-
-				const containerHeight = $hexParent.finalHeight() - $innerText.finalHeight();
-				$html.css({ height: containerHeight });
-
-				$hexInner.find('.inner-span').append($html);// Append the modified HTML
+			const containerHeight = $hexParent.finalHeight() - $innerText.finalHeight();
+			$html.css({
+				height: containerHeight,
+				transform: 'scaleX(-1)',
 			});
 
-		} else {
-			$hexInner.find(`#${id}_inner`).show();
-		}
+			// Calculate contrast ratio and determine text color
+			const color = getContrastRatio(original[id].color, 'white') > 0.02 ? 'white' : 'black';
 
-		animationPaused = true;
+			$html.find('p, h1, h2, h3').css('color', color);// Set text color within $html
+			$html.find('#divider').css('border-color', color);// Set the border color within $html
+
+			$hexInner.find('.inner-span').append($html);// Append the modified HTML
+
+		}).then(function () {
+
+			expand($hexParent, center, original, 0, 1); // Stop animation, return div to center
+
+			$hexParent.css({
+				width: mobile.width,
+				position: 'absolute',
+				left: '50%',
+				translate: '-50%',
+				top: mobile.top,
+				'z-index': 1,
+				transition: `all ${animTime}ms ease-in-out`,
+			});
+
+			$hexInner.addClass('squared').css({
+				width: '100%',// Do not change this number!
+				height: mobile.height,
+				transition: `all ${animTime}ms ease-in-out`,
+			}).off('mouseenter mouseleave');
+
+			$hexWrappers.css('display', 'none');
+
+			$innerText.css({
+				padding: '10px',
+				transition: `padding ${animTime}ms ease-in-out`,
+			});
+
+			animationPaused = true;
+
+		});
 
 	}
 }
