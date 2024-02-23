@@ -128,7 +128,16 @@ function showLoadingAnimation() {
   document.getElementById('loading-animation').style.display = 'block';
 }
 
-
+/**
+ * Calculates the center point of the given element.
+ * @param {jQuery} element - The jQuery object representing the element.
+ * @returns {Object} - An object with 'left' and 'top' properties representing the center point coordinates.
+ * @example
+ * // Usage example:
+ * var element = $("#myElement");
+ * var center = centerpoint(element);
+ * console.log("Center Point:", center.left, center.top);
+ */
 function centerpoint(element) {
   var position = element.position();
   var width = element.width();
@@ -139,7 +148,17 @@ function centerpoint(element) {
   }
 }
 
-
+/**
+ * Draws a dot at the specified coordinates.
+ * @param {Object} xy - An object with 'left' and 'top' properties representing the coordinates.
+ * @param {jQuery} parent - The jQuery object representing the parent element to append the dot to.
+ * @param {number} [rad=5] - Optional. The radius of the dot in pixels (default is 5px).
+ * @example
+ * // Usage example:
+ * var parentElement = $("#container");
+ * var coordinates = { left: 100, top: 50 };
+ * drawDot(coordinates, parentElement);
+ */
 function drawDot(xy, parent, rad) {
   var radius = (rad) ? rad : 5;// Default 5px
   var dot = document.createElement("div");
