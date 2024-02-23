@@ -12,7 +12,7 @@ $(document).ready(function () {
 		$('.hexagons').hexagons(function (elems, spawnPoint, settings) {// Set up hexagons
 
 			center = (elems.find(elem => elem.classes.includes('logo')) || {}).corner;// Save centerpoint of 'logo' class
-			var animating = _.remove(elems, function (e) { return !(e.class === 'logo' || e.class === 'invisible'); });// Remove invisible and logo classes
+			var animating = _.remove(elems, function (e) { return !(e.classes.includes('logo') || e.classes.includes('invisible')); }); // Remove invisible and logo hexagons
 			animating.forEach(function (e) {
 				$('.hexagons').on('mouseenter', () => expand(e.selector, center, e.corner, 25, 1));
 				$('.hexagons').on('mouseleave', () => expand(e.selector, center, e.corner, 0, 1));
