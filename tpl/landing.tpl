@@ -31,7 +31,7 @@
             Live dashboard of my datacenter.
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'placeholder', '275px', '80%')">
         <img class="bg" src="{$image.engineering}" /><span>Engineering</span>
         <p class="inner-text-flipped">
             Showcase of engineering projects.
@@ -52,7 +52,7 @@
     <div class="hex logo button" title="Shuffle images!!" onclick="shuffleImages(this)">
         <img class="bg" src="assets/images/all/vis_logo_light.png" />
     </div>
-    <div class="hex rounded flip button" onclick="goToPage('placeholder','page-content',this)">
+    <div class="hex rounded flip button" onclick="squareHex(this, 'placeholder', '275px', '80%')">
         <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
         <p class="inner-text-flipped">
             Portfolio of my livestreaming productions.
