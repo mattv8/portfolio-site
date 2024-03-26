@@ -14,7 +14,7 @@ var influxCanvas;
 // Wait for images to load then execute scripts
 $(document).ready(function () {
 
-    $('.hexagons').hexagons(function (elems, spawnPoint, settings) {// Set up hexagons
+    $('.hexagons').hexagons(function (elems, spawnPoint, settings, containerDims) {// Set up hexagons
 
         $('.hex.running').each(function () {
             $(this).find('.hex_inner').css("background-color", "green");
@@ -24,8 +24,14 @@ $(document).ready(function () {
             $(this).find('.hex_inner').css("background-color", "gray");
         })
 
+        // const currentHeight = $(window).height();
+        // $('.hexagons').css({
+        //     top: currentHeight <= containerDims.height ? '0px' : '50%',
+        //     // transform: currentHeight <= containerDims.height ? `translate(${leftTranslate}, 10px)` : 'translate(-50%, -50%)',
+        // });
+
     }, {
-        hexWidth: 250,
+        hexWidth: 200,
     });
     $('.hexagons').fadeIn(10); // Fade in when loaded
 
@@ -43,11 +49,13 @@ function openDetails(hex, serverName) {
     }
 
     var currentWidth = $(window).width();// Get width of window
+    var currentHeight = $(window).height();// Get width of window
     var container = {// Dynamic hex width
         height: (currentWidth <= breakpoint) ? $(window).height() * .98 : $container.height(),
         width: (currentWidth <= breakpoint) ? $container.width() : $container.width() * .8,
-        top: (currentWidth <= breakpoint) ? `${window.scrollY}px` : '0',
+        top: (currentHeight <= $container.height()) ? `${window.scrollY}px` : '0px',
     }
+    console.log(container.top);
 
     if ($hexInner.hasClass('squared')) {// Transition back to hex state
 
@@ -102,6 +110,7 @@ function openDetails(hex, serverName) {
         $hexInner.addClass('squared').css({
             width: '100%', // Do not change this number!
             height: container.height,
+            top: container.top,
             transition: `all ${animTime}ms ease-in-out`,
             backgroundColor: 'white',
         }).off('mouseenter mouseleave');
