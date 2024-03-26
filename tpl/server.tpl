@@ -34,8 +34,8 @@
 					Status: {$server.status}<br>
 					Availability: {$server.availability*100}%<br>
 					Uptime: {$server.uptimeHR}<br>
-					Disk Use: {({$server.disk / $server.maxdisk}*100)|round:2}%<br>
 					Mem Use: {({$server.mem / $server.maxmem}*100)|round:2}%<br>
+					Disk Use: {({$server.disk / $server.maxdisk}*100)|round:2}%<br>
 				</p>
 			</div>
 			{* <div class="hex invisible"> </div> <!-- invisible --> *}
