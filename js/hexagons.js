@@ -28,7 +28,8 @@
 		async function initialize() {
 
 			await buildHtml();// Build the initial DOM
-			let elems = await reorder(true, false);// Arrange the hexagons, save cornerpoints
+			const elems = await reorder(true, false);// Arrange the hexagons, save cornerpoints
+			const containerDims = await updateContainerDimensions($container, elems, settings);
 
 			$(window).resize(function () {
 				debouncedReorder(true, true);// Debounced reorder() function when window resizes
@@ -38,7 +39,7 @@
 				elems: elems,
 				spawnPoint: spawnPoint,
 				settings: settings,
-				containerHeight: $container.calculatedHeight,
+				containerDims: containerDims,
 			};
 
 			return result;
@@ -180,6 +181,7 @@
 						.prepend('<div class="hex-wrap-before"></div>')// shape-outside on the right
 						.css({
 							'transform': 'scaleX(-1)',
+							'height': calculateHexHeight(settings.width),
 						});
 
 					// Non-wrapped inner text
@@ -190,6 +192,7 @@
 							'top': '50%',
 							'left': '50%',
 							'width': '100%',
+							'height': calculateHexHeight(settings.width),
 							'transform': 'translate(-50%, -50%) scaleX(-1)',
 						});
 
@@ -336,8 +339,7 @@
 			});
 
 			await updateScales(hexWidth, hexHeight, reorder);// Update hex width/height
-			updateContainerHeight($container, elem);// Set the height of the container
-
+			await updateContainerDimensions($container, elem, settings);// Update container sizing
 			return elem;
 
 		};// END reorder
@@ -426,7 +428,7 @@
 			each: this.each(async function () {
 				const result = await initialize(this);
 				if (callback) {
-					callback(result.elems, result.spawnPoint, result.settings);
+					callback(result.elems, result.spawnPoint, result.settings, result.containerDims);
 				}
 			}),
 		};
@@ -495,13 +497,26 @@ function calculateHexHeight(hexWidth) {
 }
 
 
-function updateContainerHeight(container, elems) {
+async function updateContainerDimensions(container, elems, settings) {
+	let containerHeight, containerWidth;
+	const visibleElems = elems.filter(elem => !elem.classes.includes('invisible'));
+	const lowestElem = _.maxBy(visibleElems, elem => elem.corner.top);
+	const rightmostElem = _.maxBy(visibleElems, elem => elem.corner.left);
 
-	const visibleElems = elems.filter(elem => !elem.classes.includes('invisible'));// Filter out invisible elements
-	const lowestElem = _.maxBy(visibleElems, elem => elem.corner.top);// Find the column with the lowest hexagon elem
+	if (lowestElem && rightmostElem) {
+		containerHeight = lowestElem.corner.top + lowestElem.height;
+		containerWidth = rightmostElem.corner.left + rightmostElem.width;
 
-	if (lowestElem) {
-		const containerHeight = lowestElem.corner.top + lowestElem.height;
-		container.css('height', containerHeight);// Set the height of the container
+		// Check if window width is less than the breakpoint
+		const windowWidth = $(window).width();
+		if (windowWidth < settings.breakpoint) {
+			containerWidth = windowWidth - settings.margin * 2;
+		}
+
+		container.css({
+			'height': containerHeight,
+			'width': containerWidth
+		});
 	}
+	return { height: containerHeight, width: containerWidth };
 }
