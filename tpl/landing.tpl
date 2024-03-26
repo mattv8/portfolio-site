@@ -26,15 +26,15 @@
 {*Hexagons*}
 <div class="hexagons landing">
     <div class="hex rounded flip button" onclick="goToPage('server','page-content',this)">
-        <img class="bg" src="{$image.server}" /><span>Datacenter</span>
+        <img class="bg" src="{$image.server}" /><span>Homelab</span>
         <p class="inner-text-flipped">
-            Live dashboard of my datacenter.
+            Live dashboard of my homelab.
         </p>
     </div>
-    <div class="hex rounded flip button" onclick="squareHex(this, 'placeholder', '275px', '80%')">
-        <img class="bg" src="{$image.engineering}" /><span>Engineering</span>
+    <div class="hex rounded flip button" onclick="squareHex(this, 'resume', '600px', '100%')">
+        <img class="bg" src="{$image.resume}" /><span>About Me</span>
         <p class="inner-text-flipped">
-            Showcase of engineering projects.
+            Read a bit about me.
         </p>
     </div>
     <div class="hex rounded flip button" onclick="squareHex(this, 'programming', '275px', '80%')">
@@ -59,10 +59,10 @@
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
-    <div class="hex rounded flip button" onclick="squareHex(this, 'resume', '600px', '100%')">
-        <img class="bg" src="{$image.resume}" /><span>About Me</span>
+    <div class="hex rounded flip button" onclick="squareHex(this, 'placeholder', '275px', '80%')">
+        <img class="bg" src="{$image.engineering}" /><span>Engineering</span>
         <p class="inner-text-flipped">
-            Read a bit about me.
+            Showcase of engineering projects.
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
