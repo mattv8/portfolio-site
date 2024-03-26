@@ -1,6 +1,6 @@
 /* Style of the landing page div */
 .server {
-	width: 1040px; /*fixed div size till break point */
+	width: 1000px; /*fixed div size till break point */
 	text-align: center;
 	margin: 0;
 	position: absolute;
