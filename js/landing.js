@@ -8,9 +8,7 @@ var breakpoint = 1000;// When to switch to mobile
 // Fetch GitLab last commit and update footer with the timestamp
 $.get("index.php?request=getLastCommitTime", function (data) {
 	let lastCommitData = JSON.parse(data);
-	$('footer').ready(function () {
-		document.getElementById('last-updated').innerText = lastCommitData.last_commit;// Update footer span
-	});
+	$('#last-updated').text(lastCommitData.last_commit);// Update footer span with the last commit timestamp
 });
 
 $(document).ready(function () {
