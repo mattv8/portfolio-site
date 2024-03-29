@@ -97,12 +97,12 @@
 	}
 
     .footer {
-        font-size: 2.0rem;
+        font-size: 1.2em;
         position: relative;
     }
 
     .last-updated {
-        font-size: 1.8rem;
+        font-size: 1.0em;
     }
 
 }
