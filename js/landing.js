@@ -28,7 +28,7 @@ $(document).ready(function () {
 		}, {
 			hexWidth: 275,
 		});
-		$('.hexagons').fadeIn(10); // Fade in when loaded
+		$('.hexagons, .footer').fadeIn(10); // Fade in when loaded
 	});
 
 });// END $(document).ready( )

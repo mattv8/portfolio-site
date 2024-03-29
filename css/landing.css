@@ -81,7 +81,7 @@
 
 .last-updated {
     font-size: 0.8em;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Add a drop shadow to the text */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* RESPONSIVE */
@@ -95,5 +95,14 @@
 		transform: translate(0%, 0%);
 		position: relative;
 	}
+
+    .footer {
+        font-size: 2.0rem;
+        position: relative;
+    }
+
+    .last-updated {
+        font-size: 1.8rem;
+    }
 
 }
