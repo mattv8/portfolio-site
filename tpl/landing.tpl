@@ -71,7 +71,7 @@
 {*Footer*}
 <footer class="footer" style="display:none;">
     <div class="footer-content">
-        <div>Made with ❤️ by Matt</div>
+        <div>Made with <span class="heart">❤️</span> by Matt</div>
         <div class="last-updated">Last updated on <span id="last-updated"></span></div>
     </div>
 </footer>
