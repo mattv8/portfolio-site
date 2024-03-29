@@ -5,6 +5,14 @@ var original = [];// Store original values
 var center;
 var breakpoint = 1000;// When to switch to mobile
 
+// Fetch GitLab last commit and update footer with the timestamp
+$.get("index.php?request=getLastCommitTime", function (data) {
+	let lastCommitData = JSON.parse(data);
+	$('footer').ready(function () {
+		document.getElementById('last-updated').innerText = lastCommitData.last_commit;// Update footer span
+	});
+});
+
 $(document).ready(function () {
 
 	// Wait for images to load then execute scripts

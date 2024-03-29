@@ -107,3 +107,46 @@ function getParams($GET)
     }
     return $params;
 }
+
+function gitlabCURL($gitlabUrl, $privateToken, $projectId, $command) {
+    // API endpoint
+    $apiUrl = "$gitlabUrl/api/v4/projects/$projectId/$command";
+
+    // Headers for GitLab API
+    $headers = array(
+        "PRIVATE-TOKEN: $privateToken"
+    );
+
+    // Initialize cURL session
+    $curl = curl_init();
+
+    // Set cURL options
+    $options = array(
+        CURLOPT_URL => $apiUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+    );
+
+    // Set cURL options
+    curl_setopt_array($curl, $options);
+
+    // Execute cURL request
+    $response = curl_exec($curl);
+
+    // Check for errors
+    if ($response === false) {
+        echo "Error: " . curl_error($curl);
+        return false;
+    }
+
+    // Decode JSON response
+    $responseData = json_decode($response, true);
+
+    // Close cURL session
+    curl_close($curl);
+
+    // Return response data
+    return $responseData;
+}

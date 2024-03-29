@@ -40,6 +40,7 @@ if (isset($_GET['previousImage']) and $_GET['previousImage']) {
     echo json_encode(array('success' => ($error) ? false : true, 'newImage' => $selected_file, 'msg' => $error));
 } else {
 
+    ## IMAGE SETUP ##
     $image = array();
     foreach ($categories as $category) { // Iterate over each category
         $files = glob(__DIR__ . '/assets/images/landing/' . $category . '_*.jpg'); // Get list of matching files
@@ -69,4 +70,22 @@ if ($request === 'getInnerHTML') {
     $params = getParams($_GET); // Save GET parameters to assoc array
     $smarty->assign('params', $params); // Assign to Smarty
     $smarty->display("tpl/{$params['id']}.tpl"); // Send the page HTML
+}
+
+
+if ($request === 'getLastCommitTime') {
+    ## GITLAB API SETUP ##
+    $data = gitlabCURL($gitlab_creds['URL'], $gitlab_creds['token'], $gitlab_creds['project'], 'repository/commits?per_page=1');
+
+    // Check if data is successfully retrieved
+    if ($data !== false) {
+        // Extract the timestamp of the last commit
+        $lastCommitTimestamp = strtotime($data[0]['committed_date']);
+        // Format the timestamp into a human-readable date format
+        $formattedLastCommit = date('F j, Y', $lastCommitTimestamp);
+        echo json_encode(['last_commit' => $formattedLastCommit]);
+    } else {
+        // If data retrieval fails, return current year as a fallback
+        echo json_encode(['last_commit' => date('F j, Y')]);
+    }
 }
