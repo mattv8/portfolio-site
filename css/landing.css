@@ -119,12 +119,12 @@
 	}
 
     .footer {
-        font-size: 1.2em;
+        font-size: 0.6em;
         position: relative;
     }
 
     .last-updated {
-        font-size: 1.0em;
+        font-size: 0.4em;
     }
 
 }
