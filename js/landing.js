@@ -25,6 +25,7 @@ $(document).ready(function () {
 			});
 		}, {
 			hexWidth: 275,
+			radius: 10,
 		});
 		$('.hexagons, .footer').fadeIn(10); // Fade in when loaded
 	});

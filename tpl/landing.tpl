@@ -69,7 +69,7 @@
 </div>
 
 {*Footer*}
-<footer class="footer" style="display:none;">
+<footer class="footer" style="display:none; z-index: -1;">
     <div class="footer-content">
         <div>Made with <span class="heart">❤️</span> by Matt</div>
         <div class="last-updated">Last updated on <span id="last-updated"></span></div>

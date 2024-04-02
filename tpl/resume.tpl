@@ -3,7 +3,7 @@
 
 {*Page specific JS*}
 
-<div id="resume" style="padding: 2%;">
+<div id="resume">
     <div class="container" style="text-align: center;">
         <h1 style="margin-top: 10px; margin-bottom: 5px;">Matthew P. Visnovsky</h1>
         <h2 style="margin: 0;">
