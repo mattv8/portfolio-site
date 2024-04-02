@@ -114,7 +114,6 @@ h3 {
     color: black;
     font-family: Calibri, sans-serif;
     font-style: normal;
-    font-weight: bold;
     text-decoration: underline;
     font-size: 12pt;
     margin-top: 20pt;
@@ -127,6 +126,7 @@ h4 {
     font-weight: normal;
     text-decoration: none;
     font-size: 11pt;
+    margin: 5px;
 }
 
 p {
@@ -240,6 +240,11 @@ button:hover {
 
     h1,
     h2 {
+        font-size: 4.0vw;
+        margin: 0px 5px;
+    }
+
+    a {
         font-size: 3.5vw;
         margin: 0px 5px;
     }
@@ -272,6 +277,10 @@ button:hover {
 
     .small {
         padding: 0;
+    }
+
+    button {
+        padding: 6pt 4pt;
     }
 
 }

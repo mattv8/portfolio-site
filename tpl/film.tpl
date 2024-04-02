@@ -171,7 +171,7 @@
             <p class="project-description"><button type="button" onclick="openVideoModal('szaH8YHdlq8')">Claves</button> Director, Editor, Special Effects <span class="text-right right">Jun 2013</span></p>
             <p class="small">Winner: Best Directing, Salt Lake City</p>
 
-            <h3><a href="https://bounty.sonic-server.net/" target="_blank">Bounty – A Western Television Project</a></h3>
+            <h3><a style="font-size: inherit;" href="https://bounty.sonic-server.net/" target="_blank">Bounty – A Western Television Project</a></h3>
             <p class="project-description"><button type="button" onclick="openVideoModal('Sd4aT3uFVhM')">Bounty - Ep 1 (Work in progress)</button> Co-Executive Producer, Assistant Director, Editor <span class="text-right right">Mar 2016</span></p>
             <p class="project-description"><button type="button" onclick="openVideoModal('GtR9ga4UDOo')">Bounty - Cold Open</button> Co-Executive Producer, Assistant Director, SHOT ON RED <span class="text-right right">Mar 2016</span></p>
             <p class="small">Uncredited: Post Production Supervisor, Editor, Sound Design, Website Design and hosting.</p>
