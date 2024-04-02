@@ -134,8 +134,9 @@ function squareHex(hex, id, height, width) {
 	const $innerText = $(hex).find('.inner-text-flipped > p');
 	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
 	const currentWidth = $(window).width();
+	const currentHeight = $(window).height();
 	const mobile = {
-		height: (currentWidth <= breakpoint) ? '95vh' : height,
+		height: (currentWidth <= breakpoint) ? currentHeight - 20 : height,
 		width: (currentWidth <= breakpoint) ? '100%' : width,
 		top: (currentWidth <= breakpoint) ? '0px' : '10%',
 	}
@@ -205,6 +206,8 @@ function squareHex(hex, id, height, width) {
 			$html.css({
 				height: containerHeight,
 				transform: 'scaleX(-1)',
+				overflow: 'scroll',
+				padding: 'none',
 			});
 
 			// Calculate contrast ratio and determine text color
