@@ -135,9 +135,9 @@ function squareHex(hex, id, height, width) {
 	const $innerText = $(hex).find('.inner-text-flipped > p');
 	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
 	const currentWidth = $(window).width();
-	const squareHeight = ($(window).height() > $('.hexagons').height()) ? $('.hexagons').height() : $(window).height() -20;
+	const currentHeight = $(window).height();
 	const mobile = {
-		height: (currentWidth <= breakpoint) ? squareHeight : height,
+		height: (currentWidth <= breakpoint) ? currentHeight - 20 : height,
 		width: (currentWidth <= breakpoint) ? '100%' : width,
 		top: (currentWidth <= breakpoint) ? '0px' : '10%',
 	}
