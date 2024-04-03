@@ -431,3 +431,25 @@ function getColorHex(color) {
   // Return a default color if conversion fails
   return '#000000';
 }
+
+/**
+ * Generates a random RGB color or a mixture of a random color and a provided color.
+ * @param {Array<number>} mix - An optional array representing the RGB components of a color to mix with the random color. Format: [red, green, blue].
+ * @returns {Array<number>} An array representing the RGB components of the generated color. Format: [red, green, blue].
+ */
+function generateRandomColor(mix) {
+  const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
+
+  let red = getRandomInt(256);
+  let green = getRandomInt(256);
+  let blue = getRandomInt(256);
+
+  // mix the color
+  if (mix !== null && Array.isArray(mix) && mix.length === 3) {
+    red = (red + mix[0]) / 2;
+    green = (green + mix[1]) / 2;
+    blue = (blue + mix[2]) / 2;
+  }
+
+  return [Math.round(red), Math.round(green), Math.round(blue)];
+}
