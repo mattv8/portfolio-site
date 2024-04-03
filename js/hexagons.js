@@ -115,7 +115,8 @@
 					var img_obj = new Image(360, 360); // build image object
 					img_obj.src = bg_img_src; //attach bg image uri
 					var colorThief = new ColorThief(); // initialize colorThief
-					var color = colorThief.getColor(img_obj); // Get the dominant color of image
+					var palette = colorThief.getPalette(img_obj, 5);// Get a palette of colors
+					var color = _.sample(palette);// Choose one color at random
 
 					// Attach bg image
 					$hex.find('.hex_inner').attr('style', `background-image: url("${bg_img_src}")`);// Attach bg image
