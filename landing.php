@@ -74,18 +74,21 @@ if ($request === 'getInnerHTML') {
 
 
 if ($request === 'getLastCommitTime') {
-    ## GITLAB API SETUP ##
-    $data = gitlabCURL($gitlab_creds['URL'], $gitlab_creds['token'], $gitlab_creds['project'], 'repository/commits?per_page=1');
+
+    // Gitlab API
+    $data = gitlabCURL($gitlab_creds['URL'], $gitlab_creds['token'], $gitlab_creds['project'], 'jobs');
 
     // Check if data is successfully retrieved
     if ($data !== false) {
-        // Extract the timestamp of the last commit
-        $lastCommitTimestamp = strtotime($data[0]['committed_date']);
-        // Format the timestamp into a human-readable date format
-        $formattedLastCommit = date('F j, Y', $lastCommitTimestamp);
-        echo json_encode(['last_commit' => $formattedLastCommit]);
-    } else {
-        // If data retrieval fails, return current year as a fallback
-        echo json_encode(['last_commit' => date('F j, Y')]);
+        // Extract the timestamp of the last completed CI/CD job
+        foreach ($data as $pipeline) {
+            if ($pipeline['stage'] === $gitlab_creds['stage'] && $pipeline['finished_at']) {
+                echo json_encode(['last_commit' => date('F j, Y', strtotime($pipeline['finished_at']))]);
+                return;// Exit
+            }
+        }
     }
+
+    // If data retrieval fails, return current year as a fallback
+    echo json_encode(['last_commit' => date('F j, Y')]);
 }
