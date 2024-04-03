@@ -109,7 +109,8 @@ function shuffleImages(selector) {
 				// Put all operations dependent on the promise inside anonymouse async function to wait for promise resolution
 				(async () => {
 					const image = await img;// Utilize destructuring to simplify code
-					const color = colorThief.getColor(image);
+					const palette = colorThief.getPalette(image, 5);// Get a palette of colors
+					const color = _.sample(palette);// Choose one color at random
 					$hexInner.css({
 						'background-image': `url('${newImage}')`,
 						transition: `background-image ${animTime}ms ease-in-out`,
