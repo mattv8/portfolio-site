@@ -1,0 +1,64 @@
+name: Portfolio CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**' # Trigger on all branches
+    paths-ignore:
+      - '.git/**'
+      - '.gitignore'
+      - '**/*.md'
+      - 'Screenshot.png'
+      - 'composer.*'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  deploy-to-development:
+    name: Deploy to Development Server
+    runs-on: self-hosted
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    env:
+      WEBROOT: ${{ secrets.DEVELOPMENT_ROOT }}
+      USER: ${{ secrets.WEBROOT_USER }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Sync Framework Directory
+        run: |
+          if [ -z "${{env.WEBROOT}}" ]; then echo "Need to set webroot as GitHub Actions secret" && exit 1; fi
+          sudo rsync -avzr ./ ${{env.WEBROOT}} --exclude-from='./_exclusions.txt' --delete
+          sudo chown $USER:$USER ${{env.WEBROOT}} -R
+
+  deploy-to-production:
+    name: Deploy to Production Server
+    runs-on: self-hosted
+    if: github.event_name == 'workflow_dispatch'
+    env:
+      WEBROOT: ${{ secrets.PRODUCTION_WEBROOT }}
+      USER: ${{ secrets.WEBROOT_USER }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install UglifyJS
+        run: |
+          sudo npm install uglifyjs-folder -g
+          for file in ./js/*.js; do uglifyjs "$file" -o "${file%.*}.min.js" -c; done; #Uglify inidividual files
+          find ./js -type f -name "*.js" -not -name "*.min.js" -delete #Remove the unminified JS
+
+      - name: Sync Webroot to Production
+        run: |
+          if [ -z "${{env.WEBROOT}}" ]; then echo "Need to set webroot as GitHub Actions secret" && exit 1; fi
+          sudo rsync -avzr ./ ${{env.WEBROOT}} --exclude-from='./_exclusions.txt' --delete
+          sudo chown $USER:$USER ${{env.WEBROOT}} -R
