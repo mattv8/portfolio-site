@@ -1,2 +1,36 @@
-.vscode
+# System
+.DS_Store
+*Zone.Identifier
+
+# Logs
+*.log
+*.log.*
+!logrotate.conf
+
+# Dotenv
+.env
+.env.*
+!.env.template
+
+# VSCode
+.vscode/*
+
+# NGINX
+nginx/default.conf
+
+## TO DO: proper composer setup ##
+# Composer
+#src/vendor/*
+
+# SQL
+mysql/_grants.sql
+
+# Cache
+**/cache
+src/cache
+
+# Database dumps
+mysql/*.sql
+
+# Configs
 conf/config.local.php

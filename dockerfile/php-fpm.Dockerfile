@@ -1,0 +1,49 @@
+FROM php:8.3-fpm
+
+# Set arguments for UID and GID (provided by docker-compose)
+ARG UID
+ARG GID
+
+# Install dependencies
+RUN apt update && apt install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    libonig-dev \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    pkg-config \
+    libssl-dev\
+    mariadb-client
+
+# Modify the www-data group and user to match the host's UID and GID
+RUN groupmod -g ${GID} www-data && \
+    usermod -u ${UID} -g www-data www-data
+
+# Set the working directory and ownership
+WORKDIR /var/www
+RUN chown -R www-data:www-data /var/www
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql mbstring exif pcntl bcmath zip mysqli
+
+# Enable PHP extensions
+RUN docker-php-ext-enable gd pdo pdo_mysql mbstring exif pcntl bcmath zip mysqli
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer -o composer-setup.php \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && rm composer-setup.php
+
+# Verify Composer installation
+RUN composer --version
+
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Run as www-data
+USER www-data

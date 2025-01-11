@@ -4,12 +4,9 @@ on:
   push:
     branches:
       - '**' # Trigger on all branches
-    paths-ignore:
-      - '.git/**'
-      - '.gitignore'
-      - '**/*.md'
-      - 'Screenshot.png'
-      - 'composer.*'
+    paths:
+      - 'src/**' # Trigger on changes to any file inside the /src directory
+      - '.github/workflows/ci.yml' # Trigger on changes to the workflow file
   workflow_dispatch: # Manual trigger
 
 jobs:
@@ -29,10 +26,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Sync Framework Directory
+      - name: Sync Site Directory
         run: |
           if [ -z "${{env.WEBROOT}}" ]; then echo "Need to set webroot as GitHub Actions secret" && exit 1; fi
-          sudo rsync -avzr ./ ${{env.WEBROOT}} --exclude-from='./_exclusions.txt' --delete
+          sudo rsync -avzr ./src/ ${{env.WEBROOT}} \
+            --exclude 'robots.txt' \
+            --exclude 'vault' \
+            --exclude 'conf/config.local.php' \
+            --delete
           sudo chown $USER:$USER ${{env.WEBROOT}} -R
 
   deploy-to-production:
@@ -54,11 +55,15 @@ jobs:
       - name: Install UglifyJS
         run: |
           sudo npm install uglifyjs-folder -g
-          for file in ./js/*.js; do uglifyjs "$file" -o "${file%.*}.min.js" -c; done; #Uglify inidividual files
-          find ./js -type f -name "*.js" -not -name "*.min.js" -delete #Remove the unminified JS
+          for file in ./src/js/*.js; do uglifyjs "$file" -o "${file%.*}.min.js" -c; done; #Uglify inidividual files
+          find ./src/js -type f -name "*.js" -not -name "*.min.js" -delete #Remove the unminified JS
 
       - name: Sync Webroot to Production
         run: |
           if [ -z "${{env.WEBROOT}}" ]; then echo "Need to set webroot as GitHub Actions secret" && exit 1; fi
-          sudo rsync -avzr ./ ${{env.WEBROOT}} --exclude-from='./_exclusions.txt' --delete
+          sudo rsync -avzr ./src/ ${{env.WEBROOT}} \
+            --exclude 'robots.txt' \
+            --exclude 'vault' \
+            --exclude 'conf/config.local.php' \
+            --delete-delay
           sudo chown $USER:$USER ${{env.WEBROOT}} -R
