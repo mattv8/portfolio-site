@@ -12,8 +12,8 @@
 .env.*
 !.env.template
 
-# VSCode
-.vscode/*
+# SFTP sensitive file
+.vscode/sftp.json
 
 # NGINX
 nginx/default.conf
