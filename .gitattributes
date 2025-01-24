@@ -1,0 +1,18 @@
+# Enforce LF for source code files
+*.js text eol=lf
+*.ts text eol=lf
+*.php text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+
+# Allow CRLF for Windows-specific files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files (no conversion)
+*.png binary
+*.jpg binary
+*.gif binary
+*.zip binary
