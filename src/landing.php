@@ -75,16 +75,22 @@ if ($request === 'getInnerHTML') {
 
 if ($request === 'getLastCommitTime') {
 
-    // Gitlab API
-    $data = gitlabCURL($gitlab_creds['URL'], $gitlab_creds['token'], $gitlab_creds['project'], 'jobs');
+    // GitHub API
+    $data = githubCURL(
+        $github_creds['URL'],
+        $github_creds['token'],
+        $github_creds['owner'],
+        $github_creds['repo'],
+        'actions/runs'
+    );
 
     // Check if data is successfully retrieved
-    if ($data !== false) {
-        // Extract the timestamp of the last completed CI/CD job
-        foreach ($data as $pipeline) {
-            if ($pipeline['stage'] === $gitlab_creds['stage'] && $pipeline['finished_at']) {
-                echo json_encode(['last_commit' => date('F j, Y', strtotime($pipeline['finished_at']))]);
-                return;// Exit
+    if ($data !== false && isset($data['workflow_runs'])) {
+        // Extract the timestamp of the last completed workflow run
+        foreach ($data['workflow_runs'] as $workflow) {
+            if ($workflow['status'] === 'completed' && isset($workflow['updated_at'])) {
+                echo json_encode(['last_commit' => date('F j, Y', strtotime($workflow['updated_at']))]);
+                return; // Exit
             }
         }
     }

@@ -33,4 +33,4 @@ src/cache
 mysql/*.sql
 
 # Configs
-conf/config.local.php
+config.local.php
