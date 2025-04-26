@@ -33,9 +33,18 @@ ENV LOG_ROTATE_CONFIG_TEMPLATE="\
 # Save template to file
 RUN eval printf \"$LOG_ROTATE_CONFIG_TEMPLATE\" | tee ~/logrotate.conf > /dev/null;
 
-# Install logrotate
-RUN apt-get update && apt-get install -y logrotate && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install OpenSSL & logrotate
+RUN apt-get update \
+ && apt-get install -y openssl logrotate \
+ && rm -rf /var/lib/apt/lists/*
+
+# Generate self-signed cert
+RUN mkdir -p /etc/nginx/ssl \
+ && openssl req -x509 -nodes -days 365 \
+      -newkey rsa:2048 \
+      -subj "/CN=localhost" \
+      -keyout /etc/nginx/ssl/localhost.key \
+      -out /etc/nginx/ssl/localhost.crt
 
 # Copy the Nginx template into the expected location
 COPY default.conf.template /etc/nginx/templates/default.conf.template

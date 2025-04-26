@@ -1,12 +1,17 @@
 server {
-    listen 80;
+    listen 443 ssl;
     server_name ${HOSTNAME};
 
     error_log  /var/www/log/nginx_error.log;
     access_log /var/www/log/nginx_access.log;
 
+    ssl_certificate     /etc/nginx/ssl/localhost.crt;
+    ssl_certificate_key /etc/nginx/ssl/localhost.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
     root /var/www/html;
-    index index.php index.html index.htm;
+    index index.php index.html;
 
     location ~ \.php$ {
         try_files $uri =404;
