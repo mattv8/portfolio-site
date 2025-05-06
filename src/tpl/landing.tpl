@@ -52,10 +52,10 @@
     <div class="hex logo button" title="Shuffle images!!" onclick="shuffleImages(this)">
         <img class="bg" src="assets/images/all/vis_logo_light.png" />
     </div>
-    <div class="hex rounded flip button" onclick="squareHex(this, 'placeholder', '275px', '80%')">
-        <img class="bg" src="{$image.livestreaming}" /><span>Livestreaming</span>
+    <div class="hex rounded flip button" onclick="squareHex(this, 'running', '500px', '90%')">
+        <img class="bg" src="{$image.livestreaming}" /><span>Running</span>
         <p class="inner-text-flipped">
-            Portfolio of my livestreaming productions.
+            View my running stats.
         </p>
     </div>
     <div class="hex invisible"></div>{* Invisible *}
