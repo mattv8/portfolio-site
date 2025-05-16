@@ -37,6 +37,12 @@ class FitbitOAuthClient
     // Check if the user is authenticated
     public function isAuthenticated(): bool
     {
+        $logId = isset($_GET['activityId']) ? (int)$_GET['activityId'] : null;
+        $cacheFile = __DIR__ . "/cache/{$logId}.tcx";
+        if (file_exists($cacheFile)) {
+            return true;
+        }
+
         $this->getTokens();
 
         if (empty($this->credentials['access_token'])) {
@@ -286,10 +292,10 @@ class FitbitOAuthClient
     public function getActivityDetails(int $logId): \SimpleXMLElement
     {
         $cacheFile = __DIR__ . "/cache/{$logId}.tcx";
-        $userId    = $this->credentials['user_id'] ?? '-';
 
         // Fetch & cache if missing
         if (!file_exists($cacheFile) || filesize($cacheFile) === 0) {
+            $userId    = $this->credentials['user_id'] ?? '-';
             $endpoint = "/1/user/{$userId}/activities/{$logId}.tcx";
             $params   = ['includePartialTCX' => 'true'];
 
@@ -335,16 +341,6 @@ class FitbitOAuthClient
         }
 
         return $hrData;
-    }
-
-    /**
-     * Extract "intraday" (per‑second) heart‑rate from TCX.
-     * TCX already contains per‑trackpoint (often 1s resolution)
-     */
-    public function getIntradayHeartRate(int $logId): array
-    {
-        // Same as heart rate time series as TCX already has per-second data
-        return $this->getHeartRateTimeSeries($logId);
     }
 
     /**
@@ -602,7 +598,6 @@ if ($request && $fitbitClient->isAuthenticated()) {
 
                 // Extract detailed data series from TCX
                 $heartRate    = $fitbitClient->getHeartRateTimeSeries($activityId);
-                $intradayHR   = $fitbitClient->getIntradayHeartRate($activityId);
                 $spo2         = $fitbitClient->getSpO2Data($activityId);
                 $temperature  = $fitbitClient->getTemperatureData($activityId);
 
@@ -610,7 +605,6 @@ if ($request && $fitbitClient->isAuthenticated()) {
                 $chartData = [
                     'labels'      => array_map(function($dt) { return $dt['time']; }, $heartRate),
                     'heartRate'   => array_column($heartRate, 'value'),
-                    'intradayHR'  => array_column($intradayHR, 'value'),
                     'spo2'        => array_column($spo2, 'value'),
                     'temperature' => array_column($temperature, 'value'),
                 ];
@@ -619,7 +613,6 @@ if ($request && $fitbitClient->isAuthenticated()) {
                     'status'      => 'success',
                     'summary'     => $summary,
                     'heartRate'   => $heartRate,
-                    'intradayHR'  => $intradayHR,
                     'spo2'        => $spo2,
                     'temperature' => $temperature,
                     'chartData'   => $chartData
