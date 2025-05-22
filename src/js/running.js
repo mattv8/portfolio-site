@@ -1,6 +1,17 @@
 // Global variables
-var original = {}; // Store original values
-var breakpoint = 1000; // When to switch to mobile
+let original = {}; // Store original values
+let breakpoint = 1000; // When to switch to mobile
+let lastLoadedDate = null;
+let maxCol = 0; // Maximum column number for hexagons
+let activityCanvas;
+
+const colorMap = {
+    run: '#FF5733',
+    walk: '#33FF57',
+    treadmill: '#3357FF',
+    bike: '#FF33A8',
+    hike: '#A833FF'
+};
 
 // Starting point for activity charts
 var selectedDates = {
@@ -8,33 +19,20 @@ var selectedDates = {
     end: moment().startOf('week').clone().add(7, 'days')
 };
 
-var activityCanvas;
-
-// Wait for DOM to load then execute scripts
+// On DOM load
 $(document).ready(function () {
     // Set up hexagons
     $('.hexagons').hexagons(function (elems, spawnPoint, settings, containerDims) {
         // Apply colors based on activity type
-        $('.hex.run').each(function () {
-            $(this).find('.hex_inner').css("background-color", "#32CD32"); // Light green for runs
+        elems.forEach(({ classes, selector }) => {
+            const activity = classes.find(c => c in colorMap);
+            const color = colorMap[activity] || DEFAULT_COLOR;
+            $(selector).find('.hex_inner').css('background-color', color);
         });
 
-        $('.hex.walk').each(function () {
-            $(this).find('.hex_inner').css("background-color", "#87CEFA"); // Light blue for walks
-        });
-
-        $('.hex.hike').each(function () {
-            $(this).find('.hex_inner').css("background-color", "#B8860B"); // Dark goldenrod for hikes
-        });
-
-        $('.hex.treadmill-run').each(function () {
-            $(this).find('.hex_inner').css("background-color", "#FF8C00"); // Dark orange for treadmill runs
-        });
-
-        // Default color for any other activity type
-        $('.hex:not(.run):not(.walk):not(.hike):not(.treadmill-run)').each(function () {
-            $(this).find('.hex_inner').css("background-color", "#9370DB"); // Medium purple for other activities
-        });
+        // Calculate max column to determine how many activities to load per batch
+        var nCol = _.maxBy(elems, 'col')?.col || 0;
+        maxCol = nCol + 1;
 
     }, {
         hexWidth: 200, // Set hex width
@@ -200,7 +198,7 @@ function initializeActivityView(activityId, container) {
         activityId: activityId,
     };
 
-    $.get("index.php?" + $.param(req), function(response) {
+    $.get("index.php?" + $.param(req), function (response) {
         // Remove loading indicator
         $(loadingDiv).remove();
 
@@ -273,9 +271,9 @@ function initializeActivityView(activityId, container) {
             containerDiv.appendChild(noDataDiv);
         }
     })
-    .fail(function() {
-        containerDiv.innerHTML = '<div class="error-message">Failed to load activity data.</div>';
-    });
+        .fail(function () {
+            containerDiv.innerHTML = '<div class="error-message">Failed to load activity data.</div>';
+        });
 
     // Return the container div
     return containerDiv;
@@ -311,7 +309,7 @@ function createActivityChart(canvas, title, labels, data, color, unit, container
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             return `${context.dataset.label}: ${context.raw} ${unit}`;
                         }
                     }
@@ -322,7 +320,7 @@ function createActivityChart(canvas, title, labels, data, color, unit, container
                     ticks: {
                         maxRotation: 0,
                         minRotation: 0,
-                        callback: function(val, index) {
+                        callback: function (val, index) {
                             // Show every 5th label to avoid overcrowding
                             return index % 5 === 0 ? this.getLabelForValue(val) : '';
                         },
@@ -334,4 +332,9 @@ function createActivityChart(canvas, title, labels, data, color, unit, container
             },
         },
     });
+}
+
+function loadMoreActivities(button) {
+    console.log(maxCol);
+
 }

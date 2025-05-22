@@ -3,9 +3,9 @@
 
 {*Page specific JS*}
 {if file_exists('js/hexagons.min.js')}
-	<script src="js/hexagons.min.js"></script>
+    <script src="js/hexagons.min.js"></script>
 {else}
-	<script src="js/hexagons.js"></script>
+    <script src="js/hexagons.js"></script>
 {/if}
 {if file_exists('js/running.min.js')}
     <script src="js/running.min.js"></script>
@@ -34,18 +34,26 @@
 
 <div class="hexagons running">
     {foreach from=$activities item=activity key=key}
-        <div class="hex rounded flip button {$activity.activityName|lower|replace:' ':'-'}" onclick="openActivityDetails(this, '{$activity.id}')">
-            <span>{$activity.activityName}<br>{$activity.date}</span>
-            <p class="inner-text-flipped no-wrap">
-                Time: {$activity.time}<br>
-                Date: {$activity.date}<br>
-                Distance: {$activity.distance} mi<br>
-                Duration: {$activity.duration}<br>
-                Pace: {$activity.paceFormatted} min/mi<br>
-                Activity: {$activity.activityName}<br>
-            </p>
-        </div>
+        {if $activity.pace <= 20}
+            <div class="hex rounded flip button {$activity.activityName|lower|replace:' ':'-'}" onclick="openActivityDetails(this, '{$activity.id}')">
+                <span>{$activity.activityName}<br>{$activity.date}</span>
+                <p class="inner-text-flipped no-wrap">
+                    Time: {$activity.time}<br>
+                    Date: {$activity.date}<br>
+                    Distance: {$activity.distance} mi<br>
+                    Duration: {$activity.duration}<br>
+                    Pace: {$activity.paceFormatted} min/mi<br>
+                    Activity: {$activity.activityName}<br>
+                </p>
+            </div>
+        {/if}
     {/foreach}
+</div>
+
+<div class="load-more-container" style="text-align: center; margin: 20px 0;">
+    <button id="load-more-btn" class="btn btn-secondary" onclick="loadMoreActivities(this)">
+        Load More Activities
+    </button>
 </div>
 
 {* Activity Details Modal - Preallocated for later use *}
