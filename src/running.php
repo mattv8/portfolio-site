@@ -275,170 +275,90 @@ class FitbitOAuthClient
     }
 
     // Get list of activities (runs) with cache handling and delta-sync
-    public function getActivities($beforeDate = null, $limit = null): array
-    {
-        $cacheDir = __DIR__ . "/cache";
-        $formattedActivities = [];
-        $lastCacheDate = null;
-        $beforeDate ??= date('Y-m-d');
-        $limit ??= 20;
+public function getActivities($beforeDate = null, $limit = null): array
+{
+    $cacheDir    = __DIR__ . '/cache';
+    $beforeDate  = $beforeDate ?? date('Y-m-d');
+    $limit       = $limit ?? 20;
 
-        // Ensure cache directory exists
-        if (!is_dir($cacheDir)) {
-            @mkdir($cacheDir, 0755, true);
-        }
+    if (!is_dir($cacheDir)) {
+        mkdir($cacheDir, 0755, true);
+    }
 
-        // Define cache file path for this query
-        $cacheFile = $cacheDir . "/activities_" . $beforeDate . "_" . $limit . ".json";
+    $cacheFile = "$cacheDir/activities_{$beforeDate}_{$limit}.json";
 
-        // Load activities from cache file if it exists
-        if (file_exists($cacheFile)) {
-            $cachedData = json_decode(file_get_contents($cacheFile), true);
-            $lastCacheDate = date('Y-m-d H:i:s', filemtime($cacheFile));
-
-            if (isset($cachedData['activities']) && is_array($cachedData['activities'])) {
-                // Build lookup array by logId for quick duplicate checking
-                $activityLookup = [];
-
-                foreach ($cachedData['activities'] as $activity) {
-                    // Only include running activities
-                    if (stripos($activity['activityName'], 'run') !== false) {
-                        // Format activity data
-                        $formattedActivity = $this->formatActivityForDisplay($activity);
-
-                        // Use logId as key to prevent duplicates
-                        $activityLookup[$formattedActivity['id']] = true;
-                        $formattedActivities[] = $formattedActivity;
-                    }
-                }
-
-                // If we're authenticated, perform delta-sync with the API
-                if ($this->isAuthenticated()) {
-                    try {
-                        $endpoint = '/1/user/-/activities/list.json';
-                        $params = [
-                            'beforeDate' => $beforeDate ?? date('Y-m-d'),
-                            'sort' => 'desc',
-                            'limit' => $limit,
-                            'offset' => 0
-                        ];
-
-                        $response = $this->makeRequest($endpoint, 'GET', $params);
-
-                        // If API request was successful
-                        if ($response['code'] === 200 && isset($response['data']['activities'])) {
-                            $newActivitiesFound = false;
-
-                            // Check for new activities not in our cache
-                            foreach ($response['data']['activities'] as $activity) {
-                                // Only include running activities
-                                if (stripos($activity['activityName'], 'run') !== false) {
-                                    $logId = $activity['logId'];
-
-                                    // Skip if we already have this activity
-                                    if (isset($activityLookup[$logId])) {
-                                        continue;
-                                    }
-
-                                    // New activity found, add to our collection
-                                    $formattedActivity = $this->formatActivityForDisplay($activity);
-                                    $formattedActivities[] = $formattedActivity;
-                                    $activityLookup[$logId] = true;
-                                    $newActivitiesFound = true;
-                                }
-                            }
-
-                            // If we found new activities, update the cache
-                            if ($newActivitiesFound) {
-                                // Sort all activities by date/time (newest first)
-                                usort($formattedActivities, function($a, $b) {
-                                    return strtotime($b['date'] . ' ' . $b['time']) - strtotime($a['date'] . ' ' . $a['time']);
-                                });
-
-                                // Update lastCacheDate to now
-                                $lastCacheDate = date('Y-m-d H:i:s');
-
-                                // Convert to "raw" format for cache storage
-                                $activitiesForCache = [];
-                                foreach ($response['data']['activities'] as $activity) {
-                                    $activitiesForCache[] = $activity;
-                                }
-
-                                // Add any activities from existing cache that aren't in the API response
-                                foreach ($cachedData['activities'] as $activity) {
-                                    $logId = $activity['logId'];
-                                    $found = false;
-
-                                    foreach ($activitiesForCache as $newActivity) {
-                                        if ($newActivity['logId'] == $logId) {
-                                            $found = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (!$found) {
-                                        $activitiesForCache[] = $activity;
-                                    }
-                                }
-
-                                // Store updated cache
-                                $cacheData = $response['data'];
-                                $cacheData['activities'] = $activitiesForCache;
-                                file_put_contents($cacheFile, json_encode($cacheData));
-                            }
-                        }
-                    } catch (Exception $e) {
-                        // If API request fails, just use cached data
-                        error_log("Fitbit API error in getActivities: " . $e->getMessage());
-                    }
+    // Unauthenticated: serve most recent cache file
+    if (!$this->isAuthenticated()) {
+        $files = glob("$cacheDir/activities_*.json");
+        if ($files) {
+            usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+            $raw      = json_decode(file_get_contents($files[0]), true);
+            $formatted = [];
+            foreach (($raw['activities'] ?? []) as $act) {
+                if (stripos($act['activityName'], 'run') !== false) {
+                    $formatted[] = $this->formatActivityForDisplay($act);
                 }
             }
+            $formatted = array_slice($formatted, 0, $limit);
+            return [
+                'code'          => 200,
+                'data'          => $formatted,
+                'cached'        => true,
+                'lastCacheDate' => date('Y-m-d H:i:s', filemtime($files[0])),
+                'nextDate'      => end($formatted)['date'] ?? null,
+            ];
         }
-        // No cache file exists, fetch from API if authenticated
-        else if ($this->isAuthenticated()) {
-            try {
-                $endpoint = '/1/user/-/activities/list.json';
-                $params = [
-                    'beforeDate' => $beforeDate ?? date('Y-m-d'),
-                    'sort' => 'desc',
-                    'limit' => $limit,
-                    'offset' => 0
-                ];
-
-                $response = $this->makeRequest($endpoint, 'GET', $params);
-
-                // If API request was successful
-                if ($response['code'] === 200 && isset($response['data']['activities'])) {
-                    // Cache the API response
-                    file_put_contents($cacheFile, json_encode($response['data']));
-                    $lastCacheDate = date('Y-m-d H:i:s');
-
-                    // Format activities
-                    foreach ($response['data']['activities'] as $activity) {
-                        // Only include running activities
-                        if (stripos($activity['activityName'], 'run') !== false) {
-                            $formattedActivity = $this->formatActivityForDisplay($activity);
-                            $formattedActivities[] = $formattedActivity;
-                        }
-                    }
-                }
-            } catch (Exception $e) {
-                // If API request fails, we have no data
-                error_log("Fitbit API error in getActivities: " . $e->getMessage());
-            }
-        }
-
-        // Apply limit to final result
-        $formattedActivities = array_slice($formattedActivities, 0, $limit);
 
         return [
-            'code' => 200,
-            'data' => $formattedActivities,
-            'cached' => !$this->isAuthenticated(),
-            'lastCacheDate' => $lastCacheDate,
-            'nextDate' => !empty($formattedActivities) ? end($formattedActivities)['date'] : null
+            'code'          => 200,
+            'data'          => [],
+            'cached'        => true,
+            'lastCacheDate' => null,
+            'nextDate'      => null,
         ];
     }
+
+    // Authenticated: fetch fresh, cache, format
+    $response = $this->makeRequest(
+        '/1/user/-/activities/list.json',
+        'GET',
+        [
+            'beforeDate' => $beforeDate,
+            'sort'       => 'desc',
+            'limit'      => $limit,
+            'offset'     => 0,
+        ]
+    );
+
+    if ($response['code'] === 200 && isset($response['data']['activities'])) {
+        file_put_contents($cacheFile, json_encode($response['data']));
+
+        $formatted = [];
+        foreach ($response['data']['activities'] as $act) {
+            if (stripos($act['activityName'], 'run') !== false) {
+                $formatted[] = $this->formatActivityForDisplay($act);
+            }
+        }
+
+        $formatted = array_slice($formatted, 0, $limit);
+        return [
+            'code'          => 200,
+            'data'          => $formatted,
+            'cached'        => false,
+            'lastCacheDate' => date('Y-m-d H:i:s'),
+            'nextDate'      => end($formatted)['date'] ?? null,
+        ];
+    }
+
+    // Fallback on error
+    return [
+        'code'          => $response['code'] ?? 500,
+        'data'          => [],
+        'cached'        => false,
+        'lastCacheDate' => null,
+        'nextDate'      => null,
+    ];
+}
 
     // Helper function to format activity data consistently
     private function formatActivityForDisplay($activity)
@@ -672,7 +592,7 @@ class FitbitOAuthClient
 
 # ==============================================================================
 
-# Handle Fitbit OAuth flow
+// Handle Fitbit OAuth flow
 if ($request === 'authorize') {
     header('Content-Type: application/json');
     // redirect user to Fitbit’s consent page
@@ -680,12 +600,15 @@ if ($request === 'authorize') {
     exit;
 }
 
-# Receive the authorization code from Fitbit
+// Receive the authorization code from Fitbit
 if ($code) {
     try {
         $token = $fitbitClient->handleCallback($code);
         if ($request) {
             echo json_encode(['status' => 'success', 'token' => $token]);
+            exit;
+        } else {
+            header('Location: /?page=running');// Redirect to the main page
             exit;
         }
     } catch (Exception $e) {
