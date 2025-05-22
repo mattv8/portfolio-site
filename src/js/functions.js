@@ -193,8 +193,25 @@ function loadVideo(videoId) {
   }
 }
 
+function getRandomColor(seed) {
+  let index;
 
-function getRandomColor(index) {
+  // Smart detection: if seed is a string, convert to hash; if number, use directly
+  if (typeof seed === 'string') {
+    // Create hash from string
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      const char = seed.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    // Use absolute value and ensure it's within reasonable range
+    index = Math.abs(hash) % 256;
+  } else {
+    // Use the number directly (maintains backward compatibility)
+    index = seed;
+  }
+
   // Generate a random hue based on the index
   const hue = (index * 137.508) % 360;
 
