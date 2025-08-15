@@ -1,6 +1,5 @@
 /////////////
 //Global variables
-var original = {};// Store original values
 var breakpoint = 1000;// When to switch to mobile
 
 // Starting point for charts
@@ -40,13 +39,7 @@ $(document).ready(function () {
 function openDetails(hex, serverName) {
     const animTime = 500; // Animation time in milliseconds
     const $container = $('.hexagons');
-    const $hexParent = $(hex).parent();
     const $hexInner = $(hex).find('.hex_inner');
-    const $hexFlipText = $(hex).find('.inner-text-flipped');
-    const $hexWrappers = {
-        before: $(hex).find('.hex-wrap-before'),
-        after: $(hex).find('.hex-wrap-after'),
-    }
 
     var currentWidth = $(window).width();// Get width of window
     var currentHeight = $(window).height();// Get width of window
@@ -58,82 +51,17 @@ function openDetails(hex, serverName) {
     console.log(container.top);
 
     if ($hexInner.hasClass('squared')) {// Transition back to hex state
-
-        if ($hexInner.find('#server-details').length) {
-            $hexInner.find('#server-details').remove();
-        }
-
-        // Reapply original CSS
-        $hexParent.css({
-            position: 'absolute',
-            width: original.width.parent,
-            height: original.height.parent,
-            left: original.left,
-            top: original.top,
-            'z-index': 'auto',
-            translate: '0%',
-            transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
-        });
-        $hexInner.css({
-            height: original.height.inner,
-            width: original.width.inner,
-        })
-        $hexInner.css({ backgroundColor: original.color });
-        $hexFlipText.css({ display: 'block' });
-        $hexWrappers.before.add($hexWrappers.after).css('display', 'block');
-        $hexInner.removeClass('squared').css({ height: original.height });
-        $hexInner.on('mouseenter', () => flipForward($hexParent, animTime, original.color.match(/\(([^)]+)\)/)[1]));
-        $hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
-        flipBack($hexParent, animTime);// Flip back to details
-
+        // Get the stored hex ID from the hex element's data attribute
+        const hexId = $(hex).data('hexStateId');
+        // console.log('Transitioning back with hexId:', hexId);
+        transitionSquareToHex(hex, hexId, animTime, 'server-details');
+        $(hex).removeData('hexStateId'); // Clean up the stored ID
     } else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') {// Transition to square
-
-        // Update original CSS values
-        original = {
-            height: {
-                inner: $hexInner.css('height'),
-                parent: $hexParent.css('height')
-            },
-            width: {
-                inner: $hexInner.css('width'),
-                parent: $hexParent.css('width')
-            },
-            left: $hexParent.css('left'),
-            top: $hexParent.css('top'),
-            color: $hexInner.css('background-color'),
-        };
-
-        $hexFlipText.css({ display: 'none' });
         var influx = initializeChart(serverName, container);
-        $hexInner.find('.inner-span').append(influx);
-
-        $hexInner.addClass('squared').css({
-            width: '100%', // Do not change this number!
-            height: container.height,
-            top: container.top,
-            transition: `all ${animTime}ms ease-in-out`,
-            backgroundColor: 'white',
-        }).off('mouseenter mouseleave');
-
-        $hexInner.find('.inner-span').css({
-            backgroundColor: 'white',
-            transition: `all ${animTime}ms ease-in-out`,
-        });
-
-        $hexParent.css({
-            width: container.width,
-            position: 'absolute',
-            top: container.top,
-            left: '50%',
-            translate: '-50%',
-            'z-index': 1,
-            transition: `all ${animTime}ms ease-in-out`,
-        });
-
-        $hexWrappers.before.add($hexWrappers.after).css('display', 'none');
-
+        const hexId = transitionHexToSquare(hex, container, animTime, influx, 'server-details');
+        // console.log('Storing hexId:', hexId);
+        $(hex).data('hexStateId', hexId); // Store the hex ID for later retrieval
     }
-
 }
 
 var titleHeight = 0;

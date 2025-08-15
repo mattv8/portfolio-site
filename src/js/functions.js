@@ -27,6 +27,11 @@ function goToPage(page, replaceSelector, _this) {
         pageLoaded = true;// Stop the rotate function with flag
       },
       success: function (response) {
+        // Clean up current page state before transitioning
+        if (typeof cleanupHexagons === 'function') {
+          cleanupHexagons();
+        }
+
         let selector;
         if (replaceSelector) {
           selector = document.getElementById(replaceSelector);

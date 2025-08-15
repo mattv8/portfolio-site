@@ -52,7 +52,7 @@
     <div class="hex logo button" title="Shuffle images!!" onclick="shuffleImages(this)">
         <img class="bg" src="assets/images/all/vis_logo_light.png" />
     </div>
-    <div class="hex rounded flip button" onclick="squareHex(this, 'running', '500px', '90%')">
+    <div class="hex rounded flip button" onclick="goToPage('running','page-content',this)">
         <img class="bg" src="{$image.livestreaming}" /><span>Running</span>
         <p class="inner-text-flipped">
             View my running stats.

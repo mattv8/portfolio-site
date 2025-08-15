@@ -48,14 +48,254 @@
 
 
 		/*
+		* Builds basic hexagon DOM structure for given hexagons
+		*/
+		function buildHexagonStructure($hexes) {
+			$hexes.append('<div class="hex_inner"></div>');
+			$hexes.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
+			$hexes.find('.inner-span').append('<div class="inner-text"></div>');
+		}
+
+		/*
+		* Processes buttons and links for given hexagons
+		*/
+		function processHexagonInteractions($hexes) {
+			// Hex Links
+			$hexes.filter('.link').each(function () {
+				var link = $(this).find("link").attr("href");
+				if (link) { $(this).find('.hex_inner').wrap('<a href="' + link + '" class="hex_link"></a>'); }
+			});
+
+			// Hex Buttons
+			$hexes.filter('.button').each(function () {
+				var button = $(this).attr("onclick");
+				if (button) {
+					$(this).removeAttr('onclick');
+					$(this).find('.hex_inner').wrap('<button onclick="' + button + '" class="hex_button"></button>');
+					$(this).find('button.hex_button').css({ 'width': '100%' });
+				}
+			});
+		}
+
+		/*
+		* Processes individual hexagon properties (images, colors, scaling, etc.)
+		*/
+		function processHexagonProperties($hex, hexId) {
+			var bg_img_src = $hex.find('.bg').attr('src');
+			var hvr_img_src = $hex.find('.hvr').attr('src');
+			var color = [255, 255, 255]; // Default color for flip
+
+			// For solid color hexagons - extract the color from the hex_inner background
+			// Use setTimeout(0) for true nextTick behavior to ensure all styles are applied first
+			setTimeout(function () {
+				var $hexInner = $hex.find('.hex_inner');
+				var currentBgColor = $hexInner.css('background-color');
+
+				if (currentBgColor && currentBgColor !== 'rgba(0, 0, 0, 0)' && currentBgColor !== 'transparent') {
+					// Parse RGB values from the computed background color
+					var rgbMatch = currentBgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+					if (rgbMatch) {
+						color = [parseInt(rgbMatch[1]), parseInt(rgbMatch[2]), parseInt(rgbMatch[3])];
+
+						// Store the extracted color in the state manager for this hexagon
+						window.HexagonStateManager.updateFlipColor($hex[0], color);
+
+						// Update the flip handlers with the correct color if this is a flip hexagon
+						if ($hex.hasClass('flip')) {
+							$hex.find('.hex_inner').off('mouseenter mouseleave').on({
+								mouseenter: function () {
+									flipForward($hex, 500, color);
+								},
+								mouseleave: function () {
+									flipBack($hex, 500);
+								}
+							});
+						}
+					}
+				}
+			}, 0);
+
+			// For hexagons with links or solid color hover backgrounds
+			if (bg_img_src !== undefined) {
+				// Attach bg image
+				$hex.find('.hex_inner').attr('style', `background-image: url("${bg_img_src}")`);
+
+				// colorThief variables - wait for image to load and update color
+				const img_obj = new Image(360, 360);
+				img_obj.onload = function () {
+					const colorThief = new ColorThief();
+					const palette = colorThief.getPalette(img_obj, 5);
+					const extractedColor = _.sample(palette);
+
+					// Store the extracted color in the state manager
+					window.HexagonStateManager.updateFlipColor($hex[0], extractedColor);
+
+					// Update the flip handlers with the new color
+					if ($hex.hasClass('flip')) {
+						$hex.find('.hex_inner').off('mouseenter mouseleave').on({
+							mouseenter: function () {
+								flipForward($hex, 500, extractedColor);
+							},
+							mouseleave: function () {
+								flipBack($hex, 500);
+							}
+						});
+					}
+				};
+				img_obj.src = bg_img_src;
+
+				if (!$hex.hasClass('flip')) {
+					const animTime = 500;
+					$hex.mouseenter(function () {
+						// For image hexagons, we'll use a default color until image loads
+						$hex.find('.inner-span').css({
+							transition: `background-color 0.3s ease;  background-color: rgb(${color})`,
+							transition: `all ${animTime}ms ease-in-out`,
+						});
+					});
+					$hex.mouseleave(function () {
+						$hex.find('.inner-span').css({
+							transition: `background-color 0.3s ease;  background-color: unset`
+						});
+					});
+				}
+			}
+
+			// For hexagons with an image when hovering
+			if (hvr_img_src !== undefined) {
+				$hex.mouseenter(function () {
+					$hex.find('.inner-span').attr('style', `background-image: url("${hvr_img_src}")`);
+				});
+				$hex.mouseleave(function () {
+					$hex.find('.inner-span').attr('style', 'background-image: none');
+				});
+			}
+
+			// For hexagons with programmatically defined background colors (only if not a color- hexagon)
+			if (bg_img_src === undefined && !$hex.is('[class*="color-"]')) {
+				$hex.find('.hex_inner').attr('style', 'background-color: white');
+			}
+
+			// For hexagons with inner text
+			if ($hex.find('span').length > 0) {
+				$hex.find('.inner-span .inner-title').html($hex.find('span')).attr('id', `title-${hexId}`);
+			} else {
+				$hex.find('.inner-span').remove();
+			}
+
+			// For hexagons with inner sub-text
+			if ($hex.find('p').length > 0) {
+				$hex.find('.inner-span .inner-text')
+					.html($hex.find('p').html())
+					.removeClass('inner-text')
+					.addClass($hex.find('p').attr('class'));
+				$hex.find('p').remove();
+			} else {
+				$hex.find('.inner-text').remove();
+			}
+
+			// For hexagons with flipped text
+			const animTime = 500;
+			if ($hex.hasClass('flip')) {
+				// Wrapped inner text
+				$hex.find('.inner-text-flipped').attr('id', `fliptext-${hexId}`)
+					.not('.no-wrap')
+					.wrapInner('<p></p>')
+					.prepend('<div class="hex-wrap-after"></div>')
+					.prepend('<div class="hex-wrap-before"></div>')
+					.css({
+						'transform': 'scaleX(-1)',
+						'height': calculateHexHeight(settings.hexWidth),
+						'visibility': 'hidden',
+					});
+
+				// Non-wrapped inner text
+				$hex.find('.inner-text-flipped.no-wrap').attr('id', `fliptext-${hexId}`)
+					.wrapInner('<p></p>')
+					.css({
+						'position': 'absolute',
+						'top': '50%',
+						'left': '50%',
+						'width': '100%',
+						'height': calculateHexHeight(settings.hexWidth),
+						'transform': 'translate(-50%, -50%) scaleX(-1)',
+						'visibility': 'hidden',
+					});
+
+				// Set up flip handlers (will be updated for background images in img.onload)
+				$hex.find('.hex_inner').on({
+					mouseenter: function () {
+						flipForward($hex, animTime, color);
+					},
+					mouseleave: function () {
+						flipBack($hex, animTime);
+					}
+				});
+			}
+
+			// For scaled hexagons
+			if ($hex.is('[class*="scale-"]')) {
+				var scaleClass = $hex.attr('class').match(/scale-(\d+)/);
+				let scale = 1;
+				if (scaleClass !== null) {
+					scale = parseFloat(scaleClass[1]) / 10;
+				}
+				var $hexInner = $hex.find('.hex_inner');
+				$hexInner.css('transform', `scale(${scale})`);
+			}
+
+			// For hexagons with extra margin
+			if ($hex.is('[class*="margin-"]')) {
+				var marginClass = $hex.attr('class').match(/margin-(\d+)/);
+				let margin = 0;
+				if (marginClass !== null) {
+					margin = parseFloat(marginClass[1]);
+				}
+				$hex.css('margin', `-${margin}px 0px`);
+			}
+
+			applyCSSModifiers($hex);
+		}
+
+		/*
+		* Applies font scaling to given hexagons
+		*/
+		function applyFontScaling($hexes, hexWidth, hexHeight) {
+			const textHeight = hexHeight * .15;
+			$hexes.find('.inner-title').css({ 'font-size': textHeight + 'px' });
+
+			// Apply font scaling logic
+			const maxTitleWidth = hexWidth * 0.92;
+			$hexes.find('.inner-title > span').each(function () {
+				if (this.offsetWidth > maxTitleWidth) {
+					const $parent = $(this).parent();
+					$parent.css({
+						display: 'inline-block',
+						width: maxTitleWidth,
+						'font-size': (maxTitleWidth / this.offsetWidth) * textHeight + 'px'
+					});
+				}
+			});
+
+			// Center flip text vertically by adding calculated padding
+			$hexes.find('.inner-text-flipped > p').each(function () {
+				var padding = (hexHeight - this.offsetHeight) / 2;
+				$(this).attr('style', `padding: ${padding}px 0px;`);
+			});
+
+			// Set proper dimensions for hex wrap elements
+			$hexes.find('.hex-wrap-before, .hex-wrap-after')
+				.width((1 / 2 * hexHeight) / Math.tan(60 * Math.PI / 180))
+				.height(hexHeight);
+		}
+
+		/*
 		* All DOM building must go here. Function is called at end of script.
 		* This is to prevent half-loading of the page.
 		*/
 		async function buildHtml() {
 
-			$container.find('.hex').append('<div class="hex_inner"></div>');
-			$container.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
-			$container.find('.inner-span').append('<div class="inner-text"></div>');
+			buildHexagonStructure($container.find('.hex'));
 
 			// SVG defining the rounding of hex corners
 			const roundedSVG = `
@@ -84,169 +324,16 @@
 			`;
 			$container.append(outlineSVG);
 
-			// Hex Links
-			$container.find('.hex.link').each(function () {
-				var link = $(this).find("link").attr("href"); // Find its associated anchor
-				if (link) { $(this).find('.hex_inner').wrap('<a href="' + link + '" class="hex_link"></a>'); } // wrap the <a></a>
-			})
+			processHexagonInteractions($container.find('.hex'));
 
-			// Hex Buttons
-			$container.find('.hex.button').each(function () {
-				var button = $(this).attr("onclick"); // Find its associated anchor
-				if (button) {
-					$(this).removeAttr('onclick');// Remove the extra onclick action
-					$(this).find('.hex_inner').wrap('<button onclick="' + button + '" class="hex_button"></button>'); // wrap the <a></a>
-					$(this).find('button.hex_button').css({ 'width': '100%' })
-				}
-			})
-
-			// Hex Image
+			// Hex Image - Process each hexagon
 			$container.find('.hex').each(function (hexId) {
+				processHexagonProperties($(this), hexId);
+			});
 
-				const $hex = $(this);
+			$container.find('img, span, link, p').not('.inner-title > span, .inner-text-flipped > p').detach();
 
-				var bg_img_src = $hex.find('.bg').attr('src');//Get uri's of class='bg' images
-				var hvr_img_src = $hex.find('.hvr').attr('src');//Get uri's of class='hvr' images
-
-				// For hexagons with links or solid color hover backgrounds
-				if (bg_img_src !== undefined) { //if image is defined
-
-					// colorThief variables
-					var img_obj = new Image(360, 360); // build image object
-					img_obj.src = bg_img_src; //attach bg image uri
-					var colorThief = new ColorThief(); // initialize colorThief
-					var palette = colorThief.getPalette(img_obj, 5);// Get a palette of colors
-					var color = _.sample(palette);// Choose one color at random
-
-					// Attach bg image
-					$hex.find('.hex_inner').attr('style', `background-image: url("${bg_img_src}")`);// Attach bg image
-
-					if (!$hex.hasClass('flip')) {// .flip is special class handled later
-						$hex.mouseenter(function () {// When hovering, show dominant color of image
-							$hex.find('.inner-span').css({
-								transition: `background-color 0.3s ease;  background-color: rgb(${color})`,
-								transition: `all ${animTime}ms ease-in-out`,
-							});
-						});
-						$hex.mouseleave(function () {// Remove background color
-							$hex.find('.inner-span').css({
-								transition: `background-color 0.3s ease;  background-color: unset`
-							});
-						});
-					}
-				}
-
-				// For hexagons with an image when hovering
-				if (hvr_img_src !== undefined) {// if hover image is defined
-					$hex.mouseenter(function () {
-						$hex.find('.inner-span').attr('style', `background-image: url("${hvr_img_src}")`);
-					})
-					$hex.mouseleave(function () {
-						$hex.find('.inner-span').attr('style', 'background-image: none');
-					})
-				}
-
-				// For hexagons with programmatically defined background colors
-				if (bg_img_src === undefined) {// If image is not defined
-					// Attach bg image and drop shadow
-					$hex.find('.hex_inner').attr('style', 'background-color: white');
-				}
-
-				// For hexagons with inner text
-				if ($hex.find('span').length > 0) { // If span is defined
-					$hex.find('.inner-span .inner-title').html($hex.find('span')).attr('id', `title-${hexId}`);
-				} else {
-					$hex.find('.inner-span').remove();
-				}
-
-				// For hexagons with inner sub-text
-				if ($hex.find('p').length > 0) {// If span is defined
-					$hex.find('.inner-span .inner-text')
-						.html($hex.find('p').html())
-						.removeClass('inner-text')
-						.addClass($hex.find('p').attr('class'));
-					$hex.find('p').remove();
-				} else {
-					$hex.find('.inner-text').remove();
-				}
-
-				// For hexagons with flipped text
-				const animTime = 500;// This must be same as CSS .flip and .flip-back time
-				if ($hex.hasClass('flip')) {
-
-					// Wrapped inner text
-					$hex.find('.inner-text-flipped').attr('id', `fliptext-${hexId}`)// Add an ID
-						.not('.no-wrap')
-						.wrapInner('<p></p>')// This is the inner text content
-						.prepend('<div class="hex-wrap-after"></div>')// shape-outside on the left
-						.prepend('<div class="hex-wrap-before"></div>')// shape-outside on the right
-						.css({
-							'transform': 'scaleX(-1)',
-							'height': calculateHexHeight(settings.width),
-						});
-
-					// Non-wrapped inner text
-					$hex.find('.inner-text-flipped.no-wrap').attr('id', `fliptext-${hexId}`)// Add an ID
-						.wrapInner('<p></p>')// This is the inner text content
-						.css({
-							'position': 'absolute',
-							'top': '50%',
-							'left': '50%',
-							'width': '100%',
-							'height': calculateHexHeight(settings.width),
-							'transform': 'translate(-50%, -50%) scaleX(-1)',
-						});
-
-					$hex.find('.hex_inner').on({
-						mouseenter: function () {
-							flipForward($hex, animTime, color);
-						},
-						mouseleave: function () {
-							flipBack($hex, animTime);
-						}
-					});
-				}
-
-				// For solid color hexagons, apply class `color-{color}` where color is a string
-				if ($hex.is('[class*="color-"]')) {
-					var colorClass = $hex.attr('class').match(/color-([^\\s]+)/); // Parse the color value from the class name
-					if (colorClass !== null) {
-						var color = colorClass[1]; // Extract the color value from the regex match
-						var $hexInner = $hex.find('.hex_inner');
-						$hexInner.css('background-color', color);
-					}
-				}
-
-				// For scaled hexagons, apply class `scale-{scale_factor}` where scale_factor is in percent
-				if ($hex.is('[class*="scale-"]')) {
-					var scaleClass = $hex.attr('class').match(/scale-(\d+)/);// Parse the scale value from the class name
-					let scale = 1;
-					if (scaleClass !== null) {
-						scale = parseFloat(scaleClass[1]) / 10;
-					}
-					var $hexInner = $hex.find('.hex_inner');
-					$hexInner.css('transform', `scale(${scale})`);
-				}
-
-				// For hexagons with extra margin: apply class `margin-{margin_in_px}`
-				if ($hex.is('[class*="margin-"]')) {
-					var marginClass = $hex.attr('class').match(/margin-(\d+)/);// Parse the scale value from the class name
-					let margin = 0;
-					if (marginClass !== null) {
-						margin = parseFloat(marginClass[1]);
-					}
-					var $hexInner = $hex.find('.hex_inner');
-					$hex.css('margin', `-${margin}px 0px`);
-				}
-
-				// Miscellaneous CSS modifiers
-				applyCSSModifiers($hex);
-
-			});// END $(container).find('.hex').each(function()
-
-			$container.find('img, span, link, p').not('.inner-title > span, .inner-text-flipped > p').detach();// Hide hex builder tags
-
-			$invisible.hide();// Remove invisible hexagons
+			$invisible.hide();
 
 		}// END buildHtml()
 
@@ -423,6 +510,45 @@
 		}
 
 		/*
+		 * Add new hexagons incrementally without full reinitialization
+		 */
+		async function addNewHexagons() {
+			// Process only new hexagons that don't have .hex_inner
+			const $newHexes = $container.find('.hex').not(':has(.hex_inner)');
+
+			if ($newHexes.length === 0) return;
+
+			// Build basic structure for new hexagons
+			buildHexagonStructure($newHexes);
+
+			// Process interactions (buttons/links) for new hexagons
+			processHexagonInteractions($newHexes);
+
+			// Process each new hexagon's properties
+			$newHexes.each(function (hexId) {
+				processHexagonProperties($(this), hexId);
+			});
+
+			// Hide hex builder tags for new hexagons
+			$newHexes.find('img, span, link, p').not('.inner-title > span, .inner-text-flipped > p').detach();
+
+			// Reposition all hexagons
+			const elems = await reorder(false, true);
+
+			// Apply proper font scaling to new hexagons
+			const currentWidth = $(window).width();
+			const hexWidth = currentWidth <= settings.breakpoint ?
+				($container.width() + settings.margin * 2) / 2 :
+				settings.hexWidth;
+			const hexHeight = calculateHexHeight(hexWidth);
+
+			// Apply font scaling to new hexagons
+			applyFontScaling($newHexes, hexWidth, hexHeight);
+
+			return elems;
+		}
+
+		/*
 		 * RETURNS
 		*/
 		return {
@@ -432,6 +558,13 @@
 					callback(result.elems, result.spawnPoint, result.settings, result.containerDims);
 				}
 			}),
+			addHexagons: async function (callback) {
+				const elems = await addNewHexagons();
+				if (callback && elems) {
+					callback(elems, spawnPoint, settings, await updateContainerDimensions($container, elems, settings));
+				}
+				return elems;
+			}
 		};
 
 	} // END $.fn.hexagons = function(options) {}
@@ -461,7 +594,9 @@ function flipForward(elem, animTime, color) {
 		setTimeout(function () {
 			elem.find('.inner-title').hide();
 			elem.find('.inner-text-flipped').css('visibility', 'visible');
-			elem.find('.inner-span').css({ 'background-color': `rgb(${color})` });
+			// Convert color array to CSS rgb string
+			const colorString = Array.isArray(color) ? color.join(',') : color;
+			elem.find('.inner-span').css({ 'background-color': `rgb(${colorString})` });
 			applyCSSModifiers(elem);
 			setTimeout(function () {
 				elem.addClass('flipped');
@@ -520,4 +655,289 @@ async function updateContainerDimensions(container, elems, settings) {
 		});
 	}
 	return { height: containerHeight, width: containerWidth };
+}
+
+
+/*
+* Utility for managing per-hexagon state storage to prevent conflicts when multiple hexagons are squared
+*/
+if (typeof window.HexagonStateManager === 'undefined') {
+	window.HexagonStateManager = {
+		states: new Map(),
+
+		// Store state for a specific hexagon using its unique identifier
+		store: function (hexElement, state) {
+			const hexId = this.getHexId(hexElement);
+
+			// Preserve existing flipColor if it exists in another state entry
+			const existingFlipColor = this.findFlipColorForHex(hexElement);
+			if (existingFlipColor) {
+				state.flipColor = existingFlipColor;
+			}
+
+			this.states.set(hexId, state);
+			return hexId;
+		},
+
+		// Find flip color for this hex element across all state entries
+		findFlipColorForHex: function (hexElement) {
+			const $hex = $(hexElement);
+			const content = $hex.find('.inner-title').text() || $hex.find('span').text() || '';
+			const contentKey = content.replace(/\s+/g, '_');
+
+			// Search all states for an entry with matching content that has a flipColor
+			for (let [stateId, state] of this.states) {
+				if (stateId.includes(contentKey) && state.flipColor) {
+					return state.flipColor;
+				}
+			}
+			return null;
+		},
+
+		// Update flip color for a specific hexagon
+		updateFlipColor: function (hexElement, flipColor) {
+			const hexId = this.getHexId(hexElement);
+			const existingState = this.states.get(hexId);
+			if (existingState) {
+				existingState.flipColor = flipColor;
+				this.states.set(hexId, existingState);
+			} else {
+				// Create a minimal state entry just for the flip color
+				this.states.set(hexId, { flipColor: flipColor });
+			}
+		},
+
+		// Get flip color for a specific hexagon
+		getFlipColor: function (hexElement, hexId = null) {
+			const id = hexId || this.getHexId(hexElement);
+			const state = this.states.get(id);
+			const flipColor = state ? state.flipColor : null;
+			return flipColor;
+		},
+
+		// Retrieve state for a specific hexagon
+		retrieve: function (hexElement) {
+			const hexId = this.getHexId(hexElement);
+			return this.states.get(hexId);
+		},
+
+		// Remove state for a specific hexagon
+		remove: function (hexElement) {
+			const hexId = this.getHexId(hexElement);
+			const state = this.states.get(hexId);
+			this.states.delete(hexId);
+			return state;
+		},
+
+		// Remove state by hexId directly
+		removeById: function (hexId) {
+			const state = this.states.get(hexId);
+			this.states.delete(hexId);
+			return state;
+		},
+
+		// Generate unique ID for hexagon based on its position and content
+		getHexId: function (hexElement) {
+			const $hex = $(hexElement);
+			const $parent = $hex.parent();
+			// Use a combination of position data and content to create unique ID
+			const left = $parent.css('left');
+			const top = $parent.css('top');
+			const content = $hex.find('.inner-title').text() || $hex.find('span').text() || '';
+			return `hex_${left}_${top}_${content.replace(/\s+/g, '_')}`.substring(0, 50);
+		},
+
+		// Clean up all states (for page navigation)
+		destroy: function () {
+			this.states.clear();
+		}
+	};
+}
+
+/*
+* Utility function to transition hexagon to square modal state
+*/
+function transitionHexToSquare(hex, container, animTime, contentElement, detailsId) {
+	const $hexParent = $(hex).parent();
+	const $hexInner = $(hex).find('.hex_inner');
+	const $hexFlipText = $(hex).find('.inner-text-flipped');
+	const $hexWrappers = {
+		before: $(hex).find('.hex-wrap-before'),
+		after: $(hex).find('.hex-wrap-after'),
+	};
+
+	// Store original CSS values for restoration using the state manager
+	const original = {
+		height: {
+			inner: $hexInner.css('height'),
+			parent: $hexParent.css('height')
+		},
+		width: {
+			inner: $hexInner.css('width'),
+			parent: $hexParent.css('width')
+		},
+		left: $hexParent.css('left'),
+		top: $hexParent.css('top'),
+		color: $hexInner.css('background-color'),
+		flipColor: null, // Will be set by color extraction logic
+	};
+
+	// Store the state using the state manager
+	const hexId = window.HexagonStateManager.store(hex, original);
+
+	// Hide flip text and add content
+	$hexFlipText.css({ display: 'none' });
+	$hexInner.find('.inner-span').append(contentElement);
+
+	// Transform hex to square modal
+	$hexInner.addClass('squared').css({
+		width: '100%',
+		height: container.height,
+		top: container.top,
+		transition: `all ${animTime}ms ease-in-out`,
+		backgroundColor: 'white',
+		overflow: 'auto', // Enable scrolling if content exceeds height
+	}).off('mouseenter mouseleave');
+
+	$hexInner.find('.inner-span').css({
+		backgroundColor: 'white',
+		transition: `all ${animTime}ms ease-in-out`,
+		minHeight: '100%', // Ensure content takes full height
+		boxSizing: 'border-box',
+	});
+
+	$hexParent.css({
+		width: container.width,
+		position: 'absolute',
+		top: container.top,
+		left: '50%',
+		translate: '-50%',
+		'z-index': 1,
+		transition: `all ${animTime}ms ease-in-out`,
+	});
+
+	$hexWrappers.before.add($hexWrappers.after).css('display', 'none');
+
+	return hexId; // Return the hex ID for later state retrieval
+}
+
+/*
+* Utility function to transition square modal back to hexagon state
+*/
+function transitionSquareToHex(hex, hexId, animTime, detailsId) {
+	const $hexParent = $(hex).parent();
+	const $hexInner = $(hex).find('.hex_inner');
+	const $hexFlipText = $(hex).find('.inner-text-flipped');
+	const $hexWrappers = {
+		before: $(hex).find('.hex-wrap-before'),
+		after: $(hex).find('.hex-wrap-after'),
+	};
+
+	// Retrieve the original state for this specific hexagon
+	const original = hexId ? window.HexagonStateManager.removeById(hexId) : window.HexagonStateManager.remove(hex);
+
+	if (!original) {
+		console.error('No original state found for hexagon', hexId ? `(ID: ${hexId})` : '');
+		return;
+	}
+
+	// Remove the details content
+	if ($hexInner.find(`#${detailsId}`).length) {
+		$hexInner.find(`#${detailsId}`).remove();
+	}
+
+	// Restore original CSS
+	$hexParent.css({
+		position: 'absolute',
+		width: original.width.parent,
+		height: original.height.parent,
+		left: original.left,
+		top: original.top,
+		'z-index': 'auto',
+		translate: '0%',
+		transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
+	});
+
+	$hexInner.css({
+		height: original.height.inner,
+		width: original.width.inner,
+		backgroundColor: original.color,
+		overflow: 'visible', // Reset overflow from squared state
+	});
+
+	// Reset inner-span styles that were modified during squared state
+	$hexInner.find('.inner-span').css({
+		backgroundColor: '',  // Empty string removes the inline style completely
+		minHeight: '',
+		boxSizing: '',
+		transition: '',
+	});
+
+	// Restore landing page specific inner-span properties if they exist
+	if (original.innerSpan) {
+		$hexInner.find('.inner-span').css({
+			height: original.innerSpan.height,
+			display: original.innerSpan.display,
+			flexDirection: original.innerSpan.flexDirection,
+			overflow: original.innerSpan.overflow
+		});
+	}
+
+	// Restore landing page specific padding if it exists
+	if (original.padding) {
+		$hexInner.find('.inner-text-flipped > p').css({
+			padding: original.padding
+		});
+	}
+
+	$hexFlipText.css({ display: 'block' });
+	$hexWrappers.before.add($hexWrappers.after).css('display', 'block');
+	$hexInner.removeClass('squared');
+
+	// Re-attach flip handlers using stored flip color
+	const storedFlipColor = original.flipColor || window.HexagonStateManager.getFlipColor(hex, hexId);
+	const flipColor = storedFlipColor || [255, 255, 255]; // Fallback to white
+
+	$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, flipColor));
+	$hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
+
+	// Trigger flip back animation
+	flipBack($hexParent, animTime);
+
+	// Use setTimeout to ensure the flip color is properly applied after flipBack
+	setTimeout(function () {
+		if ($hexParent.hasClass('flipped')) {
+			// If still flipped after transition, re-apply the correct color
+			$hexParent.find('.inner-span').css({ 'background-color': `rgb(${flipColor.join(',')})` });
+		}
+	}, animTime + 50); // Wait for flip animation to complete
+}
+
+/*
+* Global cleanup function for page navigation
+* Call this before navigating to a new page to prevent variable conflicts
+*/
+function cleanupHexagons() {
+	// Clear the HexagonStateManager
+	if (typeof window.HexagonStateManager !== 'undefined') {
+		window.HexagonStateManager.destroy();
+	}
+
+	// Remove any event listeners
+	$('.hexagons').off();
+	$(window).off('resize.hexagons');
+
+	// Clear any running animations
+	$('.hex').stop(true, true);
+
+	// Call page-specific cleanup functions if they exist
+	if (typeof cleanupRunning === 'function') {
+		cleanupRunning();
+	}
+	if (typeof cleanupLanding === 'function') {
+		cleanupLanding();
+	}
+	if (typeof cleanupServer === 'function') {
+		cleanupServer();
+	}
 }

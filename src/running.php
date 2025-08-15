@@ -275,17 +275,17 @@ class FitbitOAuthClient
     }
 
     // Get list of activities (runs) with cache handling and delta-sync
-public function getActivities($beforeDate = null, $limit = null): array
+public function getActivities($beforeDate = null, $limit = null, $offset = 0): array
 {
     $cacheDir    = __DIR__ . '/cache';
-    $beforeDate  = $beforeDate ?? date('Y-m-d');
-    $limit       = $limit ?? 20;
+    $limit       = $limit ?? 19; // Default to 18 activities per page
+    $offset      = $offset ?? 0;
 
     if (!is_dir($cacheDir)) {
         mkdir($cacheDir, 0755, true);
     }
 
-    $cacheFile = "$cacheDir/activities_{$beforeDate}_{$limit}.json";
+    $cacheFile = "$cacheDir/activities_all_{$limit}.json";
 
     // Unauthenticated: serve most recent cache file
     if (!$this->isAuthenticated()) {
@@ -299,13 +299,21 @@ public function getActivities($beforeDate = null, $limit = null): array
                     $formatted[] = $this->formatActivityForDisplay($act);
                 }
             }
-            $formatted = array_slice($formatted, 0, $limit);
+            // Sort by most recent first (descending by date/time)
+            usort($formatted, fn($a, $b) => strtotime($b['date'] . ' ' . $b['time']) <=> strtotime($a['date'] . ' ' . $a['time']));
+
+            // Apply offset and limit for pagination
+            $totalCount = count($formatted);
+            $formatted = array_slice($formatted, $offset, $limit);
+
             return [
                 'code'          => 200,
                 'data'          => $formatted,
                 'cached'        => true,
                 'lastCacheDate' => date('Y-m-d H:i:s', filemtime($files[0])),
                 'nextDate'      => end($formatted)['date'] ?? null,
+                'totalCount'    => $totalCount,
+                'hasMore'       => ($offset + $limit) < $totalCount,
             ];
         }
 
@@ -323,9 +331,9 @@ public function getActivities($beforeDate = null, $limit = null): array
         '/1/user/-/activities/list.json',
         'GET',
         [
-            'beforeDate' => $beforeDate,
-            'sort'       => 'desc',
-            'limit'      => $limit,
+            'afterDate'  => '2020-01-01',  // Get activities after this date to go far back
+            'sort'       => 'desc',        // Most recent first
+            'limit'      => 100,           // Fetch more to ensure we get enough running activities
             'offset'     => 0,
         ]
     );
@@ -340,13 +348,21 @@ public function getActivities($beforeDate = null, $limit = null): array
             }
         }
 
-        $formatted = array_slice($formatted, 0, $limit);
+        // Sort by most recent first (descending by date/time)
+        usort($formatted, fn($a, $b) => strtotime($b['date'] . ' ' . $b['time']) <=> strtotime($a['date'] . ' ' . $a['time']));
+
+        // Apply offset and limit for pagination
+        $totalCount = count($formatted);
+        $formatted = array_slice($formatted, $offset, $limit);
+
         return [
             'code'          => 200,
             'data'          => $formatted,
             'cached'        => false,
             'lastCacheDate' => date('Y-m-d H:i:s'),
             'nextDate'      => end($formatted)['date'] ?? null,
+            'totalCount'    => $totalCount,
+            'hasMore'       => ($offset + $limit) < $totalCount,
         ];
     }
 
@@ -363,8 +379,10 @@ public function getActivities($beforeDate = null, $limit = null): array
     // Helper function to format activity data consistently
     private function formatActivityForDisplay($activity)
     {
-        $distanceMiles = $activity['distance'] * 0.621371;
-        $durationSeconds = $activity['duration'] / 1000;
+        // Distance is already in kilometers based on distanceUnit, convert to miles
+        $distanceKm = $activity['distance'] ?? 0;
+        $distanceMiles = $distanceKm * 0.621371; // Convert kilometers to miles
+        $durationSeconds = ($activity['duration'] ?? 0) / 1000;
         $paceMinPerMile = ($distanceMiles > 0) ? $durationSeconds / 60 / $distanceMiles : 0;
 
         // Format pace as MM:SS
@@ -380,7 +398,14 @@ public function getActivities($beforeDate = null, $limit = null): array
             'duration' => gmdate('H:i:s', $durationSeconds), // Format duration in H:i:s
             'pace' => $paceMinPerMile, // Raw pace value in minutes per mile
             'paceFormatted' => $paceFormatted, // Formatted pace as MM:SS
-            'activityName' => $activity['activityName']
+            'activityName' => $activity['activityName'] ?? 'Unknown Activity',
+            'type' => $activity['activityName'] ?? 'Unknown Activity', // Add type field for easier access
+            'summary' => sprintf('%s - %.1f mi in %s (pace %s/mi)',
+                $activity['activityName'] ?? 'Unknown Activity',
+                $distanceMiles,
+                gmdate('H:i:s', $durationSeconds),
+                $paceFormatted
+            )
         ];
     }
 
@@ -524,18 +549,23 @@ public function getActivities($beforeDate = null, $limit = null): array
         $activity = $activityNode[0];
         $startTime = (string)$activity->Id;
 
-        // Extract lap information
-        $lapNode = $tcx->xpath('//tcx:Lap');
-        if (empty($lapNode)) {
+        // Extract lap information - sum all laps in case there are multiple
+        $lapNodes = $tcx->xpath('//tcx:Lap');
+        if (empty($lapNodes)) {
             throw new \Exception("No Lap element found in TCX");
         }
 
-        $lap = $lapNode[0];
-        $totalTimeSeconds = (float)$lap->TotalTimeSeconds;
-        $distanceMeters = (float)$lap->DistanceMeters;
-        $calories = (int)$lap->Calories;
+        $totalTimeSeconds = 0;
+        $distanceMeters = 0;
+        $calories = 0;
 
-        // Convert values for display
+        foreach ($lapNodes as $lap) {
+            $totalTimeSeconds += (float)$lap->TotalTimeSeconds;
+            $distanceMeters += (float)$lap->DistanceMeters;
+            $calories += (int)$lap->Calories;
+        }
+
+        // Convert values for display - Fix conversion factor to match formatActivityForDisplay
         $distanceMiles = $distanceMeters * 0.000621371; // Convert meters to miles
         $durationFormatted = gmdate('H:i:s', $totalTimeSeconds); // Format duration as H:i:s
         $paceMinPerMile = ($distanceMiles > 0) ? ($totalTimeSeconds / 60) / $distanceMiles : 0; // Pace in minutes per mile
@@ -631,15 +661,17 @@ if ($request && $fitbitClient->isAuthenticated()) {
 
     switch ($request) {
         case 'getActivities':
-            $beforeDate = $_GET['beforeDate'] ?? null;
-            $limit = $_GET['limit'] ?? null;
-            $result = $fitbitClient->getActivities($beforeDate, $limit);
+            $limit = $_GET['limit'] ?? 19;
+            $offset = $_GET['offset'] ?? 0;
+            $result = $fitbitClient->getActivities(null, $limit, $offset);
 
             if ($result['code'] === 200) {
                 $response = [
                     'status' => 'success',
                     'data' => $result['data'],
-                    'nextDate' => !empty($formattedActivities) ? end($formattedActivities)['date'] : null
+                    'nextDate' => !empty($result['data']) ? end($result['data'])['date'] : null,
+                    'hasMore' => $result['hasMore'] ?? false,
+                    'totalCount' => $result['totalCount'] ?? 0
                 ];
             } else {
                 $response = [
@@ -663,8 +695,21 @@ if ($request && $fitbitClient->isAuthenticated()) {
             }
 
             try {
+                // First get the activity name from the cached activities
+                $activities = $fitbitClient->getActivities(null, 20);
+                $activityName = 'Activity';
+                if (isset($activities['data'])) {
+                    foreach ($activities['data'] as $activity) {
+                        if ($activity['id'] == $activityId) {
+                            $activityName = $activity['type'] ?? 'Activity';
+                            break;
+                        }
+                    }
+                }
+
                 // Get comprehensive activity summary from TCX
                 $summary = $fitbitClient->getActivitySummary($activityId);
+                $summary['activityType'] = $activityName; // Add activity type to summary
 
                 // Extract detailed data series from TCX
                 $heartRate    = $fitbitClient->getHeartRateTimeSeries($activityId);
