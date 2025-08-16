@@ -150,6 +150,10 @@ function squareHex(hex, id, height, width) {
 
 	// Transition to square state
 	const $hexParent = $(hex).parent();
+
+	// Stop any ongoing expand animations to ensure proper centering
+	$hexParent.stop(true, false);
+
 	const $innerText = $(hex).find('.inner-text-flipped > p');
 	const $hexWrappers = $(hex).find('.hex-wrap-before, .hex-wrap-after');
 	const currentWidth = $(window).width();
@@ -168,6 +172,7 @@ function squareHex(hex, id, height, width) {
 		width: { inner: $hexInner.css('width'), parent: $hexParent.css('width') },
 		left: $hexParent.css('left'),
 		top: $hexParent.css('top'),
+		// translate: $hexParent.css('translate') || '0%',
 		color: $hexInner.find('.inner-span').css('background-color'),
 		padding: $innerText.css('padding'),
 		innerSpan: {
@@ -175,6 +180,14 @@ function squareHex(hex, id, height, width) {
 			display: $hexInner.find('.inner-span').css('display'),
 			flexDirection: $hexInner.find('.inner-span').css('flex-direction'),
 			overflow: $hexInner.find('.inner-span').css('overflow')
+		},
+		innerTextFlipped: {
+			height: $hexInner.find('.inner-text-flipped').css('height'),
+			transition: $hexInner.find('.inner-text-flipped').css('transition') || ''
+		},
+		innerTextP: {
+			padding: $innerText.css('padding'),
+			transition: $innerText.css('transition') || ''
 		},
 		flipColor: null,
 	};
@@ -208,24 +221,21 @@ function squareHex(hex, id, height, width) {
 		})
 		.then(function() {
 			// Apply all transformations
-			expand($hexParent, center, original, 0, 1);
-
 			Object.assign($hexParent[0].style, {
 				width: mobile.width,
 				position: 'absolute',
 				left: '50%',
 				translate: '-50%',
 				top: mobile.top,
-				'z-index': '1',
+				zIndex: '1',
 				transition: `all ${animTime}ms ease-in-out`
-			});
+            });
 
-			Object.assign($hexInner[0].style, {
-				width: '100%',
-				height: mobile.height,
-				transition: `all ${animTime}ms ease-in-out`,
-				overflow: 'hidden'
-			});
+            Object.assign($hexInner[0].style, {
+                width: '100%',
+                height: mobile.height,
+                overflow: 'hidden'
+            });
 
 			$hexInner.addClass('squared').off('mouseenter mouseleave');
 			$hexWrappers.css('display', 'none');

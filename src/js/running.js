@@ -69,17 +69,6 @@ var selectedDates = {
     end: moment().startOf('week').clone().add(7, 'days')
 };
 
-// Function to apply colors to hexagons based on activity type
-function applyColorsToHexagons() {
-    $('.hexagons .hex').each(function () {
-        const $hex = $(this);
-        const classes = $hex.attr('class').split(' ');
-        const activity = classes.find(c => c in colorMap);
-        const color = colorMap[activity] || DEFAULT_COLOR;
-        $hex.find('.hex_inner').css('background-color', color);
-    });
-}
-
 // On DOM load
 $(document).ready(function () {
     // Set up hexagons and store the instance
@@ -92,13 +81,16 @@ $(document).ready(function () {
         // Apply colors based on activity type
         elems.forEach(({ classes, selector }) => {
             const activity = classes.find(c => c in colorMap);
-            const color = colorMap[activity] || DEFAULT_COLOR;
-            $(selector).find('.hex_inner').css('background-color', color);
+            const $hex = $(selector);
+            applyActivityColor($hex, activity);
         });
 
         // Calculate max column to determine how many activities to load per batch
         var nCol = _.maxBy(elems, 'col')?.col || 0;
         window.maxCol = nCol + 1;
+
+        // Initialize lazy loading for running activities
+        initializeActivityLazyLoading();
 
     }, {
         hexWidth: 200, // Set hex width
@@ -106,6 +98,143 @@ $(document).ready(function () {
 
     $('.hexagons').fadeIn(10); // Fade in when loaded
 });
+
+/**
+ * Initialize lazy loading for running activity hexagons
+ * Uses the integrated HexagonLazyLoader system with activity-specific configuration
+ */
+async function initializeActivityLazyLoading() {
+    try {
+        // Validate that we have a hexagons container with activities to load
+        const $container = $('.hexagons.running');
+        if (!$container.length) {
+            console.warn('⚠️ No .hexagons.running container found for lazy loading');
+            return;
+        }
+
+        const $lazyHexagons = $container.find('.hex[data-lazy-load="true"]');
+
+        if ($lazyHexagons.length === 0) {
+            return;
+        }
+
+        // Initialize lazy loading using the integrated HexagonLazyLoader
+        await window.HexagonLazyLoader.initialize('.hexagons.running', {
+            apiEndpoint: '/index.php?page=running',
+            staggerDelay: 80, // Load activities every 80ms for smooth visual feedback
+            cacheResults: true,
+            retryAttempts: 2,
+            // Custom fetch function for activities
+            fetchData: async function (instance, identifier) {
+                const url = new URL(instance.options.apiEndpoint, window.location.origin);
+                url.searchParams.set('request', 'getActivitySummary');
+                url.searchParams.set('activityId', identifier);
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                return await response.json();
+            },
+            // Custom content updater for activities
+            updateContent: function (hexInfo, activityData, instance) {
+                const $hex = $(hexInfo.selector);
+                const $hexInner = $hex.find('.hex_inner');
+                const $innerSpan = $hexInner.find('.inner-span');
+                const $title = $innerSpan.find('.inner-title');
+                const $flipText = $innerSpan.find('.inner-text-flipped');
+
+                // Handle both wrapped and direct data formats using utility function
+                const data = extractDataFromResponse(activityData);
+
+                if (data && typeof data === 'object') {
+                    // Update title with activity type or distance
+                    if (data.activityType) {
+                        $title.html(`<span>${data.activityType}</span>`);
+                    } else if (data.distance) {
+                        $title.html(`<span>${data.distance} mi</span>`);
+                    }
+
+                    // Update flip text with activity details - handle both summary structure and direct data
+                    const summary = data.summary || data;
+                    $flipText.html(`
+                        Type: ${summary.activityType || data.activityType || 'Activity'}<br>
+                        Distance: ${summary.distanceMiles || data.distance || '0'} mi<br>
+                        Duration: ${summary.durationFormatted || data.duration || '0:00'}<br>
+                        Pace: ${summary.paceFormatted || data.pace || '--'} min/mi<br>
+                        Calories: ${summary.calories || data.calories || 0}<br>
+                        Date: ${summary.activityDate || data.date || 'Unknown'}
+                    `);
+
+                    // Apply activity type color using utility function
+                    const activityType = summary.activityType || data.activityType;
+                    const color = applyActivityColor($hex, activityType);
+
+                    // Store flip color for later use
+                    const flipColor = hexToRgb(color) || [255, 255, 255];
+                    window.HexagonStateManager.updateFlipColor($hex[0], flipColor);
+
+                    // Remove the lazy load flag
+                    $hex.removeAttr('data-lazy-load').removeData('lazy-load');
+                    $hex.addClass('hex-loaded');
+
+                } else {
+                    console.warn(`⚠️ Invalid activity data for: ${hexInfo.identifier}`, activityData);
+
+                    // Set error state
+                    $title.html('<span>Error</span>');
+                    $flipText.html('Failed to load activity details');
+                    $hexInner.css('background-color', '#dc3545'); // Red for error
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Failed to initialize activity lazy loading:', error);
+        // Fallback: show basic hexagons without detailed data
+        $('.hexagons .hex').removeClass('hex-loading').addClass('hex-error');
+    }
+}
+
+/**
+ * Get cached activity data from lazy loading system
+ * @param {string} activityId - The activity ID to look up
+ * @returns {object|null} - Cached activity data or null if not found
+ */
+function getCachedActivityData(activityId) {
+    try {
+        // Check if HexagonLazyLoader has cached data for this activity
+        if (window.HexagonLazyLoader && window.HexagonLazyLoader.instances.has('.hexagons.running')) {
+            const instance = window.HexagonLazyLoader.instances.get('.hexagons.running');
+            if (instance && instance.cache && instance.cache.has(activityId)) {
+                const cachedData = instance.cache.get(activityId);
+                return cachedData;
+            }
+        }
+
+        // Fallback: try to extract data from the hexagon's DOM
+        const $hex = $(`.hex[data-identifier="${activityId}"]`);
+        if ($hex.length) {
+            const $flipText = $hex.find('.inner-text-flipped');
+            const flipContent = $flipText.html();
+
+            if (flipContent && flipContent.includes('Type:') && !flipContent.includes('Failed to load')) {
+                // Extract basic info from the flip text for immediate display
+                return {
+                    fromDom: true,
+                    activityId: activityId
+                };
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error getting cached activity data:', error);
+        return null;
+    }
+}
 
 /**
  * Initiates the Fitbit OAuth authentication flow.
@@ -176,41 +305,75 @@ function openActivityDetails(hex, activityId) {
     if ($hexInner.hasClass('squared')) { // Transition back to hex state
         // Get the stored hex ID from the hex element's data attribute
         const hexId = $(hex).data('hexStateId');
-        // console.log('Transitioning back with hexId:', hexId);
         transitionSquareToHex(hex, hexId, animTime, 'activity-details');
         $(hex).removeData('hexStateId'); // Clean up the stored ID
     } else if ($hexInner.find('.inner-text-flipped').css('visibility') === 'visible') { // Transition to square
-        var activityDetailDiv = initializeActivityView(activityId, container);
+        // Try to get cached activity data from lazy loading first
+        const $hex = $(hex);
+        const cachedData = getCachedActivityData(activityId);
+
+        var activityDetailDiv = initializeActivityView(activityId, container, cachedData);
         const hexId = transitionHexToSquare(hex, container, animTime, activityDetailDiv, 'activity-details');
-        // console.log('Storing hexId:', hexId);
         $(hex).data('hexStateId', hexId); // Store the hex ID for later retrieval
     }
 }
 
 var titleHeight = 0;
-function initializeActivityView(activityId, container) {
-    // Create the outer div element
+function initializeActivityView(activityId, container, cachedData = null) {
+    // Create the outer div element with flexbox layout
     let containerDiv = document.createElement('div');
     containerDiv.style.transform = 'scaleX(-1)';
     containerDiv.id = 'activity-details';
+    containerDiv.style.display = 'flex';
+    containerDiv.style.flexDirection = 'column';
+    containerDiv.style.height = '100%';
+    containerDiv.style.overflow = 'auto';
 
     // Create title container with loading state
     let titleDiv = document.createElement('h1');
-    titleDiv.innerHTML = `<i class="fas fa-running" style="margin-right: 8px;"></i>Loading Activity...`;
-    containerDiv.appendChild(titleDiv);
-
-    // Create loading indicator
     let loadingDiv = document.createElement('div');
-    loadingDiv.className = 'loading-indicator';
-    loadingDiv.innerHTML = '<div class="spinner"></div><span class="loading-text">Loading activity details...</span>';
-    containerDiv.appendChild(loadingDiv);
+
+    // If we have cached data, try to use it immediately for faster display
+    if (cachedData && !cachedData.fromDom) {
+        // Extract data from cache using utility function
+        const data = extractDataFromResponse(cachedData);
+
+        const summary = data.summary || data;
+        const activityType = summary.activityType || data.activityType || 'Activity';
+        const activityIcon = getActivityIcon(activityType);
+        const activityDate = summary.activityDate || data.date || 'Unknown Date';
+
+        titleDiv.innerHTML = `${activityIcon}${activityType} on ${activityDate}`;
+
+        // Create summary section immediately from cached data using utility function
+        let summaryDiv = document.createElement('div');
+        summaryDiv.className = 'activity-summary';
+        summaryDiv.innerHTML = createSummaryHTML(summary, data);
+        containerDiv.appendChild(titleDiv);
+        containerDiv.appendChild(summaryDiv);
+
+        // Show a smaller loading indicator for additional chart details
+        loadingDiv.className = 'loading-indicator';
+        loadingDiv.style.padding = '20px';
+        loadingDiv.style.fontSize = '12px';
+        loadingDiv.innerHTML = '<div class="spinner spinner-small"></div><span class="loading-text">Loading detailed charts...</span>';
+        containerDiv.appendChild(loadingDiv);
+    } else {
+        // No cached data, show full loading state
+        titleDiv.innerHTML = `<i class="fas fa-running" style="margin-right: 8px;"></i>Loading Activity...`;
+        containerDiv.appendChild(titleDiv);
+
+        loadingDiv.className = 'loading-indicator';
+        loadingDiv.innerHTML = '<div class="spinner"></div><span class="loading-text">Loading activity details...</span>';
+        containerDiv.appendChild(loadingDiv);
+    }
 
     // Measure title height for layout calculations
     requestAnimationFrame(() => {
         titleHeight = $(titleDiv).outerHeight(true);
     });
 
-    // Request activity details from backend
+    // Always make the detailed API call for chart data, but only for data we don't have
     let req = {
         page: 'running',
         request: 'getActivityDetails',
@@ -222,53 +385,37 @@ function initializeActivityView(activityId, container) {
         $(loadingDiv).remove();
 
         if (response.status === 'error') {
-            containerDiv.innerHTML = `
-                <h1><i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Error</h1>
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
-                    Error loading activity: ${response.message}
-                </div>`;
+            containerDiv.innerHTML = createErrorHTML('Error', `Error loading activity: ${response.message}`);
             return;
         }
 
-        // Update title with activity date and type
-        const activityType = response.summary.activityType || 'Activity';
-        const activityIcon = getActivityIcon(activityType);
-        titleDiv.innerHTML = `${activityIcon}${activityType} on ${response.summary.activityDate}`;
+        // If we didn't have cached data, populate the summary now
+        if (!cachedData || cachedData.fromDom) {
+            // Update title with activity date and type
+            const activityType = response.summary.activityType || 'Activity';
+            const activityIcon = getActivityIcon(activityType);
+            titleDiv.innerHTML = `${activityIcon}${activityType} on ${response.summary.activityDate}`;
 
-        // Create summary section
-        let summaryDiv = document.createElement('div');
-        summaryDiv.className = 'activity-summary';
-        summaryDiv.innerHTML = `
-            <div class="summary-item">
-                <div class="summary-label">Distance</div>
-                <div class="summary-value">${response.summary.distanceMiles} mi</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-label">Duration</div>
-                <div class="summary-value">${response.summary.durationFormatted}</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-label">Pace</div>
-                <div class="summary-value">${response.summary.paceFormatted} min/mi</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-label">Calories</div>
-                <div class="summary-value">${response.summary.calories}</div>
-            </div>
-        `;
-        containerDiv.appendChild(summaryDiv);
+            // Create summary section using utility function
+            let summaryDiv = document.createElement('div');
+            summaryDiv.className = 'activity-summary';
+            summaryDiv.innerHTML = createSummaryHTML(response.summary, response.summary);
+            containerDiv.appendChild(summaryDiv);
+        }
 
         // Create chart containers if heart rate data exists
         if (response.chartData && response.chartData.heartRate && response.chartData.heartRate.length > 0) {
-            // Create charts wrapper
+            // Create charts wrapper with proper height
             let chartsWrapper = document.createElement('div');
             chartsWrapper.style.padding = '20px';
             chartsWrapper.style.background = '#f8f9fa';
+            chartsWrapper.style.flex = '1'; // Take remaining space
+            chartsWrapper.style.display = 'flex';
+            chartsWrapper.style.flexDirection = 'column';
+            chartsWrapper.style.minHeight = '300px'; // Minimum height for charts
 
-            // Create heart rate chart
-            let hrCanvas = document.createElement('canvas');
-            hrCanvas.id = 'heart-rate-chart';
+            // Create heart rate chart using utility function
+            const hrCanvas = createChartCanvas('heart-rate-chart', '200px');
             chartsWrapper.appendChild(hrCanvas);
 
             // Initialize heart rate chart
@@ -276,8 +423,7 @@ function initializeActivityView(activityId, container) {
 
             // Create SpO2 chart if data exists
             if (response.chartData.spo2 && response.chartData.spo2.length > 0) {
-                let spo2Canvas = document.createElement('canvas');
-                spo2Canvas.id = 'spo2-chart';
+                const spo2Canvas = createChartCanvas('spo2-chart', '150px');
                 chartsWrapper.appendChild(spo2Canvas);
 
                 createActivityChart(spo2Canvas, 'Blood Oxygen', response.chartData.labels, response.chartData.spo2, '#4BC0C0', '%', container);
@@ -285,8 +431,7 @@ function initializeActivityView(activityId, container) {
 
             // Create temperature chart if data exists
             if (response.chartData.temperature && response.chartData.temperature.length > 0) {
-                let tempCanvas = document.createElement('canvas');
-                tempCanvas.id = 'temperature-chart';
+                const tempCanvas = createChartCanvas('temperature-chart', '150px', '0px');
                 chartsWrapper.appendChild(tempCanvas);
 
                 createActivityChart(tempCanvas, 'Temperature', response.chartData.labels, response.chartData.temperature, '#FFCE56', '°F', container);
@@ -302,12 +447,7 @@ function initializeActivityView(activityId, container) {
         }
     })
         .fail(function () {
-            containerDiv.innerHTML = `
-                <h1><i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Error</h1>
-                <div class="error-message">
-                    <i class="fas fa-wifi" style="margin-right: 8px;"></i>
-                    Failed to load activity data. Please check your connection.
-                </div>`;
+            containerDiv.innerHTML = createErrorHTML('Error', 'Failed to load activity data. Please check your connection.', 'fas fa-wifi');
         });
 
     // Return the container div
@@ -334,108 +474,123 @@ function getActivityIcon(activityType) {
 }
 
 function createActivityChart(canvas, title, labels, data, color, unit, container) {
+    // Extract values and labels from the data structure
+    let chartData = data;
+    let chartLabels = labels;
+
+    // Check if data is array of objects with time/value structure
+    if (data && data.length > 0 && typeof data[0] === 'object' && data[0].value !== undefined) {
+        chartData = data.map(item => item.value);
+        chartLabels = data.map(item => item.time);
+    }
+
     // Calculate min and max values for better scaling
-    const minValue = Math.min(...data.filter(v => v !== null && v !== undefined));
-    const maxValue = Math.max(...data.filter(v => v !== null && v !== undefined));
+    const minValue = Math.min(...chartData.filter(v => v !== null && v !== undefined && !isNaN(v)));
+    const maxValue = Math.max(...chartData.filter(v => v !== null && v !== undefined && !isNaN(v)));
     const range = maxValue - minValue;
     const padding = range * 0.1; // Add 10% padding
 
-    new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: title,
-                data: data,
-                backgroundColor: `${color}20`,
-                borderColor: color,
-                fill: true,
-                tension: 0.4,
-                borderWidth: 3,
-                pointRadius: 0,
-                pointHoverRadius: 6,
-                pointHoverBackgroundColor: color,
-                pointHoverBorderColor: '#ffffff',
-                pointHoverBorderWidth: 2,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 10,
-                    bottom: 10
-                }
+    try {
+        const chart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: title,
+                    data: chartData,
+                    backgroundColor: `${color}20`,
+                    borderColor: color,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: color,
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 2,
+                }]
             },
-            plugins: {
-                title: {
-                    display: true,
-                    text: title,
-                    font: {
-                        size: 16,
-                        weight: '500'
-                    },
-                    color: '#343a40',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
                     padding: {
                         top: 10,
-                        bottom: 20
+                        bottom: 10
                     }
                 },
-                legend: {
-                    display: false,
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    cornerRadius: 8,
-                    borderColor: color,
-                    borderWidth: 1,
-                    callbacks: {
-                        label: function (context) {
-                            return `${context.dataset.label}: ${context.raw} ${unit}`;
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 16,
+                            weight: '500'
+                        },
+                        color: '#343a40',
+                        padding: {
+                            top: 10,
+                            bottom: 20
+                        }
+                    },
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        cornerRadius: 8,
+                        borderColor: color,
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.dataset.label}: ${context.raw} ${unit}`;
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        color: '#e9ecef',
-                        borderColor: '#dee2e6'
-                    },
-                    ticks: {
-                        color: '#6c757d',
-                        maxRotation: 0,
-                        minRotation: 0,
-                        callback: function (val, index) {
-                            // Show every 5th label to avoid overcrowding
-                            return index % 5 === 0 ? this.getLabelForValue(val) : '';
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#e9ecef',
+                            borderColor: '#dee2e6'
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                            maxRotation: 0,
+                            minRotation: 0,
+                            callback: function (val, index) {
+                                // Show every 5th label to avoid overcrowding
+                                return index % 5 === 0 ? this.getLabelForValue(val) : '';
+                            },
                         },
                     },
-                },
-                y: {
-                    min: Math.max(0, minValue - padding),
-                    max: maxValue + padding,
-                    grid: {
-                        color: '#e9ecef',
-                        borderColor: '#dee2e6'
-                    },
-                    ticks: {
-                        color: '#6c757d',
-                        callback: function (value) {
-                            return `${Math.round(value)} ${unit}`;
+                    y: {
+                        min: Math.max(0, minValue - padding),
+                        max: maxValue + padding,
+                        grid: {
+                            color: '#e9ecef',
+                            borderColor: '#dee2e6'
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                            callback: function (value) {
+                                return `${Math.round(value)} ${unit}`;
+                            }
                         }
                     }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 }
             },
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            }
-        },
-    });
+        });
+
+    } catch (error) {
+        console.error('Error creating chart:', error);
+    }
 }
 
 function loadMoreActivities(button) {
@@ -446,7 +601,6 @@ function loadMoreActivities(button) {
 
     // Calculate how many activities we need to load for one more row
     const activitiesPerRow = window.maxCol;
-    console.log(`Loading ${activitiesPerRow} more activities for next row`);
 
     // Get current number of activities to determine offset
     const currentActivities = $('.hexagons .hex').length;
@@ -537,9 +691,6 @@ function addActivitiesToGrid(activities) {
                 // Also ensure the body has enough height for proper scrolling
                 $('body').css('min-height', (currentTop + containerHeight + 150) + 'px');
 
-                console.log('Switched to absolute positioning - container height:', containerHeight, 'viewport height:', viewportHeight);
-            } else {
-                console.log('Keeping centered positioning - container height:', containerHeight, 'viewport height:', viewportHeight);
             }
 
             // Apply colors to all hexagons after adding new ones
@@ -549,11 +700,9 @@ function addActivitiesToGrid(activities) {
             var nCol = _.maxBy(elems, 'col')?.col || 0;
             window.maxCol = nCol + 1;
 
-            console.log('New hexagons added incrementally, maxCol:', window.maxCol);
         });
     } else {
         // Fallback to full reinitialization if the new method isn't available
-        console.log('Using fallback full reinitialization');
         $hexagons.hexagons(function (elems, spawnPoint, settings, containerDims) {
             // Check if the container height would exceed viewport height
             const viewportHeight = window.innerHeight;
@@ -582,10 +731,107 @@ function addActivitiesToGrid(activities) {
     }
 }
 
+// ========== UTILITY FUNCTIONS ==========
+
+/**
+ * Extract data from response, handling various response formats
+ */
+function extractDataFromResponse(response) {
+    if (!response) return null;
+    if (response.success && response.data) return response.data;
+    if (response.data) return response.data;
+    return response;
+}
+
+/**
+ * Create activity summary HTML template
+ */
+function createSummaryHTML(summary, data) {
+    return `
+        <div class="summary-item">
+            <div class="summary-label">Distance</div>
+            <div class="summary-value">${summary.distanceMiles || data.distance || '0'} mi</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Duration</div>
+            <div class="summary-value">${summary.durationFormatted || data.duration || '0:00'}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Pace</div>
+            <div class="summary-value">${summary.paceFormatted || data.pace || '--'} min/mi</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Calories</div>
+            <div class="summary-value">${summary.calories || data.calories || '0'}</div>
+        </div>
+    `;
+}
+
+/**
+ * Create a chart canvas with consistent styling
+ */
+function createChartCanvas(id, height, marginBottom = '20px') {
+    const canvas = document.createElement('canvas');
+    canvas.id = id;
+    canvas.style.height = height;
+    if (marginBottom) canvas.style.marginBottom = marginBottom;
+    return canvas;
+}
+
+/**
+ * Create error message HTML template
+ */
+function createErrorHTML(title, message, iconClass = 'fas fa-exclamation-triangle') {
+    return `
+        <h1><i class="${iconClass}" style="margin-right: 8px;"></i>${title}</h1>
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+            ${message}
+        </div>
+    `;
+}
+
+/**
+ * Apply color to hexagon based on activity type
+ */
+function applyActivityColor($hex, activityType) {
+    const type = (activityType || '').toLowerCase();
+    const color = activityTypeMap[type]?.color || colorMap[type] || DEFAULT_COLOR;
+    $hex.find('.hex_inner').css('background-color', color);
+    return color;
+}
+
+// Function to apply colors to hexagons based on activity type
+function applyColorsToHexagons() {
+    $('.hexagons .hex').each(function () {
+        const $hex = $(this);
+        const classes = $hex.attr('class').split(' ');
+        const activity = classes.find(c => c in colorMap);
+        applyActivityColor($hex, activity);
+    });
+}
+
+/**
+ * Convert hex color to RGB array for flip color calculation
+ */
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+    ] : null;
+}
+
 /*
 * Cleanup function for running page variables
 */
 function cleanupRunning() {
+    // Clean up lazy loading instances
+    if (window.HexagonLazyLoader && window.HexagonLazyLoader.instances.has('.hexagons.running')) {
+        window.HexagonLazyLoader.instances.delete('.hexagons.running');
+    }
+
     // Reset global variables
     window.lastLoadedDate = null;
     window.maxCol = 0;
@@ -594,3 +840,5 @@ function cleanupRunning() {
 
     // Clear any intervals or timeouts specific to running page
 }
+
+// ========== END UTILITY FUNCTIONS ==========

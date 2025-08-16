@@ -1,3 +1,4 @@
+{if !$params.request}
 <style>
   .container {
     text-align: center;
@@ -33,6 +34,7 @@
     text-decoration: none;
   }
 </style>
+{/if}
 
 <div class="container">
   <h1>Under construction.</h1>

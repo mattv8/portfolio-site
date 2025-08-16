@@ -5,6 +5,10 @@
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/conf/config.php');
 require_once(__DIR__ . '/lib/functions.php');
+require_once(__DIR__ . '/lib/cache.php');
+
+// Initialize cache for lazy loading and performance optimization
+$cache = new SimpleCache($_SERVER['DOCUMENT_ROOT'] . '/cache');
 
 #==============================================================================
 # Fitbit API with OAuth 2.0
@@ -695,50 +699,149 @@ if ($request && $fitbitClient->isAuthenticated()) {
             }
 
             try {
-                // First get the activity name from the cached activities
-                $activities = $fitbitClient->getActivities(null, 20);
-                $activityName = 'Activity';
-                if (isset($activities['data'])) {
-                    foreach ($activities['data'] as $activity) {
-                        if ($activity['id'] == $activityId) {
-                            $activityName = $activity['type'] ?? 'Activity';
-                            break;
+                // Use comprehensive caching for activity details since TCX parsing is expensive
+                $details_cache_key = "activity_details_{$activityId}";
+
+                $result = $cache->remember($details_cache_key, function() use ($fitbitClient, $activityId, $cache) {
+                    // Try to reuse activity info from main activities cache first
+                    $activities_cache_key = "activities_main_list";
+                    $cached_activities = $cache->get($activities_cache_key, SimpleCache::TTL_NORMAL);
+
+                    $activityName = 'Activity';
+                    if ($cached_activities && isset($cached_activities['data'])) {
+                        foreach ($cached_activities['data'] as $activity) {
+                            if ($activity['id'] == $activityId) {
+                                $activityName = $activity['type'] ?? 'Activity';
+                                break;
+                            }
                         }
                     }
-                }
 
-                // Get comprehensive activity summary from TCX
-                $summary = $fitbitClient->getActivitySummary($activityId);
-                $summary['activityType'] = $activityName; // Add activity type to summary
+                    // If not in cache, fetch activities (this will also update the cache)
+                    if ($activityName === 'Activity') {
+                        $activities = $fitbitClient->getActivities(null, 20);
+                        // Update the main activities cache
+                        $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
 
-                // Extract detailed data series from TCX
-                $heartRate    = $fitbitClient->getHeartRateTimeSeries($activityId);
-                $spo2         = $fitbitClient->getSpO2Data($activityId);
-                $temperature  = $fitbitClient->getTemperatureData($activityId);
+                        if (isset($activities['data'])) {
+                            foreach ($activities['data'] as $activity) {
+                                if ($activity['id'] == $activityId) {
+                                    $activityName = $activity['type'] ?? 'Activity';
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
-                // Build formatted data for charts
-                $chartData = [
-                    'labels'      => array_map(function($dt) { return $dt['time']; }, $heartRate),
-                    'heartRate'   => array_column($heartRate, 'value'),
-                    'spo2'        => array_column($spo2, 'value'),
-                    'temperature' => array_column($temperature, 'value'),
-                ];
+                    // Get comprehensive activity summary from TCX (expensive operation)
+                    $summary = $fitbitClient->getActivitySummary($activityId);
+                    $summary['activityType'] = $activityName; // Add activity type to summary
 
-                echo json_encode([
-                    'status'      => 'success',
-                    'summary'     => $summary,
-                    'heartRate'   => $heartRate,
-                    'spo2'        => $spo2,
-                    'temperature' => $temperature,
-                    'chartData'   => $chartData
-                ]);
+                    // Extract detailed data series from TCX (very expensive operations)
+                    $heartRate    = $fitbitClient->getHeartRateTimeSeries($activityId);
+                    $spo2         = $fitbitClient->getSpO2Data($activityId);
+                    $temperature  = $fitbitClient->getTemperatureData($activityId);
+
+                    // Build response
+                    $chartData = null;
+                    if (!empty($heartRate)) {
+                        $chartData = [
+                            'labels' => array_keys($heartRate),
+                            'heartRate' => array_values($heartRate),
+                            'spo2' => $spo2 ? array_values($spo2) : [],
+                            'temperature' => $temperature ? array_values($temperature) : []
+                        ];
+                    }
+
+                    return [
+                        'status' => 'success',
+                        'summary' => $summary,
+                        'chartData' => $chartData
+                    ];
+
+                }, SimpleCache::TTL_STATIC, ['tags' => ['activities', 'details', $activityId]]);
+
+                echo json_encode($result);
+
             } catch (Exception $e) {
                 echo json_encode([
                     'status'  => 'error',
-                    'message' => $e->getMessage()
+                    'message' => 'Failed to load activity details: ' . $e->getMessage()
                 ]);
             }
             exit;
+
+        case 'getActivitySummary':
+            // Handle lazy loading requests for individual activity summaries
+            $activityId = $_GET['host'] ?? $_GET['activityId'] ?? $_GET['identifier'] ?? null;
+
+            if (!$activityId) {
+                $response = ['success' => false, 'error' => 'Activity ID required'];
+                break;
+            }
+
+            try {
+                // Use longer cache TTL for activity summaries since they don't change often
+                $cache_key = "activity_summary_{$activityId}";
+
+                $activityData = $cache->remember($cache_key, function() use ($fitbitClient, $activityId, $cache) {
+                    // First try to get activity info from the main activities cache
+                    $activities_cache_key = "activities_main_list";
+                    $cached_activities = $cache->get($activities_cache_key, SimpleCache::TTL_NORMAL);
+
+                    $activityInfo = null;
+                    if ($cached_activities && isset($cached_activities['data'])) {
+                        foreach ($cached_activities['data'] as $activity) {
+                            if ($activity['id'] == $activityId) {
+                                $activityInfo = $activity;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If not found in cache, fetch fresh data
+                    if (!$activityInfo) {
+                        $activities = $fitbitClient->getActivities(null, 50);
+
+                        // Cache the activities list for future use
+                        $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
+
+                        if (isset($activities['data'])) {
+                            foreach ($activities['data'] as $activity) {
+                                if ($activity['id'] == $activityId) {
+                                    $activityInfo = $activity;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!$activityInfo) {
+                        throw new Exception('Activity not found');
+                    }
+
+                    // Get detailed activity summary
+                    $summary = $fitbitClient->getActivitySummary($activityId);
+
+                    return [
+                        'activityType' => $activityInfo['type'] ?? 'Activity',
+                        'distance' => $summary['distanceMiles'] ?? 0,
+                        'duration' => $summary['durationFormatted'] ?? '0:00',
+                        'pace' => $summary['paceFormatted'] ?? '--',
+                        'calories' => $summary['calories'] ?? 0,
+                        'date' => $activityInfo['date'] ?? date('Y-m-d'),
+                        'summary' => $summary
+                    ];
+
+                }, SimpleCache::TTL_STATIC, ['tags' => ['activities', 'running', $activityId]]);
+
+                $response = ['success' => true, 'data' => $activityData];
+
+            } catch (Exception $e) {
+                error_log("Failed to get activity summary for {$activityId}: " . $e->getMessage());
+                $response = ['success' => false, 'error' => $e->getMessage()];
+            }
+            break;
 
         default:
             $response = ['status' => 'error', 'message' => 'Unknown request type'];
@@ -761,12 +864,24 @@ if (!$request) {
     $activities = [];
     $lastCacheDate = null;
 
-    // Get recent activities, starting with today's date
-    $result = $fitbitClient->getActivities();
+    // Use SimpleCache for the main activities list to share with lazy loading
+    $activities_cache_key = "activities_main_list";
+
+    $result = $cache->remember($activities_cache_key, function() use ($fitbitClient) {
+        return $fitbitClient->getActivities();
+    }, SimpleCache::TTL_NORMAL, ['tags' => ['activities', 'list']]);
 
     if (isset($result['data']) && is_array($result['data'])) {
         $activities = $result['data'];
-        $lastCacheDate = $result['lastCacheDate'];
+        $lastCacheDate = $result['lastCacheDate'] ?? 'Cached';
+    } else {
+        // Handle case where result is directly an array of activities (cached data)
+        if (is_array($result) && !empty($result) && isset($result[0]['id'])) {
+            $activities = $result;
+            $lastCacheDate = 'Cached from direct array';
+        } else {
+            error_log("Unexpected result structure: " . json_encode($result));
+        }
     }
 
     // Assign activities to Smarty template

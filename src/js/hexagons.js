@@ -22,6 +22,19 @@
 		const $container = this;
 		const $invisible = $('.invisible');
 
+		// Prevent multiple initializations on the same container
+		if ($container.hasClass('hexagons-initialized')) {
+			console.warn('Hexagons already initialized for this container');
+			if (callback) {
+				// Still call the callback but skip re-initialization
+				const elems = $container.data('hexagon-elems') || [];
+				const spawnPoint = $container.data('hexagon-spawn') || centerpoint($container);
+				const containerDims = $container.data('hexagon-dims') || { height: $container.height(), width: $container.width() };
+				callback(elems, spawnPoint, settings, containerDims);
+			}
+			return this;
+		}
+
 		/*
 		* Initialization of the Hexagon DOM. Done asynchronously so objects are returned in proper timing.
 		*/
@@ -34,6 +47,12 @@
 			$(window).resize(function () {
 				debouncedReorder(true, true);// Debounced reorder() function when window resizes
 			});
+
+			// Mark container as initialized and store data
+			$container.addClass('hexagons-initialized');
+			$container.data('hexagon-elems', elems);
+			$container.data('hexagon-spawn', spawnPoint);
+			$container.data('hexagon-dims', containerDims);
 
 			const result = {
 				elems: elems,
@@ -51,6 +70,14 @@
 		* Builds basic hexagon DOM structure for given hexagons
 		*/
 		function buildHexagonStructure($hexes) {
+			// Only build structure for hexagons that don't already have .hex_inner
+			$hexes = $hexes.not(':has(.hex_inner)');
+
+			if ($hexes.length === 0) {
+				console.warn('No new hexagons to build - all already have structure');
+				return;
+			}
+
 			$hexes.append('<div class="hex_inner"></div>');
 			$hexes.find('.hex_inner').append('<div class="inner-span"><div class="inner-title"></div></div>');
 			$hexes.find('.inner-span').append('<div class="inner-text"></div>');
@@ -220,6 +247,9 @@
 						'height': calculateHexHeight(settings.hexWidth),
 						'transform': 'translate(-50%, -50%) scaleX(-1)',
 						'visibility': 'hidden',
+						'display': 'flex',
+						'align-items': 'center',
+						'justify-content': 'center',
 					});
 
 				// Set up flip handlers (will be updated for background images in img.onload)
@@ -499,17 +529,33 @@
 		* Returns object containing top and left position relative to input element
 		*/
 		function centerpoint(element) {
+			// Safety check: ensure element exists and is attached to DOM
+			if (!element || !element.length || !element.parent().length) {
+				console.warn('centerpoint: element not found or not attached to DOM', element);
+				return { left: 0, top: 0 };
+			}
+
+			// If element is not visible but exists, still try to get position for layout calculations
 			let center;
 			var position = element.position();
-			var width = element.width();
-			var height = element.height();
+
+			// Additional safety check for position
+			if (!position) {
+				console.warn('⚠️ centerpoint: position not available for element', element);
+				// Try to get offset position as fallback
+				position = element.offset();
+				if (!position) {
+					return { left: 0, top: 0 };
+				}
+			}
+
+			var width = element.width() || 0;
+			var height = element.height() || 0;
 			return center = {
 				left: position.left + width / 2,
 				top: position.top + height / 2
 			}
-		}
-
-		/*
+		}		/*
 		 * Add new hexagons incrementally without full reinitialization
 		 */
 		async function addNewHexagons() {
@@ -564,6 +610,11 @@
 					callback(elems, spawnPoint, settings, await updateContainerDimensions($container, elems, settings));
 				}
 				return elems;
+			},
+			enableLazyLoading: async function (lazyOptions = {}) {
+				// Convenience method to enable lazy loading for this hexagon container
+				const containerSelector = '.' + $container.attr('class').split(' ').join('.');
+				return await window.HexagonLazyLoader.initialize(containerSelector, lazyOptions);
 			}
 		};
 
@@ -739,12 +790,13 @@ if (typeof window.HexagonStateManager === 'undefined') {
 		// Generate unique ID for hexagon based on its position and content
 		getHexId: function (hexElement) {
 			const $hex = $(hexElement);
-			const $parent = $hex.parent();
-			// Use a combination of position data and content to create unique ID
-			const left = $parent.css('left');
-			const top = $parent.css('top');
+			// Use the element's own position, not the parent's
+			const left = $hex.css('left') || '0';
+			const top = $hex.css('top') || '0';
 			const content = $hex.find('.inner-title').text() || $hex.find('span').text() || '';
-			return `hex_${left}_${top}_${content.replace(/\s+/g, '_')}`.substring(0, 50);
+			// Include a data attribute or index as fallback for uniqueness
+			const index = $hex.index();
+			return `hex_${left}_${top}_${content.replace(/\s+/g, '_')}_${index}`.substring(0, 50);
 		},
 
 		// Clean up all states (for page navigation)
@@ -758,42 +810,79 @@ if (typeof window.HexagonStateManager === 'undefined') {
 * Utility function to transition hexagon to square modal state
 */
 function transitionHexToSquare(hex, container, animTime, contentElement, detailsId) {
-	const $hexParent = $(hex).parent();
-	const $hexInner = $(hex).find('.hex_inner');
-	const $hexFlipText = $(hex).find('.inner-text-flipped');
+	// Ensure we're working with the .hex element, handling different possible input types
+	const $hexElement = hex.jquery ? hex : $(hex);
+	let $actualHex;
+
+	if ($hexElement.hasClass('hex')) {
+		// Direct .hex element
+		$actualHex = $hexElement;
+	} else if ($hexElement.find('.hex').length) {
+		// Parent element containing .hex child
+		$actualHex = $hexElement.find('.hex').first();
+	} else {
+		// Element is likely a child/descendant of .hex, find the parent .hex
+		$actualHex = $hexElement.closest('.hex');
+	}
+
+	// Debug logging to understand what's happening
+	if (!$actualHex.length) {
+		console.error('No hex element found for transition');
+		console.error('Original element:', hex);
+		console.error('$hexElement:', $hexElement);
+		console.error('$hexElement classes:', $hexElement.attr('class'));
+		console.error('Tried .closest(".hex"):', $hexElement.closest('.hex'));
+		return null;
+	}
+
+	const $hexInner = $actualHex.find('.hex_inner');
+	// Check if the hexagon is properly initialized (has hex_inner structure)
+	if (!$hexInner.length) {
+		console.warn('Hexagon not yet initialized, please wait for hexagons to finish loading');
+		return null;
+	}
+
+	const $hexFlipText = $actualHex.find('.inner-text-flipped');
 	const $hexWrappers = {
-		before: $(hex).find('.hex-wrap-before'),
-		after: $(hex).find('.hex-wrap-after'),
+		before: $actualHex.find('.hex-wrap-before'),
+		after: $actualHex.find('.hex-wrap-after'),
 	};
 
 	// Store original CSS values for restoration using the state manager
 	const original = {
 		height: {
 			inner: $hexInner.css('height'),
-			parent: $hexParent.css('height')
+			parent: $actualHex.css('height')
 		},
 		width: {
 			inner: $hexInner.css('width'),
-			parent: $hexParent.css('width')
+			parent: $actualHex.css('width')
 		},
-		left: $hexParent.css('left'),
-		top: $hexParent.css('top'),
+		left: $actualHex.css('left'),
+		top: $actualHex.css('top'),
+		position: $actualHex.css('position'),
+		transform: $actualHex.css('transform'),
+		translate: $actualHex.css('translate'),
+		zIndex: $actualHex.css('z-index'),
 		color: $hexInner.css('background-color'),
-		flipColor: null, // Will be set by color extraction logic
+		filter: $actualHex.css('filter'),
+		flipColor: window.HexagonStateManager.getFlipColor($actualHex[0]),
+		innerTextFlipped: {
+			display: $hexFlipText.css('display') || ''
+		}
 	};
 
 	// Store the state using the state manager
-	const hexId = window.HexagonStateManager.store(hex, original);
+	const hexId = window.HexagonStateManager.store($actualHex[0], original);
 
 	// Hide flip text and add content
 	$hexFlipText.css({ display: 'none' });
 	$hexInner.find('.inner-span').append(contentElement);
 
-	// Transform hex to square modal
+	// Use the working container-based positioning approach
 	$hexInner.addClass('squared').css({
 		width: '100%',
 		height: container.height,
-		top: container.top,
 		transition: `all ${animTime}ms ease-in-out`,
 		backgroundColor: 'white',
 		overflow: 'auto', // Enable scrolling if content exceeds height
@@ -806,7 +895,8 @@ function transitionHexToSquare(hex, container, animTime, contentElement, details
 		boxSizing: 'border-box',
 	});
 
-	$hexParent.css({
+	// Position the hex element using the working approach
+	$actualHex.css({
 		width: container.width,
 		position: 'absolute',
 		top: container.top,
@@ -825,16 +915,38 @@ function transitionHexToSquare(hex, container, animTime, contentElement, details
 * Utility function to transition square modal back to hexagon state
 */
 function transitionSquareToHex(hex, hexId, animTime, detailsId) {
-	const $hexParent = $(hex).parent();
-	const $hexInner = $(hex).find('.hex_inner');
-	const $hexFlipText = $(hex).find('.inner-text-flipped');
+	// Ensure we're working with the .hex element, handling different possible input types
+	const $hexElement = hex.jquery ? hex : $(hex);
+	let $actualHex;
+
+	if ($hexElement.hasClass('hex')) {
+		// Direct .hex element
+		$actualHex = $hexElement;
+	} else if ($hexElement.find('.hex').length) {
+		// Parent element containing .hex child
+		$actualHex = $hexElement.find('.hex').first();
+	} else {
+		// Element is likely a child/descendant of .hex, find the parent .hex
+		$actualHex = $hexElement.closest('.hex');
+	}
+
+	if (!$actualHex.length) {
+		console.error('No hex element found for transition back');
+		console.error('Original element:', hex);
+		console.error('$hexElement:', $hexElement);
+		console.error('Tried .closest(".hex"):', $hexElement.closest('.hex'));
+		return;
+	}
+
+	const $hexInner = $actualHex.find('.hex_inner');
+	const $hexFlipText = $actualHex.find('.inner-text-flipped');
 	const $hexWrappers = {
-		before: $(hex).find('.hex-wrap-before'),
-		after: $(hex).find('.hex-wrap-after'),
+		before: $actualHex.find('.hex-wrap-before'),
+		after: $actualHex.find('.hex-wrap-after'),
 	};
 
 	// Retrieve the original state for this specific hexagon
-	const original = hexId ? window.HexagonStateManager.removeById(hexId) : window.HexagonStateManager.remove(hex);
+	const original = hexId ? window.HexagonStateManager.removeById(hexId) : window.HexagonStateManager.remove($actualHex[0]);
 
 	if (!original) {
 		console.error('No original state found for hexagon', hexId ? `(ID: ${hexId})` : '');
@@ -846,23 +958,32 @@ function transitionSquareToHex(hex, hexId, animTime, detailsId) {
 		$hexInner.find(`#${detailsId}`).remove();
 	}
 
-	// Restore original CSS
-	$hexParent.css({
-		position: 'absolute',
+	// Restore original CSS using the working approach
+	$actualHex.css({
+		position: original.position || 'absolute',
 		width: original.width.parent,
 		height: original.height.parent,
 		left: original.left,
 		top: original.top,
-		'z-index': 'auto',
-		translate: '0%',
-		transition: `position ${animTime}ms ease-in-out, width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out`,
+		'z-index': original.zIndex || 'auto',
+		translate: original.translate || '',
+		transform: '', // Clear any transforms to prevent mirroring issues
+		transition: `width ${animTime}ms ease-in-out, height ${animTime}ms ease-in-out, left ${animTime}ms ease-in-out, top ${animTime}ms ease-in-out`,
 	});
+
+	// Restore filter after other properties to ensure CSS modifiers are applied correctly
+	applyCSSModifiers($actualHex);
 
 	$hexInner.css({
 		height: original.height.inner,
 		width: original.width.inner,
 		backgroundColor: original.color,
 		overflow: 'visible', // Reset overflow from squared state
+		position: '', // Clear any position overrides
+		top: '',
+		left: '',
+		zIndex: '',
+		transition: `all ${animTime}ms ease-in-out`,
 	});
 
 	// Reset inner-span styles that were modified during squared state
@@ -871,46 +992,43 @@ function transitionSquareToHex(hex, hexId, animTime, detailsId) {
 		minHeight: '',
 		boxSizing: '',
 		transition: '',
+		height: original.innerSpan ? original.innerSpan.height : '',
+		display: original.innerSpan ? original.innerSpan.display : '',
+		flexDirection: original.innerSpan ? original.innerSpan.flexDirection : '',
+		overflow: original.innerSpan ? original.innerSpan.overflow : ''
 	});
 
-	// Restore landing page specific inner-span properties if they exist
-	if (original.innerSpan) {
-		$hexInner.find('.inner-span').css({
-			height: original.innerSpan.height,
-			display: original.innerSpan.display,
-			flexDirection: original.innerSpan.flexDirection,
-			overflow: original.innerSpan.overflow
+	// Reset inner-text-flipped transitions
+	if (original.innerTextFlipped) {
+		$hexFlipText.css({
+			display: original.innerTextFlipped.display || '',
+			height: original.innerTextFlipped.height || '',
+			transition: original.innerTextFlipped.transition || ''
 		});
 	}
 
-	// Restore landing page specific padding if it exists
-	if (original.padding) {
-		$hexInner.find('.inner-text-flipped > p').css({
-			padding: original.padding
+	// Reset paragraph transitions
+	if (original.innerTextP) {
+		$hexFlipText.find('p').css({
+			padding: original.innerTextP.padding || '',
+			transition: original.innerTextP.transition || ''
 		});
 	}
 
-	$hexFlipText.css({ display: 'block' });
-	$hexWrappers.before.add($hexWrappers.after).css('display', 'block');
+	$hexWrappers.before.add($hexWrappers.after).css('display', '');
 	$hexInner.removeClass('squared');
 
 	// Re-attach flip handlers using stored flip color
-	const storedFlipColor = original.flipColor || window.HexagonStateManager.getFlipColor(hex, hexId);
-	const flipColor = storedFlipColor || [255, 255, 255]; // Fallback to white
+	const flipColor = original.flipColor || [255, 255, 255];
 
-	$hexInner.on('mouseenter', () => flipForward($hexParent, animTime, flipColor));
-	$hexInner.on('mouseleave', () => flipBack($hexParent, animTime));
+	$hexInner.on('mouseenter', () => flipForward($actualHex, animTime, flipColor));
+	$hexInner.on('mouseleave', () => flipBack($actualHex, animTime));
 
-	// Trigger flip back animation
-	flipBack($hexParent, animTime);
-
-	// Use setTimeout to ensure the flip color is properly applied after flipBack
-	setTimeout(function () {
-		if ($hexParent.hasClass('flipped')) {
-			// If still flipped after transition, re-apply the correct color
-			$hexParent.find('.inner-span').css({ 'background-color': `rgb(${flipColor.join(',')})` });
-		}
-	}, animTime + 50); // Wait for flip animation to complete
+	// After the transition back to hex is complete, remove the transition properties
+	setTimeout(() => {
+		$actualHex.css('transition', '');
+		$hexInner.css('transition', '');
+	}, animTime);
 }
 
 /*
@@ -922,6 +1040,15 @@ function cleanupHexagons() {
 	if (typeof window.HexagonStateManager !== 'undefined') {
 		window.HexagonStateManager.destroy();
 	}
+
+	// Clear the HexagonLazyLoader
+	if (typeof window.HexagonLazyLoader !== 'undefined') {
+		window.HexagonLazyLoader.destroy();
+	}
+
+	// Remove initialization flags and data
+	$('.hexagons').removeClass('hexagons-initialized');
+	$('.hexagons').removeData('hexagon-elems hexagon-spawn hexagon-dims');
 
 	// Remove any event listeners
 	$('.hexagons').off();
@@ -940,4 +1067,315 @@ function cleanupHexagons() {
 	if (typeof cleanupServer === 'function') {
 		cleanupServer();
 	}
+}
+
+/*
+* Lazy Loading Manager for Hexagons
+*/
+if (typeof window.HexagonLazyLoader === 'undefined') {
+	window.HexagonLazyLoader = {
+		instances: new Map(),
+
+		// Create a new lazy loader instance
+		create: function (containerSelector, options = {}) {
+			const defaultOptions = {
+				apiEndpoint: options.apiEndpoint || '/index.php?page=server',
+				loadingClass: options.loadingClass || 'hex-loading',
+				loadedClass: options.loadedClass || 'hex-loaded',
+				errorClass: options.errorClass || 'hex-error',
+				retryAttempts: options.retryAttempts || 3,
+				retryDelay: options.retryDelay || 1000,
+				staggerDelay: options.staggerDelay || 150,
+				cacheResults: options.cacheResults !== false,
+				updateContentCallback: options.updateContentCallback || this.defaultUpdateContent,
+				...options
+			};
+
+			const instance = {
+				containerSelector: containerSelector,
+				options: defaultOptions,
+				cache: new Map(),
+				loadingQueue: [],
+				isLoading: false,
+				performanceStats: {
+					totalHexes: 0,
+					loadedHexes: 0,
+					cacheHits: 0,
+					totalLoadTime: 0,
+					startTime: null
+				}
+			};
+
+			this.instances.set(containerSelector, instance);
+			return instance;
+		},
+
+		// Initialize lazy loading for a specific container
+		initialize: async function (containerSelector, options = {}) {
+			// Check if already initialized to prevent duplicates
+			if (this.instances.has(containerSelector)) {
+				console.warn(`Lazy loader already initialized for ${containerSelector}`);
+				return this.instances.get(containerSelector);
+			}
+
+			const instance = this.instances.get(containerSelector) || this.create(containerSelector, options);
+			const container = $(containerSelector);
+			const hexesToLoad = container.find('.hex[data-lazy-load="true"], .hex[data-server-name]').toArray();
+
+			if (hexesToLoad.length === 0) {
+				console.wanr(`No hexagons found that require lazy loading in ${containerSelector}`);
+				return instance;
+			}
+
+			instance.performanceStats.totalHexes = hexesToLoad.length;
+			instance.performanceStats.startTime = Date.now();
+
+			// Add hexes to loading queue
+			instance.loadingQueue = hexesToLoad.map(hex => ({
+				element: hex,
+				$element: $(hex),
+				identifier: $(hex).data('server-name') || $(hex).data('identifier') || $(hex).find('span').text().trim(),
+				attempts: 0
+			}));
+
+			// Start loading process with staggered timing
+			await this.processLoadingQueue(instance);
+
+			return instance;
+		},
+
+		// Process the loading queue with staggered requests
+		processLoadingQueue: async function (instance) {
+			instance.isLoading = true;
+
+			const promises = instance.loadingQueue.map((hexInfo, index) => {
+				return new Promise(resolve => {
+					setTimeout(async () => {
+						await this.loadHexagonDetails(instance, hexInfo);
+						resolve();
+					}, index * instance.options.staggerDelay);
+				});
+			});
+
+			await Promise.all(promises);
+			instance.isLoading = false;
+		},
+
+		// Load detailed data for a specific hexagon
+		loadHexagonDetails: async function (instance, hexInfo) {
+			const { element, $element, identifier } = hexInfo;
+
+			try {
+				// Add loading state
+				$element.addClass(instance.options.loadingClass);
+
+				// Check cache first
+				const cacheKey = `hex_details_${identifier}`;
+				let data;
+
+				if (instance.options.cacheResults && instance.cache.has(cacheKey)) {
+					data = instance.cache.get(cacheKey);
+					instance.performanceStats.cacheHits++;
+				} else {
+					// Fetch from API
+					const startTime = Date.now();
+					data = await this.fetchData(instance, identifier);
+					const loadTime = Date.now() - startTime;
+					instance.performanceStats.totalLoadTime += loadTime;
+
+					// Cache the result
+					if (instance.options.cacheResults && data.success) {
+						instance.cache.set(cacheKey, data);
+					}
+				}
+
+				if (data.success) {
+					await instance.options.updateContentCallback(hexInfo, data.data, instance);
+					$element.removeClass(instance.options.loadingClass).addClass(instance.options.loadedClass);
+					instance.performanceStats.loadedHexes++;
+
+					// Trigger custom event
+					$element.trigger('hexagon:loaded', [data.data, instance]);
+				} else {
+					throw new Error(data.error || 'Failed to load hexagon details');
+				}
+
+			} catch (error) {
+				console.error(`Failed to load hexagon for ${identifier}:`, error);
+				await this.handleLoadError(instance, hexInfo, error);
+			}
+		},
+
+		// Fetch data from API - Generic implementation that can be overridden
+		fetchData: async function (instance, identifier) {
+			// If a custom fetchData function is provided, use it
+			if (instance.options.fetchData && typeof instance.options.fetchData === 'function') {
+				return await instance.options.fetchData(instance, identifier);
+			}
+
+			// Default generic implementation
+			const url = new URL(instance.options.apiEndpoint, window.location.origin);
+
+			// Use custom API parameters if provided, otherwise use defaults
+			const apiParams = instance.options.apiParams || {
+				action: 'details',
+				identifier_param: 'host'
+			};
+
+			// Set the action parameter
+			if (apiParams.action) {
+				url.searchParams.set('action', apiParams.action);
+			}
+
+			// Set the identifier parameter
+			const identifierParam = apiParams.identifier_param || 'host';
+			url.searchParams.set(identifierParam, identifier);
+
+			// Add any additional parameters
+			if (apiParams.extra) {
+				Object.keys(apiParams.extra).forEach(key => {
+					url.searchParams.set(key, apiParams.extra[key]);
+				});
+			}
+
+			const response = await fetch(url);
+
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+			}
+
+			return await response.json();
+		},
+
+		// Default content update function (can be overridden) - Generic implementation
+		defaultUpdateContent: function (hexInfo, responseData, instance) {
+			const { $element } = hexInfo;
+			const $flipText = $element.find('.inner-text-flipped');
+			const $title = $element.find('.inner-title');
+
+			// If custom updateContent function is provided, use it
+			if (instance.options.updateContent && typeof instance.options.updateContent === 'function') {
+				return instance.options.updateContent(hexInfo, responseData, instance);
+			}
+
+			// Generic default implementation
+			if ($flipText.length > 0 && responseData) {
+				// Try to find some generic data to display
+				let displayText = 'Details loaded successfully';
+
+				// Check if responseData has common properties we can display
+				const data = responseData.data || responseData;
+				if (data && typeof data === 'object') {
+					displayText = Object.keys(data).map(key => {
+						const value = data[key];
+						if (typeof value === 'string' || typeof value === 'number') {
+							return `${key}: ${value}`;
+						}
+						return null;
+					}).filter(Boolean).slice(0, 5).join('<br>') || displayText;
+				}
+
+				$flipText.html(displayText);
+
+				// Remove the lazy load flag
+				$element.removeAttr('data-lazy-load').removeData('lazy-load');
+			}
+
+			// Update title if possible
+			if ($title.length > 0 && responseData) {
+				const data = responseData.data || responseData;
+				if (data && (data.name || data.title || data.identifier)) {
+					$title.html(`<span>${data.name || data.title || data.identifier}</span>`);
+				}
+			}
+
+			console.log(`✅ Generic update completed for: ${hexInfo.identifier}`);
+		},
+
+		// Handle loading errors with retry logic
+		handleLoadError: async function (instance, hexInfo, error) {
+			const { $element } = hexInfo;
+
+			hexInfo.attempts++;
+
+			if (hexInfo.attempts < instance.options.retryAttempts) {
+				console.warn(`Retrying load for ${hexInfo.identifier} (attempt ${hexInfo.attempts + 1})`);
+
+				// Wait before retry
+				await new Promise(resolve => setTimeout(resolve, instance.options.retryDelay));
+
+				// Retry loading
+				await this.loadHexagonDetails(instance, hexInfo);
+			} else {
+				// Max retries reached
+				$element.removeClass(instance.options.loadingClass).addClass(instance.options.errorClass);
+
+				// Show error state in hexagon
+				const $flipText = $element.find('.inner-text-flipped');
+				if ($flipText.length > 0) {
+					$flipText.html(`
+						<span style="color: #ff6b6b;">
+							Error loading<br>
+							${hexInfo.identifier}<br>
+							<small>Click to retry</small>
+						</span>
+					`);
+
+					// Add retry click handler
+					$element.off('click.retry').on('click.retry', async (e) => {
+						e.stopPropagation();
+						hexInfo.attempts = 0;
+						$element.removeClass(instance.options.errorClass);
+						await this.loadHexagonDetails(instance, hexInfo);
+					});
+				}
+
+				console.error(`Failed to load ${hexInfo.identifier} after ${instance.options.retryAttempts} attempts:`, error);
+			}
+		},
+
+		// Preload specific hexagon by identifier
+		preloadHexagon: async function (containerSelector, identifier) {
+			const instance = this.instances.get(containerSelector);
+			if (!instance) return;
+
+			const hexInfo = instance.loadingQueue.find(h => h.identifier === identifier);
+			if (hexInfo && !hexInfo.$element.hasClass(instance.options.loadedClass)) {
+				await this.loadHexagonDetails(instance, hexInfo);
+			}
+		},
+
+		// Get cache statistics for an instance
+		getCacheStats: function (containerSelector) {
+			const instance = this.instances.get(containerSelector);
+			if (!instance) return null;
+
+			return {
+				cacheSize: instance.cache.size,
+				cacheHits: instance.performanceStats.cacheHits,
+				hitRate: instance.performanceStats.totalHexes > 0 ?
+					(instance.performanceStats.cacheHits / instance.performanceStats.totalHexes * 100).toFixed(1) + '%' : '0%'
+			};
+		},
+
+		// Clear cache for specific instance or all instances
+		clearCache: function (containerSelector = null) {
+			if (containerSelector) {
+				const instance = this.instances.get(containerSelector);
+				if (instance) {
+					instance.cache.clear();
+					console.log(`Cache cleared for ${containerSelector}`);
+				}
+			} else {
+				this.instances.forEach((instance, selector) => {
+					instance.cache.clear();
+				});
+			}
+		},
+
+		// Destroy all instances (for cleanup)
+		destroy: function () {
+			this.instances.clear();
+		}
+	};
 }

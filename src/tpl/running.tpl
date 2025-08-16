@@ -1,6 +1,6 @@
 {*Page specific CSS*}
 <link rel="stylesheet" type="text/css" href="css/running.css" />
-<link rel="stylesheet" type="text/css" href="components/spinner.css" />
+<link rel="stylesheet" type="text/css" href="css/utils/spinner.css" />
 
 {*Page specific JS*}
 {if file_exists('js/hexagons.min.js')}
@@ -36,7 +36,7 @@
 <div class="hexagons running">
     {foreach from=$activities item=activity key=key}
         {if $activity.pace <= 20}
-            <div class="hex rounded flip button {$activity.activityName|lower|replace:' ':'-'}" onclick="openActivityDetails(this, '{$activity.id}')">
+            <div class="hex rounded flip button {$activity.activityName|lower|replace:' ':'-'}" onclick="openActivityDetails(this, '{$activity.id}')" data-lazy-load="true" data-identifier="{$activity.id}">
                 <span>{$activity.activityName}<br>{$activity.date}</span>
                 <p class="inner-text-flipped no-wrap">
                     Time: {$activity.time}<br>
