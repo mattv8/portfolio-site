@@ -1,24 +1,13 @@
 // Global variables
-if (typeof window.breakpoint === 'undefined') {
-    window.breakpoint = 1000; // When to switch to mobile
-}
-if (typeof window.lastLoadedDate === 'undefined') {
-    window.lastLoadedDate = null;
-}
-if (typeof window.maxCol === 'undefined') {
-    window.maxCol = 0; // Maximum column number for hexagons
-}
-if (typeof window.activityCanvas === 'undefined') {
-    window.activityCanvas = null;
-}
-if (typeof window.originalContainerHeight === 'undefined') {
-    window.originalContainerHeight = null; // Store original container height for modal max height
-}
-
-const DEFAULT_COLOR = '#CCCCCC'; // Default color for unknown activity types
+setDefault('breakpoint', 1000); // When to switch to mobile
+setDefault('lastLoadedDate', null);
+setDefault('maxCol', 0); // Maximum column number for hexagons
+setDefault('activityCanvas', null);
+setDefault('originalContainerHeight', null); // Store original container height for modal max height
+setDefault('DEFAULT_COLOR', '#CCCCCC'); // Default color for unknown activity types
 
 // Master activity type mappings
-const activityTypeMap = {
+setDefault('activityTypeMap', {
     'run': {
         color: '#FF5733',
         icon: '<i class="fas fa-running" style="margin-right: 8px;"></i>'
@@ -55,13 +44,7 @@ const activityTypeMap = {
         color: '#FFA533',
         icon: '<i class="fas fa-dumbbell" style="margin-right: 8px;"></i>'
     }
-};
-
-// Generate colorMap from activityTypeMap for backward compatibility
-const colorMap = Object.keys(activityTypeMap).reduce((map, key) => {
-    map[key] = activityTypeMap[key].color;
-    return map;
-}, {});
+});
 
 // Starting point for activity charts
 var selectedDates = {
@@ -80,7 +63,7 @@ $(document).ready(function () {
 
         // Apply colors based on activity type
         elems.forEach(({ classes, selector }) => {
-            const activity = classes.find(c => c in colorMap);
+            const activity = classes.find(c => c && window.activityTypeMap && c in window.activityTypeMap);
             const $hex = $(selector);
             applyActivityColor($hex, activity);
         });
@@ -356,14 +339,17 @@ function openActivityDetails(hex, activityId) {
         const $hex = $(hex);
         const cachedData = getCachedActivityData(activityId);
 
-        var activityDetailDiv = initializeActivityView(activityId, container, cachedData);
+        // Get the hexagon's background color to use for the modal header
+        const hexagonColor = $hex.find('.hex_inner').css('background-color');
+
+        var activityDetailDiv = initializeActivityView(activityId, container, cachedData, hexagonColor);
         const hexId = transitionHexToSquare(hex, container, animTime, activityDetailDiv, 'activity-details');
         $(hex).data('hexStateId', hexId); // Store the hex ID for later retrieval
     }
 }
 
 var titleHeight = 0;
-function initializeActivityView(activityId, container, cachedData = null) {
+function initializeActivityView(activityId, container, cachedData = null, hexagonColor = null) {
     // Create the outer div element with flexbox layout
     let containerDiv = document.createElement('div');
     containerDiv.style.transform = 'scaleX(-1)';
@@ -375,6 +361,12 @@ function initializeActivityView(activityId, container, cachedData = null) {
 
     // Create title container with loading state
     let titleDiv = document.createElement('h1');
+
+    // Apply hexagon color to h1 background if provided
+    if (hexagonColor) {
+        titleDiv.style.background = hexagonColor;
+    }
+
     let loadingDiv = document.createElement('div');
 
     // If we have cached data, try to use it immediately for faster display
@@ -505,10 +497,10 @@ function getActivityIcon(activityType) {
     const type = activityType.toLowerCase();
 
     // Try exact match first
-    if (activityTypeMap[type]) return activityTypeMap[type].icon;
+    if (window.activityTypeMap[type]) return window.activityTypeMap[type].icon;
 
     // Try partial matches for fuzzy matching
-    for (const [key, value] of Object.entries(activityTypeMap)) {
+    for (const [key, value] of Object.entries(window.activityTypeMap)) {
         if (type.includes(key.split(' ')[0]) || type.includes(key.split('-')[0])) {
             return value.icon;
         }
@@ -840,7 +832,7 @@ function createErrorHTML(title, message, iconClass = 'fas fa-exclamation-triangl
  */
 function applyActivityColor($hex, activityType) {
     const type = (activityType || '').toLowerCase();
-    const color = activityTypeMap[type]?.color || colorMap[type] || DEFAULT_COLOR;
+    const color = window.activityTypeMap[type]?.color || window.DEFAULT_COLOR;
     $hex.find('.hex_inner').css('background-color', color);
     return color;
 }
@@ -850,7 +842,7 @@ function applyColorsToHexagons() {
     $('.hexagons .hex').each(function () {
         const $hex = $(this);
         const classes = $hex.attr('class').split(' ');
-        const activity = classes.find(c => c in colorMap);
+        const activity = classes.find(c => c && window.activityTypeMap && c in window.activityTypeMap);
         applyActivityColor($hex, activity);
     });
 }

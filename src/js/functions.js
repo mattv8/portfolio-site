@@ -2,6 +2,9 @@
     Javascript Functions
 */
 
+// Utility function to set window variables if undefined
+const setDefault = (key, value) => window[key] = window[key] ?? value;
+
 let pageLoaded = false;
 var rotations = 0;
 

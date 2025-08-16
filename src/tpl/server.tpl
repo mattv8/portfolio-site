@@ -1,5 +1,6 @@
 {*Page specific CSS*}
 <link rel="stylesheet" type="text/css" href="css/server.css" />
+<link rel="stylesheet" type="text/css" href="css/utils/spinner.css" />
 
 {*Page specific JS*}
 {if file_exists('js/hexagons.min.js')}

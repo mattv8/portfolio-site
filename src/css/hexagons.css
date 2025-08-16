@@ -131,9 +131,17 @@
 }
 
 /* LAZY LOADING STATES */
+/* Prevent initial flash by ensuring stable starting state */
+.hex[data-lazy-load="true"] .hex_inner,
+.hex[data-server-name] .hex_inner {
+	opacity: 1; /* Start at full opacity to prevent flash */
+	transition: none; /* No initial transition */
+}
+
 .hex-loading .hex_inner {
 	position: relative;
-	opacity: 0.7;
+	opacity: 0.95; /* Reduced opacity change to minimize flicker */
+	transition: opacity 0.15s ease; /* Add smooth transition when loading starts */
 }
 
 .hex-loading .hex_inner::before {
@@ -142,10 +150,10 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 20px;
-	height: 20px;
-	border: 2px solid #ffffff;
-	border-top: 2px solid transparent;
+	width: 16px; /* Slightly smaller spinner */
+	height: 16px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top: 2px solid rgba(255, 255, 255, 0.8);
 	border-radius: 50%;
 	animation: hex-spin 1s linear infinite;
 	z-index: 10;
@@ -153,7 +161,7 @@
 
 .hex-loaded .hex_inner {
 	opacity: 1;
-	transition: opacity 0.3s ease;
+	transition: opacity 0.15s ease; /* Faster, smoother transition */
 }
 
 .hex-error .hex_inner {
@@ -168,11 +176,11 @@
 
 /* Staggered animation for loading hexagons */
 .hex-loading {
-	animation: hex-fade-in 0.5s ease-out;
+	animation: hex-fade-in 0.3s ease-out; /* Faster animation */
 }
 
 @keyframes hex-fade-in {
-	from { opacity: 0; transform: scale(0.95); }
+	from { opacity: 0.9; transform: scale(0.98); } /* Less dramatic scaling */
 	to { opacity: 1; transform: scale(1); }
 }
 

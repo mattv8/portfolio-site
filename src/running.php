@@ -966,7 +966,16 @@ if (!$request) {
         // Handle case where result is directly an array of activities (cached data)
         if (is_array($result) && !empty($result) && isset($result[0]['id'])) {
             $activities = $result;
-            $lastCacheDate = 'Cached from direct array';
+
+            // Find the most recent cache file to show accurate cache age
+            $cacheFiles = glob(__DIR__ . '/cache/activities_*.json');
+            if ($cacheFiles) {
+                // Sort by modification time, most recent first
+                usort($cacheFiles, fn($a, $b) => filemtime($b) <=> filemtime($a));
+                $lastCacheDate = date('Y-m-d H:i:s', filemtime($cacheFiles[0]));
+            } else {
+                $lastCacheDate = 'Cache files not found';
+            }
         } else {
             error_log("Unexpected result structure: " . json_encode($result));
         }

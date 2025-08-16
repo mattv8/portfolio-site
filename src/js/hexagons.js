@@ -712,11 +712,10 @@ async function updateContainerDimensions(container, elems, settings) {
 /*
 * Utility for managing per-hexagon state storage to prevent conflicts when multiple hexagons are squared
 */
-if (typeof window.HexagonStateManager === 'undefined') {
-	window.HexagonStateManager = {
-		states: new Map(),
+setDefault('HexagonStateManager', {
+	states: new Map(),
 
-		// Store state for a specific hexagon using its unique identifier
+	// Store state for a specific hexagon using its unique identifier
 		store: function (hexElement, state) {
 			const hexId = this.getHexId(hexElement);
 
@@ -803,8 +802,7 @@ if (typeof window.HexagonStateManager === 'undefined') {
 		destroy: function () {
 			this.states.clear();
 		}
-	};
-}
+	});
 
 /*
 * Utility function to transition hexagon to square modal state
@@ -1072,11 +1070,10 @@ function cleanupHexagons() {
 /*
 * Lazy Loading Manager for Hexagons
 */
-if (typeof window.HexagonLazyLoader === 'undefined') {
-	window.HexagonLazyLoader = {
-		instances: new Map(),
+setDefault('HexagonLazyLoader', {
+	instances: new Map(),
 
-		// Create a new lazy loader instance
+	// Create a new lazy loader instance
 		create: function (containerSelector, options = {}) {
 			const defaultOptions = {
 				apiEndpoint: options.apiEndpoint || '/index.php?page=server',
@@ -1085,9 +1082,10 @@ if (typeof window.HexagonLazyLoader === 'undefined') {
 				errorClass: options.errorClass || 'hex-error',
 				retryAttempts: options.retryAttempts || 3,
 				retryDelay: options.retryDelay || 1000,
-				staggerDelay: options.staggerDelay || 150,
+				staggerDelay: options.staggerDelay || 100, // Reduced from 150ms to 100ms
 				cacheResults: options.cacheResults !== false,
-				updateContentCallback: options.updateContentCallback || this.defaultUpdateContent,
+				// Use updateContent if provided, otherwise fall back to updateContentCallback or default
+				updateContentCallback: options.updateContent || options.updateContentCallback || this.defaultUpdateContent,
 				...options
 			};
 
@@ -1190,8 +1188,14 @@ if (typeof window.HexagonLazyLoader === 'undefined') {
 				}
 
 				if (data.success) {
-					await instance.options.updateContentCallback(hexInfo, data.data, instance);
-					$element.removeClass(instance.options.loadingClass).addClass(instance.options.loadedClass);
+					// Pass the full response data to the callback function, not just data.data
+					await instance.options.updateContentCallback(hexInfo, data, instance);
+
+					// Smooth transition from loading to loaded state
+					setTimeout(() => {
+						$element.removeClass(instance.options.loadingClass).addClass(instance.options.loadedClass);
+					}, 50); // Small delay to ensure content is updated first
+
 					instance.performanceStats.loadedHexes++;
 
 					// Trigger custom event
@@ -1289,7 +1293,6 @@ if (typeof window.HexagonLazyLoader === 'undefined') {
 				}
 			}
 
-			console.log(`✅ Generic update completed for: ${hexInfo.identifier}`);
 		},
 
 		// Handle loading errors with retry logic
@@ -1364,7 +1367,6 @@ if (typeof window.HexagonLazyLoader === 'undefined') {
 				const instance = this.instances.get(containerSelector);
 				if (instance) {
 					instance.cache.clear();
-					console.log(`Cache cleared for ${containerSelector}`);
 				}
 			} else {
 				this.instances.forEach((instance, selector) => {
@@ -1377,5 +1379,4 @@ if (typeof window.HexagonLazyLoader === 'undefined') {
 		destroy: function () {
 			this.instances.clear();
 		}
-	};
-}
+	});

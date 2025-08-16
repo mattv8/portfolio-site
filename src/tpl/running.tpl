@@ -60,7 +60,7 @@ $(document).ready(function() {
     {/foreach}
 </div>
 
-<div class="load-more-container" style="text-align: center; margin: 20px 0;">
+<div class="load-more-container">
     <button id="load-more-btn" class="btn btn-secondary" onclick="loadMoreActivities(this)">
         Load More Activities
     </button>

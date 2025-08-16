@@ -3,10 +3,7 @@
 var animationPaused = false;// Global flag to control expand animations
 var original = [];// Store original values
 var center;
-var breakpoint;
-if (typeof breakpoint === 'undefined') {
-	breakpoint = 1000;// When to switch to mobile
-}
+setDefault('breakpoint', 1000);// When to switch to mobile
 
 // Fetch GitLab last commit and update footer with the timestamp
 $.get("index.php?request=getLastCommitTime", function (data) {
