@@ -502,7 +502,7 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
             error_log("Activities cache: Failed to write encrypted cache file: $cacheFile");
         } else {
             $activityCount = count($response['data']['activities'] ?? []);
-            error_log("Activities cache: Successfully cached $activityCount activities to encrypted file: $cacheFile");
+            error_log("Activities cache: Successfully cached $activityCount activities to $cacheFile");
         }
 
         $formatted = [];
@@ -1041,11 +1041,35 @@ if (!$request) {
     // Use EncryptedCache for the main activities list to share with lazy loading
     $activities_cache_key = "activities_main_list";
 
-    $result = $cache->remember($activities_cache_key, function() use ($fitbitClient) {
-        $activities = $fitbitClient->getActivities();
-        error_log("getActivities returned: " . json_encode($activities));
-        return $activities;
-    }, EncryptedCache::TTL_NORMAL, ['tags' => ['activities', 'list']]);
+    // Check if we're authenticated and have stale empty cache
+    if ($fitbitClient->isAuthenticated()) {
+        $cached = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
+        if ($cached !== null && isset($cached['data']) && empty($cached['data'])) {
+            // We're authenticated but have empty cached data - clear it to force fresh fetch
+            error_log("Clearing stale empty activities cache after authentication");
+            $cache->delete($activities_cache_key);
+        }
+    }
+
+    // Try to get from cache first, but clear stale empty cache if authenticated
+    $result = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
+
+    if ($result === null) {
+        // No cache, fetch fresh data
+        $activities_data = $fitbitClient->getActivities();
+
+        // Only cache successful results with data
+        if (!empty($activities_data['data']) && ($activities_data['code'] ?? 200) === 200) {
+            $cache->set($activities_cache_key, $activities_data, ['tags' => ['activities', 'list']]);
+            error_log("Cached successful activities result");
+        } else {
+            error_log("Not caching empty or error result from getActivities");
+        }
+
+        $result = $activities_data;
+    } else {
+        error_log("Using cached activities result");
+    }
 
     if (isset($result['data']) && is_array($result['data'])) {
         $activities = $result['data'];

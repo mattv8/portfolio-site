@@ -60,11 +60,13 @@ $(document).ready(function() {
     {/foreach}
 </div>
 
+{if $authenticated}
 <div class="load-more-container">
     <button id="load-more-btn" class="btn btn-secondary" onclick="loadMoreActivities(this)">
         Load More Activities
     </button>
 </div>
+{/if}
 
 {* Activity Details Modal - Preallocated for later use *}
 <div id="activity-details-modal" class="modal" style="display: none;">
