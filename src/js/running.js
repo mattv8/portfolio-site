@@ -52,6 +52,118 @@ var selectedDates = {
     end: moment().startOf('week').clone().add(7, 'days')
 };
 
+// ========== UTILITY FUNCTIONS ==========
+
+/**
+ * Extract data from response, handling various response formats
+ */
+function extractDataFromResponse(response) {
+    if (!response) return null;
+    if (response.success && response.data) return response.data;
+    if (response.data) return response.data;
+    return response;
+}
+
+/**
+ * Create activity summary HTML template
+ */
+function createSummaryHTML(summary, data) {
+    return `
+        <div class="summary-item">
+            <div class="summary-label">Distance</div>
+            <div class="summary-value">${summary.distanceMiles || data.distance || '0'} mi</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Duration</div>
+            <div class="summary-value">${summary.durationFormatted || data.duration || '0:00'}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Pace</div>
+            <div class="summary-value">${summary.paceFormatted || data.pace || '--'} min/mi</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Calories</div>
+            <div class="summary-value">${summary.calories || data.calories || '0'}</div>
+        </div>
+    `;
+}
+
+/**
+ * Create a chart canvas with consistent styling
+ */
+function createChartCanvas(id, height, marginBottom = '20px') {
+    const canvas = document.createElement('canvas');
+    canvas.id = id;
+    canvas.style.height = height;
+    if (marginBottom) canvas.style.marginBottom = marginBottom;
+    return canvas;
+}
+
+/**
+ * Create error message HTML template
+ */
+function createErrorHTML(title, message, iconClass = 'fas fa-exclamation-triangle') {
+    return `
+        <h1><i class="${iconClass}" style="margin-right: 8px;"></i>${title}</h1>
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+            ${message}
+        </div>
+    `;
+}
+
+/**
+ * Apply color to hexagon based on activity type
+ */
+function applyActivityColor($hex, activityType) {
+    const type = (activityType || '').toLowerCase();
+    const color = window.activityTypeMap[type]?.color || window.DEFAULT_COLOR;
+    $hex.find('.hex_inner').css('background-color', color);
+    return color;
+}
+
+// Function to apply colors to hexagons based on activity type
+function applyColorsToHexagons() {
+    $('.hexagons .hex').each(function () {
+        const $hex = $(this);
+        const classes = $hex.attr('class').split(' ');
+        const activity = classes.find(c => c && window.activityTypeMap && c in window.activityTypeMap);
+        applyActivityColor($hex, activity);
+    });
+}
+
+/**
+ * Convert hex color to RGB array for flip color calculation
+ */
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+    ] : null;
+}
+
+/*
+* Cleanup function for running page variables
+*/
+function cleanupRunning() {
+    // Clean up lazy loading instances
+    if (window.HexagonLazyLoader && window.HexagonLazyLoader.instances.has('.hexagons.running')) {
+        window.HexagonLazyLoader.instances.delete('.hexagons.running');
+    }
+
+    // Reset global variables
+    window.lastLoadedDate = null;
+    window.maxCol = 0;
+    window.activityCanvas = null;
+    window.originalContainerHeight = null;
+
+    // Clear any intervals or timeouts specific to running page
+}
+
+// ========== END UTILITY FUNCTIONS ==========
+
 // On DOM load
 $(document).ready(function () {
     // Set up hexagons and store the instance
@@ -766,115 +878,3 @@ function addActivitiesToGrid(activities) {
         });
     }
 }
-
-// ========== UTILITY FUNCTIONS ==========
-
-/**
- * Extract data from response, handling various response formats
- */
-function extractDataFromResponse(response) {
-    if (!response) return null;
-    if (response.success && response.data) return response.data;
-    if (response.data) return response.data;
-    return response;
-}
-
-/**
- * Create activity summary HTML template
- */
-function createSummaryHTML(summary, data) {
-    return `
-        <div class="summary-item">
-            <div class="summary-label">Distance</div>
-            <div class="summary-value">${summary.distanceMiles || data.distance || '0'} mi</div>
-        </div>
-        <div class="summary-item">
-            <div class="summary-label">Duration</div>
-            <div class="summary-value">${summary.durationFormatted || data.duration || '0:00'}</div>
-        </div>
-        <div class="summary-item">
-            <div class="summary-label">Pace</div>
-            <div class="summary-value">${summary.paceFormatted || data.pace || '--'} min/mi</div>
-        </div>
-        <div class="summary-item">
-            <div class="summary-label">Calories</div>
-            <div class="summary-value">${summary.calories || data.calories || '0'}</div>
-        </div>
-    `;
-}
-
-/**
- * Create a chart canvas with consistent styling
- */
-function createChartCanvas(id, height, marginBottom = '20px') {
-    const canvas = document.createElement('canvas');
-    canvas.id = id;
-    canvas.style.height = height;
-    if (marginBottom) canvas.style.marginBottom = marginBottom;
-    return canvas;
-}
-
-/**
- * Create error message HTML template
- */
-function createErrorHTML(title, message, iconClass = 'fas fa-exclamation-triangle') {
-    return `
-        <h1><i class="${iconClass}" style="margin-right: 8px;"></i>${title}</h1>
-        <div class="error-message">
-            <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
-            ${message}
-        </div>
-    `;
-}
-
-/**
- * Apply color to hexagon based on activity type
- */
-function applyActivityColor($hex, activityType) {
-    const type = (activityType || '').toLowerCase();
-    const color = window.activityTypeMap[type]?.color || window.DEFAULT_COLOR;
-    $hex.find('.hex_inner').css('background-color', color);
-    return color;
-}
-
-// Function to apply colors to hexagons based on activity type
-function applyColorsToHexagons() {
-    $('.hexagons .hex').each(function () {
-        const $hex = $(this);
-        const classes = $hex.attr('class').split(' ');
-        const activity = classes.find(c => c && window.activityTypeMap && c in window.activityTypeMap);
-        applyActivityColor($hex, activity);
-    });
-}
-
-/**
- * Convert hex color to RGB array for flip color calculation
- */
-function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? [
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16)
-    ] : null;
-}
-
-/*
-* Cleanup function for running page variables
-*/
-function cleanupRunning() {
-    // Clean up lazy loading instances
-    if (window.HexagonLazyLoader && window.HexagonLazyLoader.instances.has('.hexagons.running')) {
-        window.HexagonLazyLoader.instances.delete('.hexagons.running');
-    }
-
-    // Reset global variables
-    window.lastLoadedDate = null;
-    window.maxCol = 0;
-    window.activityCanvas = null;
-    window.originalContainerHeight = null;
-
-    // Clear any intervals or timeouts specific to running page
-}
-
-// ========== END UTILITY FUNCTIONS ==========

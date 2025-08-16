@@ -10,6 +10,165 @@ var selectedDates = {
 
 var influxCanvas;
 
+// ========== UTILITY FUNCTIONS ==========
+
+/**
+ * Generate consistent colors for charts based on index
+ */
+function getRandomColor(index) {
+    const colors = [
+        '#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8',
+        '#6f42c1', '#e83e8c', '#fd7e14', '#20c997', '#6610f2'
+    ];
+    return colors[index % colors.length];
+}
+
+/**
+ * Calculate server percentage values from raw data
+ */
+function calculateServerPercentages(serverData, precision = { mem: 1, disk: 1, availability: 2 }) {
+    return {
+        memPercent: serverData.maxmem ?
+            ((serverData.mem / serverData.maxmem) * 100).toFixed(precision.mem) : 0,
+        diskPercent: serverData.maxdisk ?
+            ((serverData.disk / serverData.maxdisk) * 100).toFixed(precision.disk) : 0,
+        availabilityPercent: serverData.availability ?
+            (serverData.availability * 100).toFixed(precision.availability) : 0
+    };
+}
+
+/**
+ * Create a standardized error div element
+ */
+function createErrorElement(title, message, details = null) {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.padding = '20px';
+    errorDiv.style.textAlign = 'center';
+    errorDiv.style.color = '#ff6b6b';
+
+    let innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+    if (details) {
+        innerHTML += `<small>${details}</small>`;
+    }
+
+    errorDiv.innerHTML = innerHTML;
+    return errorDiv;
+}
+
+/**
+ * Create a loading indicator element
+ */
+function createLoadingElement(text = 'Loading...') {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loading-indicator';
+    loadingDiv.innerHTML = `<div class="spinner"></div><span class="loading-text">${text}</span>`;
+    return loadingDiv;
+}
+
+/**
+ * Make API request with consistent error handling
+ */
+function makeApiRequest(url, errorContext = 'API request') {
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error(`${errorContext} failed:`, error);
+            throw error;
+        });
+}
+
+/**
+ * Get common chart options configuration
+ */
+function getChartOptions(key, container, titleHeight, filteredKeysLength, colorIndex) {
+    return {
+        responsive: true,
+        aspectRatio: (container.width / (container.height - titleHeight)) * filteredKeysLength,
+        plugins: {
+            title: {
+                display: true,
+                text: key.charAt(0).toUpperCase() + key.slice(1),
+                font: { size: 14 },
+                color: '#343a40',
+            },
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                cornerRadius: 8,
+                borderColor: getRandomColor(colorIndex),
+                borderWidth: 1,
+                callbacks: {
+                    label: function (context) {
+                        const value = key === 'cpu' ? context.raw : (context.raw * 100).toFixed(2);
+                        const unit = key === 'cpu' ? '' : '%';
+                        return `${context.dataset.label}: ${value}${unit}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: '#e9ecef', borderColor: '#dee2e6' },
+                ticks: {
+                    color: '#6c757d',
+                    maxRotation: 0,
+                    minRotation: 0,
+                    callback: function (val, index) {
+                        return index % 2 === 0 ? this.getLabelForValue(val) : '';
+                    },
+                },
+            },
+            y: {
+                grid: { color: '#e9ecef', borderColor: '#dee2e6' },
+                ticks: {
+                    color: '#6c757d',
+                    callback: function (val, index) {
+                        if (key === 'cpu') {
+                            return val;
+                        } else {
+                            const roundedPercentage = (val * 100).toFixed(2);
+                            return `${roundedPercentage}%`;
+                        }
+                    },
+                },
+            },
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    };
+}
+
+/**
+ * Create chart dataset with consistent styling
+ */
+function createChartDataset(key, points, colorIndex) {
+    return {
+        label: key,
+        data: points,
+        backgroundColor: getRandomColor(colorIndex) + '20',
+        borderColor: getRandomColor(colorIndex),
+        fill: false,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: getRandomColor(colorIndex),
+        pointHoverBorderColor: '#ffffff',
+        pointHoverBorderWidth: 2,
+    };
+}
+
+// ========== END UTILITY FUNCTIONS ==========
+
 // Wait for hexagons plugin to be available before initializing
 function initializeServerHexagons() {
     // Check if jQuery and hexagons plugin are available
@@ -119,21 +278,17 @@ async function initializeLazyLoading() {
 
                 if ($flipText.length > 0 && serverData && serverData.success) {
                     const data = serverData.data;
-
-                    // Calculate percentage values for display
-                    const memPercent = data.maxmem ? ((data.mem / data.maxmem) * 100).toFixed(2) : 0;
-                    const diskPercent = data.maxdisk ? ((data.disk / data.maxdisk) * 100).toFixed(2) : 0;
-                    const availabilityPercent = data.availability ? (data.availability * 100).toFixed(2) : 0;
+                    const percentages = calculateServerPercentages(data, { mem: 2, disk: 2, availability: 2 });
 
                     // Update the flip text with detailed information
                     const detailedInfo = `
                         Type: ${data.type || 'qemu'}<br>
                         Name: ${data.name}<br>
                         Status: ${data.status}<br>
-                        Availability: ${availabilityPercent}%<br>
+                        Availability: ${percentages.availabilityPercent}%<br>
                         Uptime: ${data.uptimeHR || 'N/A'}<br>
-                        Mem Use: ${memPercent}%<br>
-                        Disk Use: ${diskPercent}%<br>
+                        Mem Use: ${percentages.memPercent}%<br>
+                        Disk Use: ${percentages.diskPercent}%<br>
                     `;
 
                     $flipText.html(detailedInfo.trim());
@@ -220,9 +375,7 @@ function initializeChart(serverName, container, hexagonColor = null) {
     containerDiv.appendChild(titleDiv);
 
     // Create loading indicator for server summary
-    let loadingDiv = document.createElement('div');
-    loadingDiv.className = 'loading-indicator';
-    loadingDiv.innerHTML = '<div class="spinner"></div><span class="loading-text">Loading server details...</span>';
+    let loadingDiv = createLoadingElement('Loading server details...');
     containerDiv.appendChild(loadingDiv);
 
     requestAnimationFrame(() => {
@@ -251,15 +404,11 @@ function initializeChart(serverName, container, hexagonColor = null) {
             $(loadingDiv).remove();
 
             // Show error message in the container
-            const errorDiv = document.createElement('div');
-            errorDiv.style.padding = '20px';
-            errorDiv.style.textAlign = 'center';
-            errorDiv.style.color = '#ff6b6b';
-            errorDiv.innerHTML = `
-                <h3>Server Details Unavailable</h3>
-                <p>Unable to load server details for ${serverName}</p>
-                <small>${error.message}</small>
-            `;
+            const errorDiv = createErrorElement(
+                'Server Details Unavailable',
+                `Unable to load server details for ${serverName}`,
+                error.message
+            );
             containerDiv.appendChild(errorDiv);
         });
 
@@ -276,13 +425,8 @@ function fetchServerDetails(serverName) {
         host: serverName
     };
 
-    return fetch(`/index.php?page=server&${new URLSearchParams(detailsParams)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        });
+    const url = `/index.php?page=server&${new URLSearchParams(detailsParams)}`;
+    return makeApiRequest(url, `Server details request for ${serverName}`);
 }
 
 /**
@@ -299,13 +443,8 @@ function loadChartData(serverName, containerDiv, container) {
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
 
-    return fetch(`server.php?${new URLSearchParams(req)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        })
+    const url = `server.php?${new URLSearchParams(req)}`;
+    return makeApiRequest(url, `Chart data request for ${serverName}`)
         .then(callback => {
             if (!callback.success) {
                 throw new Error(callback.error || 'Failed to load chart data');
@@ -318,15 +457,11 @@ function loadChartData(serverName, containerDiv, container) {
             console.error(`Failed to load chart data for ${serverName}:`, error);
 
             // Show error message for charts only
-            const errorDiv = document.createElement('div');
-            errorDiv.style.padding = '20px';
-            errorDiv.style.textAlign = 'center';
-            errorDiv.style.color = '#ff6b6b';
-            errorDiv.innerHTML = `
-                <h3>Chart Data Unavailable</h3>
-                <p>Unable to load chart data for ${serverName}</p>
-                <small>${error.message}</small>
-            `;
+            const errorDiv = createErrorElement(
+                'Chart Data Unavailable',
+                `Unable to load chart data for ${serverName}`,
+                error.message
+            );
             containerDiv.appendChild(errorDiv);
         });
 }
@@ -335,10 +470,7 @@ function loadChartData(serverName, containerDiv, container) {
  * Create server summary HTML template (similar to activity summary)
  */
 function createServerSummaryHTML(serverData) {
-    // Calculate percentage values for display
-    const memPercent = serverData.maxmem ? ((serverData.mem / serverData.maxmem) * 100).toFixed(1) : 0;
-    const diskPercent = serverData.maxdisk ? ((serverData.disk / serverData.maxdisk) * 100).toFixed(1) : 0;
-    const availabilityPercent = serverData.availability ? (serverData.availability * 100).toFixed(2) : 0;
+    const percentages = calculateServerPercentages(serverData);
     const uptime = serverData.uptimeHR || 'N/A';
 
     return `
@@ -348,15 +480,15 @@ function createServerSummaryHTML(serverData) {
         </div>
         <div class="summary-item">
             <div class="summary-label">Availability</div>
-            <div class="summary-value">${availabilityPercent}%</div>
+            <div class="summary-value">${percentages.availabilityPercent}%</div>
         </div>
         <div class="summary-item">
             <div class="summary-label">Memory Usage</div>
-            <div class="summary-value">${memPercent}%</div>
+            <div class="summary-value">${percentages.memPercent}%</div>
         </div>
         <div class="summary-item">
             <div class="summary-label">Disk Usage</div>
-            <div class="summary-value">${diskPercent}%</div>
+            <div class="summary-value">${percentages.diskPercent}%</div>
         </div>
     `;
 }
@@ -388,21 +520,8 @@ function renderCharts(containerDiv, data, container, serverName) {
         let labels = Object.keys(chartData);
         let points = Object.values(chartData);
 
-        // Create the dataset
-        var dataset = {
-            label: key,
-            data: points,
-            backgroundColor: getRandomColor(index) + '20', // Add transparency like in activity charts
-            borderColor: getRandomColor(index),
-            fill: false, // Remove fill under the line
-            tension: 0.4, // Smooth lines like activity charts
-            borderWidth: 3,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointHoverBackgroundColor: getRandomColor(index),
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 2,
-        };
+        // Create the dataset using helper function
+        var dataset = createChartDataset(key, points, index);
 
         // Create a new chart inside each canvas with dynamic aspect ratio
         new Chart(canvas, {
@@ -411,75 +530,7 @@ function renderCharts(containerDiv, data, container, serverName) {
                 labels: labels,
                 datasets: [dataset],
             },
-            options: {
-                responsive: true,
-                aspectRatio: (container.width / (container.height - titleHeight)) * filteredKeys.length,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
-                        font: {
-                            size: 14
-                        },
-                        color: '#343a40',
-                    },
-                    legend: {
-                        display: false,
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#ffffff',
-                        bodyColor: '#ffffff',
-                        cornerRadius: 8,
-                        borderColor: getRandomColor(index),
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function (context) {
-                                const value = key === 'cpu' ? context.raw : (context.raw * 100).toFixed(2);
-                                const unit = key === 'cpu' ? '' : '%';
-                                return `${context.dataset.label}: ${value}${unit}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: '#e9ecef',
-                            borderColor: '#dee2e6'
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                            maxRotation: 0,
-                            minRotation: 0,
-                            callback: function (val, index) {
-                                return index % 2 === 0 ? this.getLabelForValue(val) : '';
-                            },
-                        },
-                    },
-                    y: {
-                        grid: {
-                            color: '#e9ecef',
-                            borderColor: '#dee2e6'
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                            callback: function (val, index) {
-                                if (key === 'cpu') {
-                                    return val;
-                                } else {
-                                    const roundedPercentage = (val * 100).toFixed(2);
-                                    return `${roundedPercentage}%`;
-                                }
-                            },
-                        },
-                    },
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            },
+            options: getChartOptions(key, container, titleHeight, filteredKeys.length, index)
         });
     });
 
