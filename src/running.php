@@ -8,7 +8,7 @@ require_once(__DIR__ . '/lib/functions.php');
 require_once(__DIR__ . '/lib/encrypted_cache.php');
 
 // Initialize encrypted cache for lazy loading and performance optimization
-$cache = new EncryptedCache($_SERVER['DOCUMENT_ROOT'] . '/cache', EncryptedCache::TTL_NORMAL, $encryption_key);
+$cache = new EncryptedCache($_SERVER['DOCUMENT_ROOT'] . '/fitbit_cache', EncryptedCache::TTL_NORMAL, $encryption_key);
 
 #==============================================================================
 # Fitbit API with OAuth 2.0
@@ -397,9 +397,9 @@ class FitbitOAuthClient
     // Get list of activities (runs) with cache handling and delta-sync
     // Unauthenticated users get cached data only (no cache invalidation)
     // Authenticated users get fresh data and update cache
-    public function getActivities($beforeDate = null, $limit = null, $offset = 0): array
+    public function getActivities(int $limit = 20, int $offset = 0): array
     {
-        $cacheDir    = __DIR__ . '/cache';
+        $cacheDir    = __DIR__ . '/fitbit_cache';
         $limit       = $limit ?? 19; // Default to 18 activities per page
         $offset      = $offset ?? 0;
 
@@ -574,7 +574,7 @@ class FitbitOAuthClient
     public function getActivityDetails(int $logId): \SimpleXMLElement
     {
         global $cache;
-        $cacheFile = __DIR__ . "/cache/{$logId}.tcx";
+        $cacheFile = __DIR__ . "/fitbit_cache/{$logId}.tcx";
 
         // Fetch & cache if missing
         if (!file_exists($cacheFile) || filesize($cacheFile) === 0) {
@@ -1118,7 +1118,7 @@ if (!$request) {
             $activities = $result;
 
             // Find the most recent cache file to show accurate cache age
-            $cacheFiles = glob(__DIR__ . '/cache/activities_*.json');
+            $cacheFiles = glob(__DIR__ . '/fitbit_cache/activities_*.json');
             if ($cacheFiles) {
                 // Sort by modification time, most recent first
                 usort($cacheFiles, fn($a, $b) => filemtime($b) <=> filemtime($a));

@@ -33,6 +33,7 @@ jobs:
             --exclude 'robots.txt' \
             --exclude 'vault' \
             --exclude 'conf/config.local.php' \
+            --exclude 'fitbit_cache' \
             --delete
           sudo chown $USER:$USER ${{env.WEBROOT}} -R
 
@@ -65,5 +66,6 @@ jobs:
             --exclude 'robots.txt' \
             --exclude 'vault' \
             --exclude 'conf/config.local.php' \
+            --exclude 'fitbit_cache' \
             --delete-delay
           sudo chown $USER:$USER ${{env.WEBROOT}} -R

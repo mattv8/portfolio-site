@@ -27,7 +27,7 @@ mysql/_grants.sql
 
 # Cache
 **/cache
-src/cache
+src/fitbit_cache/
 
 # Database dumps
 mysql/*.sql
