@@ -8,9 +8,9 @@
 	</video>
 
 	<div id="page-content">
-		{if $error or $page eq 'error'}
+		{if isset($error) && $error or $page eq 'error'}
 			<div class="alert alert-danger">
-				<i class="fa fa-fw fa-exclamation-circle"></i> {$error}
+				<i class="fa fa-fw fa-exclamation-circle"></i> {$error|default:'An error occurred'}
 			</div>
 		{else}
 			{if file_exists("tpl/$page.tpl")}

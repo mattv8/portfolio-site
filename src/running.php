@@ -554,7 +554,7 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
             'date' => date('Y-m-d', strtotime($activity['startTime'])),
             'time' => date('H:i:s', strtotime($activity['startTime'])),
             'distance' => round($distanceMiles, 2), // Round to 2 decimal places
-            'duration' => gmdate('H:i:s', $durationSeconds), // Format duration in H:i:s
+            'duration' => gmdate('H:i:s', (int)$durationSeconds), // Format duration in H:i:s
             'pace' => $paceMinPerMile, // Raw pace value in minutes per mile
             'paceFormatted' => $paceFormatted, // Formatted pace as MM:SS
             'activityName' => $activity['activityName'] ?? 'Unknown Activity',
@@ -562,7 +562,7 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
             'summary' => sprintf('%s - %.1f mi in %s (pace %s/mi)',
                 $activity['activityName'] ?? 'Unknown Activity',
                 $distanceMiles,
-                gmdate('H:i:s', $durationSeconds),
+                gmdate('H:i:s', (int)$durationSeconds),
                 $paceFormatted
             )
         ];
@@ -726,7 +726,7 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
 
         // Convert values for display - Fix conversion factor to match formatActivityForDisplay
         $distanceMiles = $distanceMeters * 0.000621371; // Convert meters to miles
-        $durationFormatted = gmdate('H:i:s', $totalTimeSeconds); // Format duration as H:i:s
+        $durationFormatted = gmdate('H:i:s', (int)$totalTimeSeconds); // Format duration as H:i:s
         $paceMinPerMile = ($distanceMiles > 0) ? ($totalTimeSeconds / 60) / $distanceMiles : 0; // Pace in minutes per mile
 
         // Format pace as MM:SS

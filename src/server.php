@@ -22,6 +22,9 @@ if (!isset($_GET['action'])) {
     $smarty->setCompileDir($compile_dir);
     $smarty->setCacheDir($cache_dir);
 
+    // Register json_encode as a custom modifier to avoid deprecation warnings
+    $smarty->registerPlugin('modifier', 'json_encode', 'json_encode');
+
     // Logging
     error_reporting(0);
     if ($debug) {
