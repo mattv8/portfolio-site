@@ -476,6 +476,7 @@ class FitbitOAuthClient
             'cached'        => true,
             'lastCacheDate' => null,
             'nextDate'      => null,
+            'hasMore'       => false,
         ];
     }
 
@@ -533,6 +534,7 @@ class FitbitOAuthClient
         'cached'        => false,
         'lastCacheDate' => null,
         'nextDate'      => null,
+        'hasMore'       => false,
     ];
 }
 

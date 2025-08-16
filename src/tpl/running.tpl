@@ -14,6 +14,13 @@
     <script src="js/running.js"></script>
 {/if}
 
+{literal}
+    <script type="text/javascript">
+        // Make authentication status available to JavaScript
+        window.isAuthenticated = {if $authenticated}true{else}false{/if};
+    </script>
+{/literal}
+
 {if $debug}
     <style>
         .running {
@@ -60,13 +67,11 @@ $(document).ready(function() {
     {/foreach}
 </div>
 
-{if $authenticated}
 <div class="load-more-container">
     <button id="load-more-btn" class="btn btn-secondary" onclick="loadMoreActivities(this)">
         Load More Activities
     </button>
 </div>
-{/if}
 
 {* Activity Details Modal - Preallocated for later use *}
 <div id="activity-details-modal" class="modal" style="display: none;">

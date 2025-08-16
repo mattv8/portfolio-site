@@ -761,25 +761,46 @@ function loadMoreActivities(button) {
         offset: currentActivities
     })
         .done(function (response) {
-            if (response.status === 'success' && response.data.length > 0) {
+            if (response.status === 'success' && response.data && response.data.length > 0) {
                 // Add new activities to the hexagon grid
                 addActivitiesToGrid(response.data);
 
-                // If we got fewer activities than requested, we've reached the end
-                if (response.data.length < activitiesPerRow) {
-                    $button.text('No more activities').prop('disabled', true);
+                // Check if there are more activities available
+                // For unauthenticated users, check hasMore flag from backend
+                // For authenticated users, use the traditional check
+                let hasMoreActivities = false;
+
+                if (window.isAuthenticated) {
+                    // Authenticated: traditional logic - if we got fewer than requested, we've reached the end
+                    hasMoreActivities = response.data.length >= activitiesPerRow;
                 } else {
+                    // Unauthenticated: use hasMore flag from cached data
+                    hasMoreActivities = response.hasMore || false;
+                }
+
+                if (hasMoreActivities) {
                     $button.prop('disabled', false).text(originalText);
+                } else {
+                    $button.text('No more activities to load').prop('disabled', true);
                 }
             } else {
                 // No more activities or error
-                $button.text('No more activities').prop('disabled', true);
+                if (window.isAuthenticated && response.needs_auth) {
+                    $button.text('Authentication required').prop('disabled', true);
+                } else {
+                    $button.text('No more activities to load').prop('disabled', true);
+                }
             }
         })
-        .fail(function () {
+        .fail(function (xhr, status, error) {
             // Re-enable button on error
             $button.prop('disabled', false).text(originalText);
-            console.error('Failed to load more activities');
+            console.error('Failed to load more activities:', status, error);
+
+            // Show different error messages based on authentication status
+            if (!window.isAuthenticated) {
+                console.log('Failed to load cached activities for unauthenticated user');
+            }
         });
 }
 
