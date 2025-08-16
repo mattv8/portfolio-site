@@ -266,6 +266,50 @@ function initiateAuth() {
     window.location.href = `index.php?page=running&request=authorize&state=${state}`;
 }
 
+/**
+ * Display error message to user for authentication failures
+ */
+function showAuthError(message) {
+    const authContainer = document.querySelector('.auth-container');
+    if (authContainer) {
+        // Remove any existing error messages
+        const existingError = authContainer.querySelector('.auth-error');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Create error message element
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'auth-error';
+        errorDiv.style.cssText = `
+            color: #ff4444;
+            background-color: #ffe6e6;
+            border: 1px solid #ff4444;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        `;
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>${message}`;
+
+        authContainer.appendChild(errorDiv);
+
+        // Re-enable the auth button
+        const authButton = document.getElementById('fitbit-auth-btn');
+        if (authButton) {
+            authButton.disabled = false;
+            authButton.innerText = 'Connect Fitbit Account';
+        }
+
+        // Auto-hide error after 10 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 10000);
+    }
+}
+
 function openActivityDetails(hex, activityId) {
     const animTime = 500; // Animation time in milliseconds
     const $container = $('.hexagons');

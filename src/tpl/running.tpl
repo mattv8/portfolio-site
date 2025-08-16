@@ -33,6 +33,15 @@
     {/if}
 </div>
 
+{* Show auth error if present *}
+{if $auth_error}
+<script type="text/javascript">
+$(document).ready(function() {
+    showAuthError('{$auth_error|escape:'javascript'}');
+});
+</script>
+{/if}
+
 <div class="hexagons running">
     {foreach from=$activities item=activity key=key}
         {if $activity.pace <= 20}

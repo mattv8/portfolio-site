@@ -58,12 +58,23 @@ class FitbitOAuthClient
 
         // still valid?
         if (time() < $obtained + $lifetime) {
+            // Validate that the current token belongs to the allowed user
+            if (!$this->validateAllowedUser($this->credentials['access_token'])) {
+                // Clear invalid tokens
+                $this->clearTokens();
+                return false;
+            }
             return true;
         }
 
         // expired → try refresh
         try {
             $this->refreshToken();
+            // After refreshing, validate the user again
+            if (!$this->validateAllowedUser($this->credentials['access_token'])) {
+                $this->clearTokens();
+                return false;
+            }
             return true;
         } catch (\Exception $e) {
             return false;
@@ -122,6 +133,11 @@ class FitbitOAuthClient
             throw new Exception('Access token not found in response');
         }
 
+        // Validate that the authenticated user is the allowed user
+        if (!$this->validateAllowedUser($tokenData['access_token'])) {
+            throw new Exception('Access denied: This Fitbit account is not authorized to access this application. Only the specified account holder is allowed.');
+        }
+
         // Add timestamp to track token age
         $tokenData['timestamp'] = time();
 
@@ -129,6 +145,50 @@ class FitbitOAuthClient
         $this->saveTokens($tokenData);
 
         return $tokenData;
+    }
+
+    // Validate that the authenticated user is the allowed user ID
+    private function validateAllowedUser(string $accessToken): bool
+    {
+        $ch = curl_init(self::API_BASE_URL . '/1/user/-/profile.json');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            error_log("Fitbit profile API returned HTTP code: " . $httpCode . ", Response: " . $response);
+            return false;
+        }
+
+        $profileData = json_decode($response, true);
+
+        // Check if the user ID matches our allowed user ID
+        if (isset($profileData['user']['encodedId'])) {
+            $apiUserId = trim($profileData['user']['encodedId']);
+            $allowedUserId = $this->credentials['allowed_user_id'] ?? null;
+
+            if (!$allowedUserId) {
+                error_log("No allowed_user_id configured in Fitbit credentials");
+                return false;
+            }
+
+            $isMatch = $apiUserId === $allowedUserId;
+
+            if (!$isMatch) {
+                error_log("Access denied for Fitbit user ID: '" . $apiUserId . "' (allowed: '" . $allowedUserId . "')");
+            }
+
+            return $isMatch;
+        } else {
+            error_log("No encodedId field found in profile data. Available fields: " . implode(', ', array_keys($profileData['user'] ?? [])));
+        }
+
+        return false;
     }
 
     // Get stored tokens
@@ -161,6 +221,27 @@ class FitbitOAuthClient
             true,      // secure
             true       // HttpOnly
         );
+    }
+
+    // Clear stored tokens
+    protected function clearTokens()
+    {
+        // Clear the cookie
+        setcookie(
+            $this->cookieName,
+            '',
+            time() - 3600, // Expire in the past
+            '/',           // path
+            '',            // domain
+            true,          // secure
+            true           // HttpOnly
+        );
+
+        // Clear from credentials
+        unset($this->credentials['access_token']);
+        unset($this->credentials['refresh_token']);
+        unset($this->credentials['obtained_at']);
+        unset($this->credentials['expires_in']);
     }
 
     // Refresh the access token when expired
@@ -646,8 +727,15 @@ if ($code) {
             exit;
         }
     } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-        exit;
+        if ($request) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            exit;
+        } else {
+            // For non-AJAX requests, redirect with error parameter
+            $errorMessage = urlencode($e->getMessage());
+            header("Location: /?page=running&auth_error=" . $errorMessage);
+            exit;
+        }
     }
 }
 
@@ -887,4 +975,5 @@ if (!$request) {
     // Assign activities to Smarty template
     $smarty->assign('activities', $activities);
     $smarty->assign('lastCacheDate', $lastCacheDate);
+    $smarty->assign('auth_error', $_GET['auth_error'] ?? null);
 }
