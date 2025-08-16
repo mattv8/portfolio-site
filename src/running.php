@@ -41,15 +41,6 @@ class FitbitOAuthClient
     // Check if the user is authenticated
     public function isAuthenticated(): bool
     {
-        $logId = isset($_GET['activityId']) ? (int)$_GET['activityId'] : null;
-        $cacheFile = __DIR__ . "/cache/{$logId}.tcx";
-        global $cache;
-
-        // Check if cached TCX file exists (either encrypted or unencrypted)
-        if (file_exists($cacheFile)) {
-            return true;
-        }
-
         $this->getTokens();
 
         if (empty($this->credentials['access_token'])) {
@@ -230,8 +221,11 @@ class FitbitOAuthClient
     protected function getTokens(): array
     {
         $data = [];
-        if (!empty($_COOKIE[$this->cookieName])) {
-            $data = json_decode($_COOKIE[$this->cookieName], true) ?: [];
+        $cookieExists = !empty($_COOKIE[$this->cookieName]);
+
+        if ($cookieExists) {
+            $cookieData = $_COOKIE[$this->cookieName];
+            $data = json_decode($cookieData, true) ?: [];
             $this->credentials = array_merge($this->credentials, $data);
         }
         return $data;
@@ -401,19 +395,21 @@ class FitbitOAuthClient
     }
 
     // Get list of activities (runs) with cache handling and delta-sync
-public function getActivities($beforeDate = null, $limit = null, $offset = 0): array
-{
-    $cacheDir    = __DIR__ . '/cache';
-    $limit       = $limit ?? 19; // Default to 18 activities per page
-    $offset      = $offset ?? 0;
+    // Unauthenticated users get cached data only (no cache invalidation)
+    // Authenticated users get fresh data and update cache
+    public function getActivities($beforeDate = null, $limit = null, $offset = 0): array
+    {
+        $cacheDir    = __DIR__ . '/cache';
+        $limit       = $limit ?? 19; // Default to 18 activities per page
+        $offset      = $offset ?? 0;
 
-    if (!is_dir($cacheDir)) {
-        mkdir($cacheDir, 0755, true);
-    }
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
 
-    $cacheFile = "$cacheDir/activities_all_{$limit}.json";
+        $cacheFile = "$cacheDir/activities_all_{$limit}.json";
 
-    // Unauthenticated: serve most recent cache file
+        // Unauthenticated: serve most recent cache file (read-only, no invalidation)
     if (!$this->isAuthenticated()) {
         $files = glob("$cacheDir/activities_*.json");
         if ($files) {
@@ -825,22 +821,30 @@ if ($code) {
     }
 }
 
-// Check if user is authenticated for non-auth actions
-if ($request && !$fitbitClient->isAuthenticated()) {
-    header('Content-Type: application/json');
-    echo json_encode(['status' => 'error', 'message' => 'Not authenticated', 'needs_auth' => true]);
-    exit;
-}
-
-// Handle AJAX requests
-if ($request && $fitbitClient->isAuthenticated()) {
+// Handle AJAX requests - allow some requests for unauthenticated users (cached data only)
+if ($request) {
     header('Content-Type: application/json');
     $response = ['status' => 'error', 'message' => 'Invalid request'];
+
+    // Requests that work with cached data for unauthenticated users
+    $allowedUnauthenticatedRequests = ['getActivities', 'getActivityDetails', 'getActivitySummary'];
+
+    // Check if user is authenticated for requests that require fresh data
+    if (!$fitbitClient->isAuthenticated() && !in_array($request, $allowedUnauthenticatedRequests)) {
+        echo json_encode(['status' => 'error', 'message' => 'Not authenticated', 'needs_auth' => true]);
+        exit;
+    }
 
     switch ($request) {
         case 'getActivities':
             $limit = $_GET['limit'] ?? 19;
             $offset = $_GET['offset'] ?? 0;
+
+            // Log access for debugging
+            if (!$fitbitClient->isAuthenticated()) {
+                error_log("Unauthenticated user requesting activities (limit: {$limit}, offset: {$offset}) - will serve cached data only");
+            }
+
             $result = $fitbitClient->getActivities(null, $limit, $offset);
 
             if ($result['code'] === 200) {
@@ -875,6 +879,23 @@ if ($request && $fitbitClient->isAuthenticated()) {
             try {
                 // Use comprehensive caching for activity details since TCX parsing is expensive
                 $details_cache_key = "activity_details_{$activityId}";
+
+                // For unauthenticated users, try cache only (no fresh API calls)
+                if (!$fitbitClient->isAuthenticated()) {
+                    error_log("Unauthenticated user requesting activity details for ID: {$activityId}");
+                    $cached_result = $cache->get($details_cache_key, EncryptedCache::TTL_STATIC);
+                    if ($cached_result) {
+                        error_log("Serving cached activity details for unauthenticated user: {$activityId}");
+                        echo json_encode($cached_result);
+                    } else {
+                        error_log("No cached activity details available for unauthenticated user: {$activityId}");
+                        echo json_encode([
+                            'status'  => 'error',
+                            'message' => 'Activity details not available in cache.'
+                        ]);
+                    }
+                    exit;
+                }
 
                 $result = $cache->remember($details_cache_key, function() use ($fitbitClient, $activityId, $cache) {
                     // Try to reuse activity info from main activities cache first
@@ -959,6 +980,14 @@ if ($request && $fitbitClient->isAuthenticated()) {
                 $cache_key = "activity_summary_{$activityId}";
 
                 $activityData = $cache->remember($cache_key, function() use ($fitbitClient, $activityId, $cache) {
+                    // For unauthenticated users, return null to skip cache population
+                    if (!$fitbitClient->isAuthenticated()) {
+                        error_log("Skipping cache population for unauthenticated user: {$activityId}");
+                        return null;
+                    }
+
+                    error_log("Authenticated user - populating activity summary cache for ID: {$activityId}");
+
                     // First try to get activity info from the main activities cache
                     $activities_cache_key = "activities_main_list";
                     $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
@@ -1009,7 +1038,14 @@ if ($request && $fitbitClient->isAuthenticated()) {
 
                 }, EncryptedCache::TTL_STATIC, ['tags' => ['activities', 'running', $activityId]]);
 
-                $response = ['success' => true, 'data' => $activityData];
+                // Handle result for both authenticated and unauthenticated users
+                if ($activityData) {
+                    error_log("Activity summary served from cache for ID: {$activityId}");
+                    $response = ['success' => true, 'data' => $activityData];
+                } else {
+                    error_log("No cached activity summary available for ID: {$activityId}");
+                    $response = ['success' => false, 'error' => 'Activity summary not available in cache.'];
+                }
 
             } catch (Exception $e) {
                 error_log("Failed to get activity summary for {$activityId}: " . $e->getMessage());
