@@ -50,12 +50,16 @@ class SimpleCache {
 
         $data = file_get_contents($cache_file);
         if ($data === false) {
+            error_log("SimpleCache: Failed to read cache file: $cache_file (key: $key)");
             @unlink($cache_file); // Delete corrupted file
             return null;
         }
 
         $unserialized = @unserialize($data);
         if ($unserialized === false) {
+            $file_size = filesize($cache_file);
+            $data_preview = substr($data, 0, 200);
+            error_log("SimpleCache: Corrupted cache file detected and deleted: $cache_file (key: $key, size: $file_size bytes, preview: " . addslashes($data_preview) . ")");
             @unlink($cache_file); // Delete corrupted file
             return null;
         }

@@ -84,6 +84,8 @@ class FitbitOAuthClient
     // Start the OAuth authorization flow
     public function getAuthorizationUrl()
     {
+        $state = $_GET['state'] ?? null; // Get state from JavaScript
+
         $params = [
             'page' => 'running',
             'request' => 'authorize',
@@ -93,12 +95,24 @@ class FitbitOAuthClient
             'expires_in' => '86400' // 24 hours
         ];
 
-        return $this->credentials['auth_uri'] . '?' . http_build_query($params);
+        // Add state parameter if provided for CSRF protection
+        if ($state) {
+            $params['state'] = $state;
+        }
+
+        $authUrl = $this->credentials['auth_uri'] . '?' . http_build_query($params);
+        return $authUrl;
     }
 
     // Handle the OAuth callback and exchange code for tokens
     public function handleCallback($code)
     {
+        // Clean the code parameter to remove any URL fragments
+        $code = trim($code);
+        if (strpos($code, '#') !== false) {
+            $code = substr($code, 0, strpos($code, '#'));
+        }
+
         if (empty($code)) {
             throw new Exception('Authorization code is missing');
         }
@@ -108,7 +122,7 @@ class FitbitOAuthClient
         $postFields = [
             'grant_type' => 'authorization_code',
             'client_id' => $this->credentials['client_id'],
-            'code' => $code
+            'code' => $code,
         ];
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -119,12 +133,27 @@ class FitbitOAuthClient
             'Content-Type: application/x-www-form-urlencoded'
         ]);
 
+        // Set the correct CA bundle path
+        curl_setopt($ch, CURLOPT_CAINFO, '/etc/ssl/certs/ca-certificates.crt');
+
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            error_log("cURL error during token exchange: " . $curlError);
+            throw new Exception('Failed to connect to Fitbit API: ' . $curlError);
+        }
+
         curl_close($ch);
 
         if ($httpCode != 200) {
-            throw new Exception('Failed to get access token: ' . $response);
+            // Add more specific error details
+            $errorDetails = "HTTP $httpCode response from Fitbit: $response";
+            error_log("Fitbit token exchange failed: " . $errorDetails);
+            throw new Exception('Failed to get access token: ' . $errorDetails);
         }
 
         $tokenData = json_decode($response, true);
@@ -155,6 +184,9 @@ class FitbitOAuthClient
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $accessToken
         ]);
+
+        // Set the correct CA bundle path
+        curl_setopt($ch, CURLOPT_CAINFO, '/etc/ssl/certs/ca-certificates.crt');
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -279,6 +311,9 @@ class FitbitOAuthClient
             'Content-Type: application/x-www-form-urlencoded'
         ]);
 
+        // Set the correct CA bundle path
+        curl_setopt($ch, CURLOPT_CAINFO, '/etc/ssl/certs/ca-certificates.crt');
+
         $resp = curl_exec($ch);
         $data = json_decode($resp, true);
         if (isset($data['errors'])) {
@@ -341,6 +376,9 @@ class FitbitOAuthClient
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+        // Set the correct CA bundle path
+        curl_setopt($ch, CURLOPT_CAINFO, '/etc/ssl/certs/ca-certificates.crt');
+
         $response = curl_exec($ch);
         $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -377,7 +415,37 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
         $files = glob("$cacheDir/activities_*.json");
         if ($files) {
             usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
-            $raw      = json_decode(file_get_contents($files[0]), true);
+            $cacheFilePath = $files[0];
+            $rawContent = file_get_contents($cacheFilePath);
+
+            if ($rawContent === false) {
+                error_log("Activities cache: Failed to read cache file: $cacheFilePath");
+                return [
+                    'code'          => 200,
+                    'data'          => [],
+                    'cached'        => true,
+                    'lastCacheDate' => null,
+                    'nextDate'      => null,
+                    'error'         => 'Cache read error'
+                ];
+            }
+
+            $raw = json_decode($rawContent, true);
+            if ($raw === null) {
+                $fileSize = filesize($cacheFilePath);
+                $preview = substr($rawContent, 0, 200);
+                error_log("Activities cache: Corrupted JSON cache file detected and will be skipped: $cacheFilePath (size: $fileSize bytes, preview: " . addslashes($preview) . ")");
+                @unlink($cacheFilePath); // Remove corrupted cache
+                return [
+                    'code'          => 200,
+                    'data'          => [],
+                    'cached'        => true,
+                    'lastCacheDate' => null,
+                    'nextDate'      => null,
+                    'error'         => 'Corrupted cache removed'
+                ];
+            }
+
             $formatted = [];
             foreach (($raw['activities'] ?? []) as $act) {
                 if (stripos($act['activityName'], 'run') !== false) {
@@ -395,7 +463,7 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
                 'code'          => 200,
                 'data'          => $formatted,
                 'cached'        => true,
-                'lastCacheDate' => date('Y-m-d H:i:s', filemtime($files[0])),
+                'lastCacheDate' => date('Y-m-d H:i:s', filemtime($cacheFilePath)),
                 'nextDate'      => end($formatted)['date'] ?? null,
                 'totalCount'    => $totalCount,
                 'hasMore'       => ($offset + $limit) < $totalCount,
@@ -424,7 +492,13 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
     );
 
     if ($response['code'] === 200 && isset($response['data']['activities'])) {
-        file_put_contents($cacheFile, json_encode($response['data']));
+        $cacheWriteResult = file_put_contents($cacheFile, json_encode($response['data']));
+        if ($cacheWriteResult === false) {
+            error_log("Activities cache: Failed to write cache file: $cacheFile");
+        } else {
+            $activityCount = count($response['data']['activities'] ?? []);
+            error_log("Activities cache: Successfully cached $activityCount activities to: $cacheFile (size: $cacheWriteResult bytes)");
+        }
 
         $formatted = [];
         foreach ($response['data']['activities'] as $act) {
@@ -681,9 +755,8 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // — DEV ONLY: ignore self‑signed certs on localhost
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        // Set the correct CA bundle path for SSL verification
+        curl_setopt($ch, CURLOPT_CAINFO, '/etc/ssl/certs/ca-certificates.crt');
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -956,7 +1029,9 @@ if (!$request) {
     $activities_cache_key = "activities_main_list";
 
     $result = $cache->remember($activities_cache_key, function() use ($fitbitClient) {
-        return $fitbitClient->getActivities();
+        $activities = $fitbitClient->getActivities();
+        error_log("getActivities returned: " . json_encode($activities));
+        return $activities;
     }, SimpleCache::TTL_NORMAL, ['tags' => ['activities', 'list']]);
 
     if (isset($result['data']) && is_array($result['data'])) {
