@@ -4,13 +4,17 @@
  * Simple command-line and web interface for cache operations
  */
 
-require_once(__DIR__ . '/../lib/cache.php');
+// Set document root for proper config loading
+$_SERVER['DOCUMENT_ROOT'] = $_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__);
+
+require_once(__DIR__ . '/../conf/config.php');
+require_once(__DIR__ . '/../lib/encrypted_cache.php');
 
 // Handle web requests
 if (isset($_GET['action'])) {
     header('Content-Type: application/json');
 
-    $cache = new SimpleCache();
+    $cache = new EncryptedCache(dirname(__DIR__) . '/cache', EncryptedCache::TTL_NORMAL, $encryption_key ?? null);
     $action = $_GET['action'];
 
     try {
@@ -52,7 +56,7 @@ if (isset($_GET['action'])) {
 
 // Command line interface
 if (php_sapi_name() === 'cli') {
-    $cache = new SimpleCache();
+    $cache = new EncryptedCache(dirname(__DIR__) . '/cache', EncryptedCache::TTL_NORMAL, $encryption_key ?? null);
 
     $action = $argv[1] ?? 'stats';
 
@@ -60,14 +64,14 @@ if (php_sapi_name() === 'cli') {
         case 'stats':
             $stats = $cache->getStats();
             echo "📊 Cache Statistics:\n";
-            echo "   Total files: {$stats['total_files']}\n";
-            echo "   Expired files: {$stats['expired_files']}\n";
-            echo "   Total size: {$stats['total_size_mb']} MB\n";
+            echo "   Total files: {$stats['file_count']}\n";
+            echo "   Encrypted files: {$stats['encrypted_count']}\n";
+            echo "   Total size: {$stats['total_size_formatted']}\n";
             echo "   Cache directory: {$stats['cache_dir']}\n";
             break;
 
         case 'cleanup':
-            $max_age = isset($argv[2]) ? (int)$argv[2] : SimpleCache::TTL_SLOW;
+            $max_age = isset($argv[2]) ? (int)$argv[2] : EncryptedCache::TTL_SLOW;
             $cleared = $cache->cleanup($max_age);
             echo "🧹 Cleaned up $cleared expired cache files\n";
             break;

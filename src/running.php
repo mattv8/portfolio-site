@@ -5,10 +5,10 @@
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/conf/config.php');
 require_once(__DIR__ . '/lib/functions.php');
-require_once(__DIR__ . '/lib/cache.php');
+require_once(__DIR__ . '/lib/encrypted_cache.php');
 
-// Initialize cache for lazy loading and performance optimization
-$cache = new SimpleCache($_SERVER['DOCUMENT_ROOT'] . '/cache');
+// Initialize encrypted cache for lazy loading and performance optimization
+$cache = new EncryptedCache($_SERVER['DOCUMENT_ROOT'] . '/cache', EncryptedCache::TTL_NORMAL, $encryption_key);
 
 #==============================================================================
 # Fitbit API with OAuth 2.0
@@ -43,6 +43,9 @@ class FitbitOAuthClient
     {
         $logId = isset($_GET['activityId']) ? (int)$_GET['activityId'] : null;
         $cacheFile = __DIR__ . "/cache/{$logId}.tcx";
+        global $cache;
+
+        // Check if cached TCX file exists (either encrypted or unencrypted)
         if (file_exists($cacheFile)) {
             return true;
         }
@@ -414,12 +417,13 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
     if (!$this->isAuthenticated()) {
         $files = glob("$cacheDir/activities_*.json");
         if ($files) {
+            global $cache;
             usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
             $cacheFilePath = $files[0];
-            $rawContent = file_get_contents($cacheFilePath);
+            $rawContent = $cache->getRawFile($cacheFilePath);
 
             if ($rawContent === false) {
-                error_log("Activities cache: Failed to read cache file: $cacheFilePath");
+                error_log("Activities cache: Failed to read encrypted cache file: $cacheFilePath");
                 return [
                     'code'          => 200,
                     'data'          => [],
@@ -492,12 +496,13 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
     );
 
     if ($response['code'] === 200 && isset($response['data']['activities'])) {
-        $cacheWriteResult = file_put_contents($cacheFile, json_encode($response['data']));
+        global $cache;
+        $cacheWriteResult = $cache->setRawFile($cacheFile, json_encode($response['data']));
         if ($cacheWriteResult === false) {
-            error_log("Activities cache: Failed to write cache file: $cacheFile");
+            error_log("Activities cache: Failed to write encrypted cache file: $cacheFile");
         } else {
             $activityCount = count($response['data']['activities'] ?? []);
-            error_log("Activities cache: Successfully cached $activityCount activities to: $cacheFile (size: $cacheWriteResult bytes)");
+            error_log("Activities cache: Successfully cached $activityCount activities to encrypted file: $cacheFile");
         }
 
         $formatted = [];
@@ -570,6 +575,7 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
 
     public function getActivityDetails(int $logId): \SimpleXMLElement
     {
+        global $cache;
         $cacheFile = __DIR__ . "/cache/{$logId}.tcx";
 
         // Fetch & cache if missing
@@ -583,12 +589,19 @@ public function getActivities($beforeDate = null, $limit = null, $offset = 0): a
                 throw new \Exception("Failed fetching TCX (HTTP {$resp['code']})");
             }
 
-            @mkdir(dirname($cacheFile), 0755, true);
-            file_put_contents($cacheFile, $resp['data']);  // now contains XML :contentReference[oaicite:9]{index=9}
+            // Use encrypted cache to save TCX file
+            $cache->setRawFile($cacheFile, $resp['data']);
         }
 
         libxml_use_internal_errors(true);
-        $tcx = simplexml_load_file($cacheFile);
+
+        // Use encrypted cache to read TCX file
+        $tcxContent = $cache->getRawFile($cacheFile);
+        if ($tcxContent === false) {
+            throw new \Exception("Failed reading cached TCX for logId {$logId}");
+        }
+
+        $tcx = simplexml_load_string($tcxContent);
         if ($tcx === false) {
             throw new \Exception("Failed parsing TCX for logId {$logId}");
         }
@@ -866,7 +879,7 @@ if ($request && $fitbitClient->isAuthenticated()) {
                 $result = $cache->remember($details_cache_key, function() use ($fitbitClient, $activityId, $cache) {
                     // Try to reuse activity info from main activities cache first
                     $activities_cache_key = "activities_main_list";
-                    $cached_activities = $cache->get($activities_cache_key, SimpleCache::TTL_NORMAL);
+                    $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
 
                     $activityName = 'Activity';
                     if ($cached_activities && isset($cached_activities['data'])) {
@@ -920,7 +933,7 @@ if ($request && $fitbitClient->isAuthenticated()) {
                         'chartData' => $chartData
                     ];
 
-                }, SimpleCache::TTL_STATIC, ['tags' => ['activities', 'details', $activityId]]);
+                }, EncryptedCache::TTL_STATIC, ['tags' => ['activities', 'details', $activityId]]);
 
                 echo json_encode($result);
 
@@ -948,7 +961,7 @@ if ($request && $fitbitClient->isAuthenticated()) {
                 $activityData = $cache->remember($cache_key, function() use ($fitbitClient, $activityId, $cache) {
                     // First try to get activity info from the main activities cache
                     $activities_cache_key = "activities_main_list";
-                    $cached_activities = $cache->get($activities_cache_key, SimpleCache::TTL_NORMAL);
+                    $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
 
                     $activityInfo = null;
                     if ($cached_activities && isset($cached_activities['data'])) {
@@ -994,7 +1007,7 @@ if ($request && $fitbitClient->isAuthenticated()) {
                         'summary' => $summary
                     ];
 
-                }, SimpleCache::TTL_STATIC, ['tags' => ['activities', 'running', $activityId]]);
+                }, EncryptedCache::TTL_STATIC, ['tags' => ['activities', 'running', $activityId]]);
 
                 $response = ['success' => true, 'data' => $activityData];
 
@@ -1025,14 +1038,14 @@ if (!$request) {
     $activities = [];
     $lastCacheDate = null;
 
-    // Use SimpleCache for the main activities list to share with lazy loading
+    // Use EncryptedCache for the main activities list to share with lazy loading
     $activities_cache_key = "activities_main_list";
 
     $result = $cache->remember($activities_cache_key, function() use ($fitbitClient) {
         $activities = $fitbitClient->getActivities();
         error_log("getActivities returned: " . json_encode($activities));
         return $activities;
-    }, SimpleCache::TTL_NORMAL, ['tags' => ['activities', 'list']]);
+    }, EncryptedCache::TTL_NORMAL, ['tags' => ['activities', 'list']]);
 
     if (isset($result['data']) && is_array($result['data'])) {
         $activities = $result['data'];
