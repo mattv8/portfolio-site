@@ -14,12 +14,10 @@
     <script src="js/running.js"></script>
 {/if}
 
-{literal}
-    <script type="text/javascript">
-        // Make authentication status available to JavaScript
-        window.isAuthenticated = {if $authenticated}true{else}false{/if};
-    </script>
-{/literal}
+<script type="text/javascript">
+    // Make authentication status available to JavaScript
+    window.isAuthenticated = {if $authenticated}true{else}false{/if};
+</script>
 
 {if $debug}
     <style>
