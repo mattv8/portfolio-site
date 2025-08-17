@@ -400,7 +400,7 @@ class FitbitOAuthClient
     public function getActivities(int $limit = 20, int $offset = 0): array
     {
         $cacheDir    = __DIR__ . '/fitbit_cache';
-        $limit       = $limit ?? 19; // Default to 18 activities per page
+        $limit       = $limit ?? 18; // Default to 18 activities per page
         $offset      = $offset ?? 0;
 
         if (!is_dir($cacheDir)) {
@@ -576,8 +576,13 @@ class FitbitOAuthClient
         global $cache;
         $cacheFile = __DIR__ . "/fitbit_cache/{$logId}.tcx";
 
-        // Fetch & cache if missing
+        // Fetch & cache if missing - but only if authenticated
         if (!file_exists($cacheFile) || filesize($cacheFile) === 0) {
+            // Prevent API calls for unauthenticated users
+            if (!$this->isAuthenticated()) {
+                throw new \Exception("Activity details not available in cache for unauthenticated user");
+            }
+
             $userId    = $this->credentials['user_id'] ?? '-';
             $endpoint = "/1/user/{$userId}/activities/{$logId}.tcx";
             $params   = ['includePartialTCX' => 'true'];
@@ -839,7 +844,7 @@ if ($request) {
 
     switch ($request) {
         case 'getActivities':
-            $limit = $_GET['limit'] ?? 19;
+            $limit = $_GET['limit'] ?? 18;
             $offset = $_GET['offset'] ?? 0;
 
             // Log access for debugging
