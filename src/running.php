@@ -451,7 +451,11 @@ class FitbitOAuthClient
             $formatted = [];
             foreach (($raw['activities'] ?? []) as $act) {
                 if (stripos($act['activityName'], 'run') !== false) {
-                    $formatted[] = $this->formatActivityForDisplay($act);
+                    $activity = $this->formatActivityForDisplay($act);
+                    // Apply same pace filter as template (pace <= 20 min/mile)
+                    if ($activity['pace'] <= 20) {
+                        $formatted[] = $activity;
+                    }
                 }
             }
             // Sort by most recent first (descending by date/time)
@@ -507,7 +511,11 @@ class FitbitOAuthClient
         $formatted = [];
         foreach ($response['data']['activities'] as $act) {
             if (stripos($act['activityName'], 'run') !== false) {
-                $formatted[] = $this->formatActivityForDisplay($act);
+                $activity = $this->formatActivityForDisplay($act);
+                // Apply same pace filter as template (pace <= 20 min/mile)
+                if ($activity['pace'] <= 20) {
+                    $formatted[] = $activity;
+                }
             }
         }
 

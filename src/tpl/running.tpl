@@ -49,19 +49,17 @@ $(document).ready(function() {
 
 <div class="hexagons running">
     {foreach from=$activities item=activity key=key}
-        {if $activity.pace <= 20}
-            <div class="hex rounded flip button {$activity.activityName|lower|replace:' ':'-'}" onclick="openActivityDetails(this, '{$activity.id}')" data-lazy-load="true" data-identifier="{$activity.id}">
-                <span>{$activity.activityName}<br>{$activity.date}</span>
-                <p class="inner-text-flipped no-wrap">
-                    Time: {$activity.time}<br>
-                    Date: {$activity.date}<br>
-                    Distance: {$activity.distance} mi<br>
-                    Duration: {$activity.duration}<br>
-                    Pace: {$activity.paceFormatted} min/mi<br>
-                    Activity: {$activity.activityName}<br>
-                </p>
-            </div>
-        {/if}
+        <div class="hex rounded flip button {$activity.activityName|lower|replace:' ':'-'}" onclick="openActivityDetails(this, '{$activity.id}')" data-lazy-load="true" data-identifier="{$activity.id}">
+            <span>{$activity.activityName}<br>{$activity.date}</span>
+            <p class="inner-text-flipped no-wrap">
+                Time: {$activity.time}<br>
+                Date: {$activity.date}<br>
+                Distance: {$activity.distance} mi<br>
+                Duration: {$activity.duration}<br>
+                Pace: {$activity.paceFormatted} min/mi<br>
+                Activity: {$activity.activityName}<br>
+            </p>
+        </div>
     {/foreach}
 </div>
 
