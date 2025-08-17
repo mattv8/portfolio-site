@@ -7,6 +7,9 @@ require_once(__DIR__ . '/conf/config.php');
 require_once(__DIR__ . '/lib/functions.php');
 require_once(__DIR__ . '/lib/encrypted_cache.php');
 
+// Running page configuration
+define('INITIAL_HEXAGONS_COUNT', 18); // Number of hexagons loaded on initial page load
+
 // Initialize encrypted cache for lazy loading and performance optimization
 $cache = new EncryptedCache($_SERVER['DOCUMENT_ROOT'] . '/fitbit_cache', EncryptedCache::TTL_NORMAL, $encryption_key);
 
@@ -397,10 +400,9 @@ class FitbitOAuthClient
     // Get list of activities (runs) with cache handling and delta-sync
     // Unauthenticated users get cached data only (no cache invalidation)
     // Authenticated users get fresh data and update cache
-    public function getActivities(int $limit = 20, int $offset = 0): array
+    public function getActivities(int $limit = INITIAL_HEXAGONS_COUNT, int $offset = 0): array
     {
         $cacheDir    = __DIR__ . '/fitbit_cache';
-        $limit       = $limit ?? 18; // Default to 18 activities per page
         $offset      = $offset ?? 0;
 
         if (!is_dir($cacheDir)) {
@@ -844,7 +846,7 @@ if ($request) {
 
     switch ($request) {
         case 'getActivities':
-            $limit = $_GET['limit'] ?? 18;
+            $limit = $_GET['limit'] ?? INITIAL_HEXAGONS_COUNT;
             $offset = $_GET['offset'] ?? 0;
 
             // Log access for debugging
@@ -972,7 +974,7 @@ if ($request) {
 
                     // If not in cache, fetch activities (this will also update the cache)
                     if ($activityName === 'Activity') {
-                        $activities = $fitbitClient->getActivities(null, 20);
+                        $activities = $fitbitClient->getActivities(null, INITIAL_HEXAGONS_COUNT);
                         // Update the main activities cache
                         $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
 
