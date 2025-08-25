@@ -28,6 +28,17 @@ class SimpleCache {
     }
 
     /**
+     * Debug logging for cache operations
+     * @param string $message Debug message
+     */
+    private function debug_log($message) {
+        global $debug;
+        if (isset($debug) && $debug === true) {
+            error_log("SimpleCache: " . $message);
+        }
+    }
+
+    /**
      * Get cached data if it exists and hasn't expired
      * @param string $key Cache key
      * @param int|null $max_age Maximum age in seconds (null uses default)
@@ -43,6 +54,7 @@ class SimpleCache {
 
         $file_age = time() - filemtime($cache_file);
         if ($file_age > $max_age) {
+            error_log("Deleting expired cache file: $cache_file (age: {$file_age}s, max_age: {$max_age}s)");
             @unlink($cache_file); // Delete expired file immediately
             return null;
         }
@@ -50,6 +62,7 @@ class SimpleCache {
         $data = file_get_contents($cache_file);
         if ($data === false) {
             error_log("SimpleCache: Failed to read cache file: $cache_file (key: $key)");
+            error_log("Deleting unreadable cache file: $cache_file (key: $key)");
             @unlink($cache_file); // Delete corrupted file
             return null;
         }
@@ -59,6 +72,7 @@ class SimpleCache {
             $file_size = filesize($cache_file);
             $data_preview = substr($data, 0, 200);
             error_log("SimpleCache: Corrupted cache file detected and deleted: $cache_file (key: $key, size: $file_size bytes, preview: " . addslashes($data_preview) . ")");
+            error_log("Deleting corrupted cache file: $cache_file (key: $key, size: $file_size bytes)");
             @unlink($cache_file); // Delete corrupted file
             return null;
         }
@@ -140,7 +154,11 @@ class SimpleCache {
      */
     public function delete($key) {
         $cache_file = $this->getCacheFilePath($key);
-        return file_exists($cache_file) ? @unlink($cache_file) : true;
+        if (file_exists($cache_file)) {
+            error_log("Explicitly deleting cache file: $cache_file (key: $key)");
+            return @unlink($cache_file);
+        }
+        return true;
     }
 
     /**
@@ -180,6 +198,7 @@ class SimpleCache {
         foreach ($files as $file) {
             $file_age = $current_time - filemtime($file);
             if ($file_age > $max_age) {
+                error_log("Cleanup deleting expired file: $file (age: {$file_age}s, max_age: {$max_age}s)");
                 if (@unlink($file)) {
                     $cleared++;
                 }
@@ -198,6 +217,7 @@ class SimpleCache {
         $files = glob($this->cache_dir . '/*.cache');
 
         foreach ($files as $file) {
+            error_log("Flush deleting cache file: $file");
             if (@unlink($file)) {
                 $cleared++;
             }

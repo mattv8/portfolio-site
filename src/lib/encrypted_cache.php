@@ -36,6 +36,17 @@ class EncryptedCache {
     }
 
     /**
+     * Debug logging for cache operations
+     * @param string $message Debug message
+     */
+    private function debug_log($message) {
+        global $debug;
+        if (isset($debug) && $debug === true) {
+            error_log("EncryptedCache: " . $message);
+        }
+    }
+
+    /**
      * Determine if a file should be encrypted based on its extension or content type
      * @param string $key Cache key or filename
      * @param mixed $data Data being cached (to detect JSON)
@@ -94,6 +105,7 @@ class EncryptedCache {
 
         $file_age = time() - filemtime($cache_file);
         if ($file_age > $max_age) {
+            error_log("Deleting expired cache file: $cache_file (age: {$file_age}s, max_age: {$max_age}s)");
             @unlink($cache_file);
             return null;
         }
@@ -108,6 +120,7 @@ class EncryptedCache {
 
         if ($data === false) {
             error_log("EncryptedCache: Failed to read cache file: $cache_file (key: $key)");
+            error_log("Deleting unreadable cache file: $cache_file (key: $key)");
             @unlink($cache_file);
             return null;
         }
@@ -270,7 +283,11 @@ class EncryptedCache {
      */
     public function delete($key) {
         $cache_file = $this->getCacheFilePath($key);
-        return file_exists($cache_file) ? @unlink($cache_file) : true;
+        if (file_exists($cache_file)) {
+            error_log("Explicitly deleting cache file: $cache_file (key: $key)");
+            return @unlink($cache_file);
+        }
+        return true;
     }
 
     /**
@@ -303,6 +320,7 @@ class EncryptedCache {
             if (is_file($file)) {
                 $file_age = time() - filemtime($file);
                 if ($file_age > $max_age) {
+                    error_log("Cleanup deleting expired file: $file (age: {$file_age}s, max_age: {$max_age}s)");
                     if (@unlink($file)) {
                         $cleared++;
                     }
@@ -367,8 +385,11 @@ class EncryptedCache {
         $files = glob($this->cache_dir . '/*');
 
         foreach ($files as $file) {
-            if (is_file($file) && @unlink($file)) {
-                $cleared++;
+            if (is_file($file)) {
+                error_log("Flush deleting cache file: $file");
+                if (@unlink($file)) {
+                    $cleared++;
+                }
             }
         }
 
