@@ -865,15 +865,15 @@ if ($request) {
 
     switch ($request) {
         case 'getActivities':
-            $limit = $_GET['limit'] ?? INITIAL_HEXAGONS_COUNT;
-            $offset = $_GET['offset'] ?? 0;
+            $limit = (int)($_GET['limit'] ?? INITIAL_HEXAGONS_COUNT);
+            $offset = (int)($_GET['offset'] ?? 0);
 
             // Log access for debugging
             if (!$fitbitClient->isAuthenticated()) {
                 debug_log("Unauthenticated user requesting activities (limit: {$limit}, offset: {$offset}) - will serve cached data only");
             }
 
-            $result = $fitbitClient->getActivities(null, $limit, $offset);
+            $result = $fitbitClient->getActivities($limit, $offset);
 
             if ($result['code'] === 200) {
                 $response = [
@@ -993,7 +993,7 @@ if ($request) {
 
                     // If not in cache, fetch activities (this will also update the cache)
                     if ($activityName === 'Activity') {
-                        $activities = $fitbitClient->getActivities(null, INITIAL_HEXAGONS_COUNT);
+                        $activities = $fitbitClient->getActivities(INITIAL_HEXAGONS_COUNT);
                         // Update the main activities cache
                         $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
 
@@ -1083,7 +1083,7 @@ if ($request) {
 
                     // If not found in cache, fetch fresh data
                     if (!$activityInfo) {
-                        $activities = $fitbitClient->getActivities(null, 50);
+                        $activities = $fitbitClient->getActivities(50);
 
                         // Cache the activities list for future use
                         $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
