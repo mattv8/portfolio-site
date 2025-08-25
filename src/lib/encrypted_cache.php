@@ -11,7 +11,6 @@ class EncryptedCache {
     private $default_ttl;
     private $encryption;
     private $encrypted_extensions = ['tcx', 'json']; // File extensions to encrypt
-    private static $cleanup_probability = 10;
 
     // Predefined cache TTL constants
     const TTL_FAST = 60;        // 1 minute
@@ -33,7 +32,7 @@ class EncryptedCache {
             mkdir($this->cache_dir, 0755, true);
         }
 
-        $this->probabilisticCleanup();
+        // No automatic/probabilistic cleanup - cleanup only occurs when explicitly called
     }
 
     /**
@@ -116,12 +115,10 @@ class EncryptedCache {
         // If it's serialized data, unserialize it
         $unserialized = @unserialize($data);
         if ($unserialized !== false) {
-            $this->probabilisticCleanup();
             return isset($unserialized['data']) ? $unserialized['data'] : $unserialized;
         }
 
         // Return raw data for non-serialized content (like TCX/JSON files)
-        $this->probabilisticCleanup();
         return $data;
     }
 
@@ -204,7 +201,6 @@ class EncryptedCache {
             }
         }
 
-        $this->probabilisticCleanup();
         return $result;
     }
 
@@ -293,17 +289,9 @@ class EncryptedCache {
     }
 
     /**
-     * Probabilistic cleanup to avoid performance impact
-     */
-    private function probabilisticCleanup() {
-        if (rand(1, self::$cleanup_probability) === 1) {
-            $this->cleanup();
-        }
-    }
-
-    /**
      * Clear expired cache files
-     * @param int|null $max_age Maximum age for cleanup
+     * Note: This method is only called when explicitly invoked - no automatic cleanup
+     * @param int|null $max_age Maximum age for cleanup (uses default_ttl if null)
      * @return int Number of files cleared
      */
     public function cleanup($max_age = null) {

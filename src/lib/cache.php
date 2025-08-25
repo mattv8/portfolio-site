@@ -7,7 +7,6 @@
 class SimpleCache {
     private $cache_dir;
     private $default_ttl;
-    private static $cleanup_probability = 10; // 1 in 10 chance of running cleanup on operations
 
     // Predefined cache TTL constants for different data types
     const TTL_FAST = 60;         // 1 minute - for rapidly changing data
@@ -25,8 +24,7 @@ class SimpleCache {
             mkdir($this->cache_dir, 0755, true);
         }
 
-        // Probabilistic cleanup on instantiation
-        $this->probabilisticCleanup();
+        // No automatic/probabilistic cleanup - cleanup only occurs when explicitly called
     }
 
     /**
@@ -64,9 +62,6 @@ class SimpleCache {
             @unlink($cache_file); // Delete corrupted file
             return null;
         }
-
-        // Probabilistic cleanup after successful read
-        $this->probabilisticCleanup();
 
         return isset($unserialized['data']) ? $unserialized['data'] : $unserialized;
     }
@@ -114,9 +109,6 @@ class SimpleCache {
         ];
 
         $result = file_put_contents($cache_file, serialize($cache_data));
-
-        // Probabilistic cleanup after write
-        $this->probabilisticCleanup();
 
         return $result !== false;
     }
@@ -195,38 +187,6 @@ class SimpleCache {
         }
 
         return $cleared;
-    }
-
-    /**
-     * Probabilistic cleanup - runs cleanup with a small probability on each operation
-     * This ensures expired files are cleaned up regularly without impacting performance
-     */
-    private function probabilisticCleanup() {
-        // Run cleanup with 1/N probability
-        if (random_int(1, self::$cleanup_probability) === 1) {
-            $this->cleanupFast();
-        }
-    }
-
-    /**
-     * Fast cleanup that only removes obviously expired files
-     * Uses file modification time only to avoid reading file contents
-     */
-    private function cleanupFast() {
-        $current_time = time();
-        $files = glob($this->cache_dir . '/*.cache');
-
-        // Only process a subset of files to keep it fast
-        $max_files_to_check = 20;
-        $files_to_check = array_slice($files, 0, $max_files_to_check);
-
-        foreach ($files_to_check as $file) {
-            $file_age = $current_time - filemtime($file);
-            // Use conservative cleanup - only remove files older than 2x default TTL
-            if ($file_age > ($this->default_ttl * 2)) {
-                @unlink($file);
-            }
-        }
     }
 
     /**
