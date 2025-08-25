@@ -10,11 +10,12 @@ class SimpleCache {
     private static $cleanup_probability = 10; // 1 in 10 chance of running cleanup on operations
 
     // Predefined cache TTL constants for different data types
-    const TTL_FAST = 60;        // 1 minute - for rapidly changing data
-    const TTL_NORMAL = 300;     // 5 minutes - for moderately changing data
-    const TTL_SLOW = 900;       // 15 minutes - for slowly changing data
-    const TTL_STATIC = 3600;    // 1 hour - for relatively static data
-    const TTL_DAILY = 86400;    // 24 hours - for daily data
+    const TTL_FAST = 60;         // 1 minute - for rapidly changing data
+    const TTL_NORMAL = 300;      // 5 minutes - for moderately changing data
+    const TTL_SLOW = 900;        // 15 minutes - for slowly changing data
+    const TTL_STATIC = 3600;     // 1 hour - for relatively static data
+    const TTL_DAILY = 86400;     // 24 hours - for daily data
+    const TTL_MONTHLY = 2592000; // 30 days - for very static data like activity details
 
     public function __construct($cache_dir = null, $default_ttl = self::TTL_NORMAL) {
         $this->cache_dir = $cache_dir ?: $_SERVER['DOCUMENT_ROOT'] . '/cache';
@@ -66,6 +67,33 @@ class SimpleCache {
 
         // Probabilistic cleanup after successful read
         $this->probabilisticCleanup();
+
+        return isset($unserialized['data']) ? $unserialized['data'] : $unserialized;
+    }
+
+    /**
+     * Get cached data without expiry check (for unauthenticated users)
+     * @param string $key Cache key
+     * @return mixed|null Cached data or null if not found
+     */
+    public function getNoExpiry($key) {
+        $cache_file = $this->getCacheFilePath($key);
+
+        if (!file_exists($cache_file)) {
+            return null;
+        }
+
+        $data = file_get_contents($cache_file);
+        if ($data === false) {
+            error_log("SimpleCache: Failed to read cache file: $cache_file (key: $key)");
+            return null;
+        }
+
+        $unserialized = @unserialize($data);
+        if ($unserialized === false) {
+            error_log("SimpleCache: Corrupted cache file detected: $cache_file (key: $key)");
+            return null;
+        }
 
         return isset($unserialized['data']) ? $unserialized['data'] : $unserialized;
     }

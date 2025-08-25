@@ -19,6 +19,7 @@ class EncryptedCache {
     const TTL_SLOW = 900;       // 15 minutes
     const TTL_STATIC = 3600;    // 1 hour
     const TTL_DAILY = 86400;    // 24 hours
+    const TTL_MONTHLY = 2592000; // 30 days
 
     public function __construct($cache_dir = null, $default_ttl = self::TTL_NORMAL, $encryption_key = null) {
         $this->cache_dir = $cache_dir ?: $_SERVER['DOCUMENT_ROOT'] . '/cache';
@@ -121,6 +122,41 @@ class EncryptedCache {
 
         // Return raw data for non-serialized content (like TCX/JSON files)
         $this->probabilisticCleanup();
+        return $data;
+    }
+
+    /**
+     * Get cached data without expiry check (for unauthenticated users)
+     * @param string $key Cache key
+     * @return mixed|null Cached data or null if not found
+     */
+    public function getNoExpiry($key) {
+        $cache_file = $this->getCacheFilePath($key);
+
+        if (!file_exists($cache_file)) {
+            return null;
+        }
+
+        // Try to read and decrypt if needed
+        $data = null;
+        if ($this->encryption && $this->encryption->isEncrypted($cache_file)) {
+            $data = $this->encryption->decryptFromFile($cache_file);
+        } else {
+            $data = file_get_contents($cache_file);
+        }
+
+        if ($data === false) {
+            error_log("EncryptedCache: Failed to read cache file: $cache_file (key: $key)");
+            return null;
+        }
+
+        // If it's serialized data, unserialize it
+        $unserialized = @unserialize($data);
+        if ($unserialized !== false) {
+            return isset($unserialized['data']) ? $unserialized['data'] : $unserialized;
+        }
+
+        // Return raw data for non-serialized content (like TCX/JSON files)
         return $data;
     }
 

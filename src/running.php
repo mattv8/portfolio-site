@@ -908,66 +908,17 @@ if ($request) {
                 // Use comprehensive caching for activity details since TCX parsing is expensive
                 $details_cache_key = "activity_details_{$activityId}";
 
-                // For unauthenticated users, try cache only (no fresh API calls)
+                // For unauthenticated users, try cache with no expiry
                 if (!$fitbitClient->isAuthenticated()) {
                     debug_log("Unauthenticated user requesting activity details for ID: {$activityId}");
 
-                    // First try the comprehensive application cache
-                    $cached_result = $cache->get($details_cache_key, EncryptedCache::TTL_STATIC);
+                    $cached_result = $cache->getNoExpiry($details_cache_key);
                     if ($cached_result) {
                         debug_log("Serving cached activity details for unauthenticated user: {$activityId}");
                         echo json_encode($cached_result);
                         exit;
-                    }
-
-                    // If no application cache, try to build result
-                    try {
-                        // Get activity type from activities cache if available
-                        $activityName = 'Activity';
-                        $activities_cache_key = "activities_main_list";
-                        $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
-                        if ($cached_activities && isset($cached_activities['data'])) {
-                            foreach ($cached_activities['data'] as $activity) {
-                                if ($activity['id'] == $activityId) {
-                                    $activityName = $activity['type'] ?? 'Activity';
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Use existing getActivitySummary method which handles TCX file reading
-                        $summary = $fitbitClient->getActivitySummary($activityId);
-                        $summary['activityType'] = $activityName; // Add activity type to summary
-
-                        // Try to get chart data
-                        $chartData = null;
-                        try {
-                            $heartRate = $fitbitClient->getHeartRateTimeSeries($activityId);
-                            if (!empty($heartRate)) {
-                                $chartData = [
-                                    'labels' => array_column($heartRate, 'time'),
-                                    'heartRate' => array_column($heartRate, 'value'),
-                                    'spo2' => [],
-                                    'temperature' => []
-                                ];
-                            }
-                        } catch (Exception $chartError) {
-                            // Chart data not available, but summary is still valid
-                            debug_log("Chart data not available for unauthenticated user {$activityId}: " . $chartError->getMessage());
-                        }
-
-                        $result = [
-                            'status' => 'success',
-                            'summary' => $summary,
-                            'chartData' => $chartData
-                        ];
-
-                        debug_log("Successfully built activity details from existing methods for unauthenticated user: {$activityId}");
-                        echo json_encode($result);
-                        exit;
-
-                    } catch (Exception $e) {
-                        debug_log("Failed to get activity details for unauthenticated user {$activityId}: " . $e->getMessage());
+                    } else {
+                        debug_log("No cached activity details available for unauthenticated user: {$activityId}");
                         echo json_encode([
                             'status'  => 'error',
                             'message' => 'Activity details not available in cache.'
@@ -976,7 +927,10 @@ if ($request) {
                     }
                 }
 
+                // For authenticated users: Use 30-day cache, only fetch if doesn't exist
                 $result = $cache->remember($details_cache_key, function() use ($fitbitClient, $activityId, $cache) {
+                    debug_log("Fetching fresh activity details for authenticated user: {$activityId}");
+
                     // Try to reuse activity info from main activities cache first
                     $activities_cache_key = "activities_main_list";
                     $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
@@ -1033,7 +987,30 @@ if ($request) {
                         'chartData' => $chartData
                     ];
 
-                }, EncryptedCache::TTL_STATIC, ['tags' => ['activities', 'details', $activityId]]);
+                    // Extract detailed data series from TCX (very expensive operations)
+                    $heartRate    = $fitbitClient->getHeartRateTimeSeries($activityId);
+                    $spo2         = $fitbitClient->getSpO2Data($activityId);
+                    $temperature  = $fitbitClient->getTemperatureData($activityId);
+
+                    // Build response
+                    $chartData = null;
+                    if (!empty($heartRate)) {
+                        $chartData = [
+                            'labels' => array_column($heartRate, 'time'),
+                            'heartRate' => array_column($heartRate, 'value'),
+                            'spo2' => !empty($spo2) ? array_column($spo2, 'value') : [],
+                            'temperature' => !empty($temperature) ? array_column($temperature, 'value') : []
+                        ];
+                    }
+
+                    $summary = $fitbitClient->getActivitySummary($activityId);
+                    $summary['activityType'] = $activityName;
+
+                    return [
+                        'status' => 'success',
+                        'summary' => $summary,
+                        'chartData' => $chartData
+                    ];                }, EncryptedCache::TTL_MONTHLY, ['tags' => ['activities', 'details', $activityId]]);
 
                 echo json_encode($result);
 
@@ -1055,75 +1032,83 @@ if ($request) {
             }
 
             try {
-                // Use longer cache TTL for activity summaries since they don't change often
+                // Use 1-hour cache TTL for activity summaries since they change frequently
                 $cache_key = "activity_summary_{$activityId}";
 
-                $activityData = $cache->remember($cache_key, function() use ($fitbitClient, $activityId, $cache) {
-                    // For unauthenticated users, return null to skip cache population
-                    if (!$fitbitClient->isAuthenticated()) {
-                        debug_log("Skipping cache population for unauthenticated user: {$activityId}");
-                        return null;
+                // For unauthenticated users, try cache with no expiry
+                if (!$fitbitClient->isAuthenticated()) {
+                    debug_log("Unauthenticated user requesting activity summary for ID: {$activityId}");
+
+                    $activityData = $cache->getNoExpiry($cache_key);
+                    if ($activityData) {
+                        debug_log("Activity summary served from cache (no expiry) for ID: {$activityId}");
+                        $response = ['success' => true, 'data' => $activityData];
+                    } else {
+                        debug_log("No cached activity summary available for unauthenticated user: {$activityId}");
+                        $response = ['success' => false, 'error' => 'Activity summary not available in cache.'];
                     }
+                } else {
+                    // For authenticated users: Use 1-hour cache
+                    $activityData = $cache->remember($cache_key, function() use ($fitbitClient, $activityId, $cache) {
+                        debug_log("Authenticated user - populating activity summary cache for ID: {$activityId}");
 
-                    debug_log("Authenticated user - populating activity summary cache for ID: {$activityId}");
+                        // First try to get activity info from the main activities cache
+                        $activities_cache_key = "activities_main_list";
+                        $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
 
-                    // First try to get activity info from the main activities cache
-                    $activities_cache_key = "activities_main_list";
-                    $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
-
-                    $activityInfo = null;
-                    if ($cached_activities && isset($cached_activities['data'])) {
-                        foreach ($cached_activities['data'] as $activity) {
-                            if ($activity['id'] == $activityId) {
-                                $activityInfo = $activity;
-                                break;
-                            }
-                        }
-                    }
-
-                    // If not found in cache, fetch fresh data
-                    if (!$activityInfo) {
-                        $activities = $fitbitClient->getActivities(50);
-
-                        // Cache the activities list for future use
-                        $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
-
-                        if (isset($activities['data'])) {
-                            foreach ($activities['data'] as $activity) {
+                        $activityInfo = null;
+                        if ($cached_activities && isset($cached_activities['data'])) {
+                            foreach ($cached_activities['data'] as $activity) {
                                 if ($activity['id'] == $activityId) {
                                     $activityInfo = $activity;
                                     break;
                                 }
                             }
                         }
+
+                        // If not found in cache, fetch fresh data
+                        if (!$activityInfo) {
+                            $activities = $fitbitClient->getActivities(50);
+
+                            // Cache the activities list for future use
+                            $cache->set($activities_cache_key, $activities, ['tags' => ['activities', 'list']]);
+
+                            if (isset($activities['data'])) {
+                                foreach ($activities['data'] as $activity) {
+                                    if ($activity['id'] == $activityId) {
+                                        $activityInfo = $activity;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!$activityInfo) {
+                            throw new Exception('Activity not found');
+                        }
+
+                        // Get detailed activity summary
+                        $summary = $fitbitClient->getActivitySummary($activityId);
+
+                        return [
+                            'activityType' => $activityInfo['type'] ?? 'Activity',
+                            'distance' => $summary['distanceMiles'] ?? 0,
+                            'duration' => $summary['durationFormatted'] ?? '0:00',
+                            'pace' => $summary['paceFormatted'] ?? '--',
+                            'calories' => $summary['calories'] ?? 0,
+                            'date' => $activityInfo['date'] ?? date('Y-m-d'),
+                            'summary' => $summary
+                        ];
+
+                    }, EncryptedCache::TTL_STATIC, ['tags' => ['activities', 'running', $activityId]]);
+
+                    if ($activityData) {
+                        debug_log("Activity summary served from cache for authenticated user: {$activityId}");
+                        $response = ['success' => true, 'data' => $activityData];
+                    } else {
+                        debug_log("Failed to get activity summary for authenticated user: {$activityId}");
+                        $response = ['success' => false, 'error' => 'Activity summary not available.'];
                     }
-
-                    if (!$activityInfo) {
-                        throw new Exception('Activity not found');
-                    }
-
-                    // Get detailed activity summary
-                    $summary = $fitbitClient->getActivitySummary($activityId);
-
-                    return [
-                        'activityType' => $activityInfo['type'] ?? 'Activity',
-                        'distance' => $summary['distanceMiles'] ?? 0,
-                        'duration' => $summary['durationFormatted'] ?? '0:00',
-                        'pace' => $summary['paceFormatted'] ?? '--',
-                        'calories' => $summary['calories'] ?? 0,
-                        'date' => $activityInfo['date'] ?? date('Y-m-d'),
-                        'summary' => $summary
-                    ];
-
-                }, EncryptedCache::TTL_STATIC, ['tags' => ['activities', 'running', $activityId]]);
-
-                // Handle result for both authenticated and unauthenticated users
-                if ($activityData) {
-                    error_log("Activity summary served from cache for ID: {$activityId}");
-                    $response = ['success' => true, 'data' => $activityData];
-                } else {
-                    error_log("No cached activity summary available for ID: {$activityId}");
-                    $response = ['success' => false, 'error' => 'Activity summary not available in cache.'];
                 }
 
             } catch (Exception $e) {
