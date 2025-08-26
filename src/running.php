@@ -933,7 +933,7 @@ if ($request) {
 
                     // Try to reuse activity info from main activities cache first
                     $activities_cache_key = "activities_main_list";
-                    $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
+                    $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_STATIC);
 
                     $activityName = 'Activity';
                     if ($cached_activities && isset($cached_activities['data'])) {
@@ -1054,7 +1054,7 @@ if ($request) {
 
                         // First try to get activity info from the main activities cache
                         $activities_cache_key = "activities_main_list";
-                        $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
+                        $cached_activities = $cache->get($activities_cache_key, EncryptedCache::TTL_STATIC);
 
                         $activityInfo = null;
                         if ($cached_activities && isset($cached_activities['data'])) {
@@ -1143,7 +1143,8 @@ if (!$request) {
 
     // Only clear stale empty cache if user is authenticated (unauthenticated users can't refetch)
     if ($fitbitClient->isAuthenticated()) {
-        $cached = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
+        // For authenticated users, use longer TTL for main activities cache (1 hour)
+        $cached = $cache->get($activities_cache_key, EncryptedCache::TTL_STATIC);
         if ($cached !== null && isset($cached['data']) && empty($cached['data'])) {
             // We're authenticated but have empty cached data - clear it to force fresh fetch
             debug_log("Authenticated user: Clearing stale empty activities cache to force fresh fetch");
@@ -1152,7 +1153,14 @@ if (!$request) {
     }
 
     // Try to get from cache first
-    $result = $cache->get($activities_cache_key, EncryptedCache::TTL_NORMAL);
+    // Use different TTLs based on authentication status
+    if ($fitbitClient->isAuthenticated()) {
+        // Authenticated users: Use 1-hour TTL for main activities cache
+        $result = $cache->get($activities_cache_key, EncryptedCache::TTL_STATIC);
+    } else {
+        // Unauthenticated users: Use no expiry to get permanent cache
+        $result = $cache->getNoExpiry($activities_cache_key);
+    }
 
     if ($result === null) {
         // No cache, fetch fresh data (only if authenticated)
