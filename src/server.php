@@ -43,6 +43,17 @@ if (!isset($_GET['action'])) {
 # Influx Config
 #==============================================================================
 
+/**
+ * Debug logging function that only logs when debug mode is enabled
+ * @param string $message The message to log
+ */
+function debug_log($message) {
+    global $debug;
+    if ($debug === true) {
+        error_log($message);
+    }
+}
+
 // Load the InfluxDB library
 use InfluxDB2\Client;
 use InfluxDB2\Model\WritePrecision;
@@ -215,14 +226,17 @@ function getServerDetails($host, $queryApi, $cache) {
         $HAdays = 30; // days to calculate availability
         $samp = 10; // Samples every 10 seconds
 
-        // Availability queries for this specific host
+        debug_log("DEBUG: Starting availability calculation for host: $host");
+
+        // Availability queries for this specific host - fixed to match original working logic
         $q_running = 'from(bucket: "proxmox")
             |> range(start: -' . $HAdays . 'd)
             |> filter(fn: (r) => r["host"] == "' . $host . '")
             |> filter(fn: (r) => r["_measurement"] == "system")
             |> filter(fn: (r) => r["_field"] == "status")
             |> filter(fn: (r) => r["_value"] == "running")
-            |> count()';
+            |> count()
+            |> yield(name: "running")';
 
         $q_stopped = 'from(bucket: "proxmox")
             |> range(start: -' . $HAdays . 'd)
@@ -230,7 +244,8 @@ function getServerDetails($host, $queryApi, $cache) {
             |> filter(fn: (r) => r["_measurement"] == "system")
             |> filter(fn: (r) => r["_field"] == "status")
             |> filter(fn: (r) => r["_value"] == "stopped")
-            |> count()';
+            |> count()
+            |> yield(name: "stopped")';
 
         // Current system info for this host
         $q_current = 'from(bucket: "proxmox")
@@ -249,29 +264,41 @@ function getServerDetails($host, $queryApi, $cache) {
             'loaded' => true
         ];
 
-        // Process availability data
+        // Process availability data - sum all counts in case of multiple results
         $running_count = 0;
         $stopped_count = 0;
 
+        // Count running records - sum all results
         foreach ($r_running->each() as $record) {
-            $running_count = $record->getValue();
+            $count = $record->getValue();
+            $running_count += $count;
         }
 
+        // Count stopped records - sum all results
         foreach ($r_stopped->each() as $record) {
-            $stopped_count = $record->getValue();
+            $count = $record->getValue();
+            $stopped_count += $count;
         }
 
-        // Calculate availability
+        // Calculate availability using the same logic as the original working version
         $total_samples = $HAdays * 60 * 24 * (60 / $samp);
-        $delta = max(0, $total_samples - ($running_count + $stopped_count));
+        $delta = $total_samples - ($running_count + $stopped_count);
+        $delta = max(0, $delta); // Ensure delta is not negative
 
+        debug_log("DEBUG: Host $host - Total expected samples: $total_samples, Running: $running_count, Stopped: $stopped_count, Delta (missing): $delta");
+
+        // Calculate availability, handle division by zero
         if (($running_count + $stopped_count + $delta) != 0) {
             $availability = $running_count / ($running_count + $stopped_count + $delta);
         } else {
             $availability = 0;
         }
 
-        $server_data['availability'] = number_format($availability, 6);
+        $server_data['availability'] = number_format($availability, 4);
+        $server_data['running_count'] = $running_count;
+        $server_data['stopped_count'] = $stopped_count;
+
+        debug_log("DEBUG: Host $host final availability: " . number_format($availability, 4));
 
         // Process current system info
         foreach ($r_current->each() as $record) {
